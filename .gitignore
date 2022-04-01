@@ -1,0 +1,17 @@
+*
+!*/
+
+!scripts/*
+!git/**
+
+!.gitignore
+!.bash_aliases
+!.bashrc_user
+!.bashrc_wsl
+!.bashrc_linux
+!.sshrc
+!.vimrc
+!.dircolors
+!.gitconfig
+
+!/README.md
