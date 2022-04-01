@@ -1,9 +1,9 @@
 if [[ -f ~/.bash_profile ]]; then
-    . ~/.bash_profile
-    echo prof
+  . ~/.bash_profile
+  echo prof
 else
-    test -f ~/.bashrc && . ~/.bashrc
-    echo rc
+  test -f ~/.bashrc && . ~/.bashrc
+  echo rc
 fi
 
 LESS='-i -R -X -W -S'
@@ -40,8 +40,8 @@ alias dcr='docker-compose down && docker-compose up -d'
 alias dcri='docker-compose down --rmi=all && docker-compose up -d --build'
 alias dcconf='docker-compose config'
 
-helpo (){
-cat << EOS
+helpo() {
+  cat <<EOS
 docker images           imageサイズ
 docker system df        ディスク使用量
 docker system df -v     コンテナごとのサイズ
