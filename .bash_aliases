@@ -13,7 +13,13 @@ alias sudo='sudo '
 alias ..='\cd ..'
 alias relogin='exec $SHELL -l'
 
-if [ -n "$(which wslpath 2>/dev/null)" ]; then
+
+if ! is_mac; then
+  # open app by extension
+  alias open='xdg-open'
+fi
+
+if is_wsl; then
   alias cd='pushd'
   # alias sjisgrep='`echo key | nkf -s` *.txt | nkf -w'
   alias sleep-bear='curl -sS http://pipe-to-sh-poc.herokuapp.com/install.sh | cat'
