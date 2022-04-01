@@ -1,6 +1,4 @@
 # ================ alias =================
-# open app by extension
-alias open='xdg-open'
 
 # =============== env, var ===============
 export WINHOME="/mnt/c/Users/${USER}"

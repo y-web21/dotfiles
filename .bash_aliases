@@ -14,7 +14,7 @@ alias ..='\cd ..'
 alias relogin='exec $SHELL -l'
 
 
-if ! is_mac;
+if ! is_mac; then
   # open app by extension
   alias open='xdg-open'
 fi

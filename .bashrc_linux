@@ -1,6 +1,3 @@
-# open app by extension
-alias open='xdg-open'
-
 # =======================================
 
 if [[ "$(getent passwd vagrant)" != "" && -f /etc/bash_completion.d/git-prompt.sh ]]; then
