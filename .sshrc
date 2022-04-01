@@ -1,0 +1,50 @@
+if [[ -f ~/.bash_profile ]]; then
+    . ~/.bash_profile
+    echo prof
+else
+    test -f ~/.bashrc && . ~/.bashrc
+    echo rc
+fi
+
+LESS='-i -R -X -W -S'
+LESSCHARSET=utf-8
+
+alias l='ls -CF'
+alias la='ls --color=always -AF --time-style=long-iso'
+alias ll='ls --color=always -lF'
+alias ls='ls --color=always'
+alias lla='ls --color=always -AlF --time-style=long-iso'
+alias less='less -X'
+alias grep='grep --color=auto'
+
+PS1='\e[0;33;40m\t\e[1;37;49m \u\e[30;32m@\H \e[39;49m \W \e[0m \! \n\$ '
+
+# docker
+alias drmiall='docker rmi $(docker images -q)'
+alias ddestoroy='docker ps -q | xargs docker stop && docker ps -aq | xargs docker rm && docker images -qa | xargs docker rmi'
+alias dmountedvolume='docker inspect $(docker ps -q ${1}) | grep -i source | tr -d '\'' '\'''
+
+# docker container
+alias dphp='docker exec -it php bash'
+alias dfpmreload='docker exec php ps aux | grep master | sed '\''s/ \+/ /g'\'' | cut -d '\'' '\'' -f 2 | xargs docker exec php kill -USR2'
+alias dmysql='docker exec -it db bash -c '\''mysql -uroot -p'\'''
+alias dnginxreload='docker exec -it nginx bash -c '\''nginx -s reload'\'''
+
+# docker-compose
+alias dcu='docker-compose up -d'
+alias dcub='docker-compose up -d --build'
+alias dcurb='docker-compose up -d --no-deps --build' # 1イメージをのみリビルド
+alias dcd='docker-compose down'
+alias dcdi='docker-compose down --rmi=all'
+alias dcr='docker-compose down && docker-compose up -d'
+alias dcri='docker-compose down --rmi=all && docker-compose up -d --build'
+alias dcconf='docker-compose config'
+
+helpo (){
+cat << EOS
+docker images           imageサイズ
+docker system df        ディスク使用量
+docker system df -v     コンテナごとのサイズ
+docker system prune     使用していないイメージの削除
+EOS
+}

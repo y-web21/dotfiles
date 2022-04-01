@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# テストをパスできなければコミット禁止
+IS_ERROR=0
+
+for FILE in `git diff --name-only | grep -E '*.php$' `; do
+    if ! php -l $FILE; then
+        IS_ERROR=1
+    fi
+done
+
+# syntax error
+if [ $IS_ERROR -eq 1 ]; then
+	exit 1
+fi
+
+if ! ./app/vendor/bin/phpunit -c ./app/phpunit.xml; then
+	exit 1
+fi
+
+exit 0
