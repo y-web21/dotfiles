@@ -94,5 +94,3 @@ alias qfind='find / \( -path /mnt* -o -path /proc* -o -path /var* \) -prune -o -
 # alias qfind='sudo find / -path /mnt* -prune -o -path /proc* -prune -o -print'
 # alias qfind='sudo find / -not -path "/mnt*" -and -not -path "/lib*" -and -not -path "/proc*"'
 alias file-cnt='sudo find / -mindepth 1 -maxdepth 1 -not -path "/mnt*" 2>/dev/null | xargs -i bash -c '\''echo -n '\''{}/ '\'' && sudo find {}/ -type f | wc -l'\'' | sort'
-
-echo 'bashrc [wsl]'
