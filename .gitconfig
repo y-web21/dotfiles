@@ -29,8 +29,8 @@
 	sho = !git show $(git hash ${1}):${2} && :
 	blam = !git blame $(git hash ${1}) -- ${2} && :
 	ptest = !git add . && git commit -m 'test [skip ci]' && git push origin @
-	hash = !git log --oneline --format="%H" | awk NR==${1:-1} && :
-	hasha = !git log --oneline --all --format="%H" | awk NR==${1:-1} && :
+	hash = !git log --oneline --format="%H" | awk NR==$((${1:-1}+1)) && :
+	hasha = !git log --oneline --all --format="%H" | awk NR==$((${1:-1}+1)) && :
 	rm-merged-branch = !git branch --merged | sed -e 's/^\\*.*//' | awk 'NF' | xargs git branch -d
 	logv = log --pretty='format:%C(yellow)%h %C(green)%cd %C(cyan)[%an] %C(reset)%s %C(red)%d' --date=iso
 	alias="!bash -c '\
