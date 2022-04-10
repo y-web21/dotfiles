@@ -1,32 +1,79 @@
+
+" init all settings
+set all&
+" init autocmd
+autocmd!
+
+"------------------------------------
+" Open & Reload .vimrc
+"------------------------------------
+" set foldmethod=expr
+" set modeline
+" command! Evimrc  e $MYVIMRC
+
+augroup source-vimrc
+  autocmd!
+  autocmd BufWritePost *vimrc source $MYVIMRC | set foldmethod=marker
+  autocmd BufWritePost *gvimrc if has('gui_running') source $MYGVIMRC
+augroup END
+
+"------------------------------------
+"
+"------------------------------------
 set nocompatible  " vi vim を別物 プラグインの誤動作を防止
 set encoding=utf-8
 set fileencodings=utf-8,cp932,euc-jp,sjis
 "set fileencodings=iso-2022-jp,enc-jp,enc-jp,sjis,utf-8
 set fileformat=unix
-set expandtab  " tab 2 space
+set shell=/bin/bash
+
+"------------------------------------
+" editor settings
+"------------------------------------
 set tabstop=4
 set shiftwidth=4
-set softtabstop
-set hlsearch
+set expandtab  " tab 2 space
 set showmatch  " 対応カッコをハイライト
-set cindent
-set showcmd
-set ignorecase
-set smartcase  " lower upperのみのときはignorecaseしない
-set number
 set ruler
 set title
-set visualbell
-set backspace
-" set clipboard  " yank to clipboard(not supported)
 set list  " 不可視文字を表示する
 set listchars=tab:>-,trail:.  " タブを >--- 半スペを . で表示する
+set number
+set statusline=%F%m%r%h%w%=\ %{fugitive#statusline()}\ [%{&ff}:%{&fileencoding}]\ [%Y]\ [%04l,%04v]\ [%l/%L]\ %{strftime(\"%Y/%m/%d\ %H:%M:%S\")}
+
+"------------------------------------
+" normal mode settings
+"------------------------------------
+set smartcase  " lower upperのみのときはignorecaseしない
+
+"------------------------------------
+" re-examination
+"------------------------------------
+" set softtabstop
+" set hlsearch
+" set cindent
+" set showcmd
+" set ignorecase
+" set visualbell
+" set backspace
+" set clipboard  " yank to clipboard(not supported)
 language C  " system laguage english
 syntax enable
-set norestorescreen
-set fileformats=unix,dos,mac    " newline char auto reco
+" set norestorescreen
+" set fileformats=unix,dos,mac    " newline char auto reco
+" " set script encoding
+" scriptencoding utf-8
 
+
+"------------------------------------
+" finish loading vimrc if tiny or small version.
+"------------------------------------
+if !1 | finish | endif
+
+
+"------------------------------------
 " nomal mode key binding custumize
+"------------------------------------
 "(nmapは再帰的であるためループになる可能性があるのでnnoremap
 " ソフトラップされた仮想的な行を含めて下にスクロール
 nnoremap j gj
@@ -36,31 +83,16 @@ nnoremap gk k
 " nnoremap ; :
 " nnoremap : ;
 
+"------------------------------------
 " command line key binding
+"------------------------------------
 cnoremap oden q!
-
-" terminal key binding
-" tnoremap x x
 
 " no create temp files
 " set noswapfile
 " set nobackup
 " set noundofile
 " set viminfo=
-
-"
-" if exists('*mkdir') && !isdirectory('~/user/appfiles/vim')
-"   call mkdir('~/user/appfiles/vim')
-" endif
-
-" temp files export destination
-set directory=~/user/appfiles/vim
-set backupdir=~/user/appfiles/vim
-if has('persistent_undo')
-  set undodir=~/user/appfiles/vim
-  set undofile
-endif
-set viminfo+=n~/user/appfiles/vim/viminfo
 
 
 "  augroup highlightIdegraphicSpace
@@ -106,7 +138,6 @@ endif
 " Put these in an autocmd group, so that we can delete them easily.
 augroup vimrcEx
   au!
-
   " For all text files set 'textwidth' to 78 characters.
   autocmd FileType text setlocal textwidth=78
 augroup END
@@ -120,36 +151,50 @@ augroup END
 if has('syntax') && has('eval')
   packadd! matchit
 endif
-set shell=/bin/bash
 
 
+"------------------------------------
 " 分岐処理いろいろ
+"------------------------------------
 
 if has("mac")
-    " mac用の設定
+    set shell=/bin/bash
 elseif has("unix")
-    " unix固有の設定
+    set shell=/bin/bash
 elseif has("win64")
-    " 64bit_windows固有の設定
+    if exists('*mkdir') && !isdirectory('~/user/appfiles/vim')
+      call mkdir('~/user/appfiles/vim')
+    endif
+    " temp files export destination
+    set directory=~/user/appfiles/vim
+    set backupdir=~/user/appfiles/vim
+    if has('persistent_undo')
+      set undodir=~/user/appfiles/vim
+      set undofile
+    endif
+    set viminfo+=n~/user/appfiles/vim/viminfo
     set shell=C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe\ -executionpolicy\ bypass
 elseif has("win32unix")
     " Cygwin固有の設定
+    set shell=/bin/bash
 elseif has("win32")
-    " 32bit_windows固有の設定
+    set shell=/bin/bash
 elseif has("wsl")
     " wsl固有の設定 うまく動かないとの報告あり
+    set shell=/bin/bash
 endif
 
-if ( has ('python') || has('python3') )
-    " python が必要な設定をここに書く
-else
-    " python がないときの設定
-endif
-if has('lua')
-    " lua が必要な設定
-else
-    " lua がないときの必要な設定
-endif
+
+" if ( has('python') || has('python3') )
+"     " python が必要な設定をここに書く
+" else
+"     " python がないときの設定
+" endif
+" if has('lua')
+"     " lua が必要な設定
+" else
+"     " lua がないときの必要な設定
+" endif
 
 " vim version >= 8
 if v:version >= 800|set breakindent|endif
