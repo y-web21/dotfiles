@@ -190,20 +190,21 @@ google() {
   esac
 }
 
-# 場所は、pkg-config --variable=completionsdir bash-completion (要インストール)でチェックして、
-# /usr/share/bash-completion/completions に置くのが正しいかもしれない
-# 基本的に ~/.bash_completion を作成しておけば読み込まれるようだが。。。
-
 # git completion
+_BASH_COMPLETION_DIR="/etc/bash_completion.d"
+# _BASH_COMPLETION_DIR="${HOME}/.local/share/bash-completion/completions"
+# _BASH_COMPLETION_DIR="/usr/share/bash-completion/completions/"
+
 if [[ -d /etc/bash_completion.d ]]; then
-  if [[ ! -f /etc/bash_completion.d/git-prompt.sh ]]; then
-    curl -sS https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh >~/git-prompt.sh &&
-      sudo mv ~/git-prompt.sh /etc/bash_completion.d/
+  [[ ! -d ${_BASH_COMPLETION_DIR} ]] && mkdir -p ${_BASH_COMPLETION_DIR}
+  if [[ ! -f ${_BASH_COMPLETION_DIR}/git-prompt ]]; then
+    curl -sS https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh -o ~/git-prompt &&
+      sudo mv ~/git-prompt.sh ${_BASH_COMPLETION_DIR}/
   fi
-  if [[ ! -f /etc/bash_completion.d/git-completion.bash ]]; then
-    curl -sS https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash >~/git-completion.bash &&
-      sudo mv ~/git-completion.bash /etc/bash_completion.d/ &&
-      cat <<-EOF >>/etc/bash_completion.d/git-completion.bash
+  if [[ ! -f ${_BASH_COMPLETION_DIR}/git-completion.bash ]]; then
+    curl -sS https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/git-completion.bash &&
+      sudo mv ~/git-completion.bash ${_BASH_COMPLETION_DIR}/ &&
+      cat <<-EOF >>${_BASH_COMPLETION_DIR}/git-completion.bash
 			__git_complete g __git_main
 			__git_complete ga _git_add
 			__git_complete gb _git_branch
@@ -234,6 +235,7 @@ if [[ -d /etc/bash_completion.d ]]; then
   GIT_PS1_SHOWCOLORHINTS=1     # 表示内容のカラー化
   # upstream = remote tracking branch のこと
 fi
+unset _BASH_COMPLETION_DIR
 
 # instalation.bash 用へ移行予定の者たち =================================
 # /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"

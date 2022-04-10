@@ -38,10 +38,12 @@ CONFIG_DIR_WIN="/mnt/c/Users/${USER}/user/config/dotfiles"
 # \e[<font-style>;<font-color>;<back-color>m
 # 39,49mでそれぞれ色リセット。\e[0m オールリセット
 # PS1='\e[0;33;40m\t\e[1;37;49m \u\e[30;32m@\H \e[39;49m \W \e[0m \! \n\$ '
-if [ -f /etc/bash_completion.d/git-prompt.sh ]; then
+
+__git_ps1 >/dev/null 2>&1
+if [ $? -eq 0 ]; then
   PS1='\e[30;47m \t \e[30;44m\e[30;37m \W $(__git_ps1 "\e[30;47m(%s)")\e[39;49m <`git config user.name`> \e[0m\n\$ '
 elif [ 1==1 ]; then
-  PS1='\e[30;47m \t \e[30;44m\e[30;37m \W \e[0m we need git! \n\$ '
+  PS1='\e[30;47m \t \e[30;44m\e[30;37m \W \e[0m we need git-prompt! \n\$ '
 else
   PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
