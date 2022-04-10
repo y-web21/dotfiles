@@ -152,6 +152,35 @@ if has('syntax') && has('eval')
   packadd! matchit
 endif
 
+"------------------------------------
+" function
+"------------------------------------
+function! s:mkdir(dir)
+  if !isdirectory(a:dir)
+    call mkdir(a:dir, "p")
+  endif
+endfunction
+
+"------------------------------------
+" vim files
+"------------------------------------
+set nobackup
+set noswapfile
+set noundofile
+
+set directory=$HOME/.vim/swap
+call s:mkdir(&directory)
+set swapfile
+
+set backupdir=$HOME/.vim/backup
+call s:mkdir(&backupdir)
+set backup
+
+if has('persistent_undo')
+  set undodir=$HOME/.vim/undo
+  call s:mkdir(&undodir)
+  set undofile
+endif
 
 "------------------------------------
 " 分岐処理いろいろ
@@ -162,18 +191,18 @@ if has("mac")
 elseif has("unix")
     set shell=/bin/bash
 elseif has("win64")
-    if exists('*mkdir') && !isdirectory('~/user/appfiles/vim')
-      call mkdir('~/user/appfiles/vim')
-    endif
-    " temp files export destination
-    set directory=~/user/appfiles/vim
-    set backupdir=~/user/appfiles/vim
-    if has('persistent_undo')
-      set undodir=~/user/appfiles/vim
-      set undofile
-    endif
-    set viminfo+=n~/user/appfiles/vim/viminfo
-    set shell=C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe\ -executionpolicy\ bypass
+  if exists('*mkdir') && !isdirectory('~/user/appfiles/vim')
+    call mkdir('~/user/appfiles/vim')
+  endif
+  " temp files export destination
+  set directory=~/user/appfiles/vim
+  set backupdir=~/user/appfiles/vim
+  if has('persistent_undo')
+    set undodir=~/user/appfiles/vim
+    set undofile
+  endif
+  set viminfo+=n~/user/appfiles/vim/viminfo
+  set shell=C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe\ -executionpolicy\ bypass
 elseif has("win32unix")
     " Cygwin固有の設定
     set shell=/bin/bash
@@ -207,7 +236,6 @@ if v:version >= 800|set breakindent|endif
 "     call dein#add("airblade/vim-gitgutter")
 "     call dein#add("tpope/vim-fugitive")
 " endif
-
 
 
 
