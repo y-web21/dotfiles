@@ -21,7 +21,7 @@ is_wsl() { [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; }
 # =========== ENV, VAR ===========
 export LESSCHARSET=utf-8
 # color syntax less
-export LESS='-iRX'
+export LESS='-iRXS'
 # sudo apt install source-highlight
 shpath="$(which source-highlight)/src-hilite-lesspipe.sh"
 if [[ -f ${shpath} ]]; then
