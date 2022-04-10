@@ -17,6 +17,7 @@
 	acm = !git add . && git commit
 	acmm = !git add . && git commit -m
 	b = branch
+	c = checkout
 	cm = commit
 	cmm = commit -m
 	cma = commit --amend

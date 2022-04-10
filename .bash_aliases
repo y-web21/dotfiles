@@ -13,6 +13,12 @@ alias sudo='sudo '
 alias ..='\cd ..'
 alias relogin='exec $SHELL -l'
 
+alias awp='awk-print-num'; awk-print-num(){ awk '{print $'$1'}'; }
+alias hunit='numfmt --to iec --format "%8.4f"'
+alias list_func='compgen -A function'
+alias list_func='declare -f | grep -E "^[^ ].*\(\)" | sed -e s/\ \(\)//'
+alias show_func='typeset -f'
+alias show_func='declare -f'
 
 if ! is_mac; then
   # open app by extension
@@ -96,6 +102,7 @@ alias tar-unzip='gtar -zxvf'
 alias rmexif='jhead -de'
 
 alias sjis2utf8='iconv -f cp932 -t UTF8'
+alias utf16le='iconv -fUTF16LE'
 
 # half width space symposium
 # find . -size +100M -print0 | sed -e 's/\x0/\n/g' | echo
@@ -167,10 +174,14 @@ if [ -e "$(which circleci 2>/dev/null)" ]; then
   # alias install-dockerOutsideOfDocker='curl -sSL https://get.docker.com/ | sh && usermod -aG docker root'
 fi
 
-# laravel framework
-# alias pa='php artisan'
-# alias pao='php artisan optimize'
-# alias paoc='php artisan optimize:clear'
+if which composer >/dev/null 2>&1; then
+  # laravel framework
+  alias pa='php artisan'
+  alias pao='php artisan optimize'
+  alias paoc='php artisan optimize:clear'
+  alias pdotenv_reload='php artisan cache:clear & php artisan config:cache'
+  alias edit_composer-json='composer dump-autoload'
+fi
 
 if [ -e "$(which aws 2>/dev/null)" ]; then
   # aws cli v2
