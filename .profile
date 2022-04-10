@@ -28,6 +28,16 @@ fi
 
 if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+    __BASH_COMPLETION_USER_DIR="${HOME}/.local/share/bash-completion/completions"
+    # brew で bash-completion をインストールしていない場合
+    [ ! -d ${__BASH_COMPLETION_USER_DIR} ] && mkdir -p ${__BASH_COMPLETION_USER_DIR}
+
+    if [ -z $(brew list -1 | grep ^bash-completion$) ];then
+        while read completion; do
+            ln -fs "${completion}" "${__BASH_COMPLETION_USER_DIR}"
+        done < <(find ${HOMEBREW_PREFIX}/etc/bash_completion.d -type f -or -type l)
+    fi
 fi
 # # homebrew bash-completion
 # if type brew &>/dev/null; then
