@@ -6,7 +6,7 @@
 	insteadOf = https://github.com/
 [core]
 	quotepath = false
-	pager = LESSCHARSET=utf-8 less -XFR
+	pager = LESSCHARSET=utf-8 less -XFRS
 	autoCRLF = false
 [fetch]
 	prune = true
@@ -50,3 +50,5 @@
 [include]
 	path = ~/.gitconfig.local
 
+[pager]
+	status = less -F

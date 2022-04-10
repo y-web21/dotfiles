@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eo pipefailset -eo pipefail
+
 cd $(dirname $0)/..
 
 # Refactor this more eventually if possible
