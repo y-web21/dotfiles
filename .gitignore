@@ -5,6 +5,7 @@
 !git/**
 
 !.gitignore
+!.profile
 !.bash_aliases
 !.bashrc_user
 !.bashrc_wsl
