@@ -1,4 +1,9 @@
 # ================ alias =================
+alias qfind='find / \( -path /mnt* -o -path /proc* -o -path /var* \) -prune -o -print'
+# alias qfind='sudo find / -path /mnt* -prune -o -path /proc* -prune -o -print'
+# alias qfind='sudo find / -not -path "/mnt*" -and -not -path "/lib*" -and -not -path "/proc*"'
+alias file-cnt='sudo find / -mindepth 1 -maxdepth 1 -not -path "/mnt*" 2>/dev/null | xargs -i bash -c '\''echo -n '\''{}/ '\'' && sudo find {}/ -type f | wc -l'\'' | sort'
+alias subntu='$(wslpath -u C:\\Windows\\System32\\wsl.exe) -d Ubuntu-20.04-experimental -u $(whoami)'
 
 # =============== env, var ===============
 export WINHOME="/mnt/c/Users/${USER}"
@@ -18,7 +23,19 @@ CONFIG_DIR_WIN="/mnt/c/Users/${USER}/user/config/dotfiles"
 # \] 表示させない文字列の終了
 # \$ $
 # ##############
-# []は無くても良い。\e[<font-style>;<font-color>;<back-color>m
+# ANSI escape codes:
+# https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
+# 装飾
+#   attributes
+# 1	bold
+# 2	low intensity
+# 4	underline
+# 5	blink
+# 7	reverse video
+# 8	invisible text
+# ##############
+# []は無くても良い。(bash限定?dashはダメかも。dashは、echo -e もだめ)
+# \e[<font-style>;<font-color>;<back-color>m
 # 39,49mでそれぞれ色リセット。\e[0m オールリセット
 # PS1='\e[0;33;40m\t\e[1;37;49m \u\e[30;32m@\H \e[39;49m \W \e[0m \! \n\$ '
 if [ -f /etc/bash_completion.d/git-prompt.sh ]; then
@@ -30,6 +47,8 @@ else
 fi
 
 if [[ "$(which vagrant)" = '' ]]; then
+	# . /opt/vagrant/embedded/gems/2.2.19/gems/vagrant-2.2.19/contrib/bash/completion.sh
+
   echo 'export vagrant env var'
   # WSL2 の Vagrant が Windows の VirtualBox を使えるようにする
   # hostと同じバージョンのvagrantをインストール
@@ -90,7 +109,126 @@ fi
 
 # read -p "Hit enter: "
 
-alias qfind='find / \( -path /mnt* -o -path /proc* -o -path /var* \) -prune -o -print'
-# alias qfind='sudo find / -path /mnt* -prune -o -path /proc* -prune -o -print'
-# alias qfind='sudo find / -not -path "/mnt*" -and -not -path "/lib*" -and -not -path "/proc*"'
-alias file-cnt='sudo find / -mindepth 1 -maxdepth 1 -not -path "/mnt*" 2>/dev/null | xargs -i bash -c '\''echo -n '\''{}/ '\'' && sudo find {}/ -type f | wc -l'\'' | sort'
+list-ms-settings-URI (){
+cat <<-EOL
+	ms-settings:～	設定画面
+	ms-settings:	Windowsの設定
+システム
+	ms-settings:display	ディスプレイ
+	ms-settings:sound	サウンド
+	ms-settings:notifications	通知とアクション
+	ms-settings:quiethours	集中モード
+	ms-settings:powersleep	電源とスリープ
+	ms-settings:storagesense	ストレージ
+	ms-settings:tabletmode	タブレットモード
+	ms-settings:multitasking	マルチタスク
+	ms-settings:project	このPCへのプロジェクション
+	ms-settings:crossdevice	共有エクスペリエンス
+	ms-settings:remotedesktop	リモートデスクトップ
+	ms-settings:about	バージョン情報
+デバイス
+	ms-settings:bluetooth	Bluetoothとその他のデバイス
+	ms-settings:printers	プリンターとスキャナー
+	ms-settings:mousetouchpad	マウス
+	ms-settings:typing	入力
+	ms-settings:pen	ペンとWindows Ink
+	ms-settings:autoplay	自動再生
+	ms-settings:usb	USB
+電話
+	ms-settings:mobile-devices	電話
+ネットワークとインターネット
+	ms-settings:network-status	状態
+	ms-settings:network-ethernet	イーサネット
+	ms-settings:network-dialup	ダイヤルアップ
+	ms-settings:network-vpn	VPN
+	ms-settings:datausage	データ使用状況
+	ms-settings:network-proxy	プロキシ
+個人用設定
+	ms-settings:personalization-background	背景
+	ms-settings:colors	色
+	ms-settings:lockscreen	ロック画面
+	ms-settings:themes	テーマ
+	ms-settings:fonts	フォント
+	ms-settings:personalization-start	スタート
+	ms-settings:taskbar	タスクバー
+アプリ
+	ms-settings:appsfeatures	アプリと機能
+	ms-settings:defaultapps	既定のアプリ
+	ms-settings:maps	オフラインマップ
+	ms-settings:appsforwebsites	Webサイト用のアプリ
+	ms-settings:videoplayback	ビデオの再生
+	ms-settings:startupapps	スタートアップ
+アカウント
+	ms-settings:yourinfo	ユーザーの情報
+	ms-settings:emailandaccounts	メール＆アプリのアカウント
+	ms-settings:signinoptions	サインインオプション
+	ms-settings:workplace	職場または学校にアクセスする
+	ms-settings:otherusers	家族とその他のユーザー
+	ms-settings:sync	設定の同期
+時刻と言語
+	ms-settings:dateandtime	日付と時刻
+	ms-settings:regionformatting	地域
+	ms-settings:regionlanguage	言語
+	ms-settings:speech	音声認識
+ゲーム
+	ms-settings:gaming-gamebar	ゲームバー
+	ms-settings:gaming-gamedvr	ゲームDVR
+	ms-settings:gaming-broadcasting	ブロードキャスト
+	ms-settings:gaming-gamemode	ゲームモード
+	ms-settings:gaming-trueplay	TruePlay
+	ms-settings:gaming-xboxnetworking	Xboxネットワーク
+簡単操作
+	ms-settings:easeofaccess-display	ディスプレイ
+	ms-settings:easeofaccess-cursorandpointersize	カーソルとポインターのサイズ
+	ms-settings:easeofaccess-magnifier	拡大鏡
+	ms-settings:easeofaccess-colorfilter	カラーフィルター
+	ms-settings:easeofaccess-highcontrast	ハイコントラスト
+	ms-settings:easeofaccess-narrator	ナレーター
+	ms-settings:easeofaccess-audio	オーディオ
+	ms-settings:easeofaccess-closedcaptioning	字幕
+	ms-settings:easeofaccess-speechrecognition	音声認識
+	ms-settings:easeofaccess-keyboard	キーボード
+	ms-settings:easeofaccess-mouse	マウス
+	ms-settings:easeofaccess-eyecontrol	視線制御（ベータ）
+Cortana
+	ms-settings:cortana	Cortanaに話しかける
+	ms-settings:cortana-permissions	アクセス許可と履歴
+	ms-settings:cortana-notifications	デバイス間でのCortana
+	ms-settings:cortana-moredetails	詳細情報
+プライバシー
+	ms-settings:privacy	全般
+	ms-settings:privacy-speechtyping	音声認識、手書き入力、入力の設定
+	ms-settings:privacy-feedback	診断＆フィードバック
+	ms-settings:privacy-activityhistory	アクティビティの履歴
+	ms-settings:privacy-location	位置情報
+	ms-settings:privacy-webcam	カメラ
+	ms-settings:privacy-microphone	マイク
+	ms-settings:privacy-notifications	通知
+	ms-settings:privacy-accountinfo	アカウント情報
+	ms-settings:privacy-contacts	連絡先
+	ms-settings:privacy-calendar	カレンダー
+	ms-settings:privacy-callhistory	通話履歴
+	ms-settings:privacy-email	メール
+	ms-settings:privacy-tasks	タスク
+	ms-settings:privacy-messaging	メッセージング
+	ms-settings:privacy-radios	無線
+	ms-settings:privacy-customdevices	他のデバイス
+	ms-settings:privacy-backgroundapps	バックグランドアプリ
+	ms-settings:privacy-appdiagnostics	アプリの診断
+	ms-settings:privacy-automaticfiledownloads	ファイルの自動ダウンロード
+	ms-settings:privacy-documents	ドキュメント
+	ms-settings:privacy-pictures	ピクチャ
+	ms-settings:privacy-videos	ビデオ
+	ms-settings:privacy-broadfilesystemaccess	ファイルシステム
+更新とセキュリティ
+	ms-settings:windowsupdate	Windows Update
+	ms-settings:windowsdefender	Windowsセキュリティ
+	ms-settings:backup	バックアップ
+	ms-settings:troubleshoot	トラブルシューティング
+	ms-settings:recovery	回復
+	ms-settings:activation	ライセンス認証
+	ms-settings:findmydevice	デバイスの検索
+	ms-settings:developers	開発者向け
+	ms-settings:windowsinsider	Windows Insider Program
+EOL
+}

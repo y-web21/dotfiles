@@ -42,6 +42,77 @@ unset shpath
 #   fi
 # }
 
+ucase() { echo ${@^^}; }
+lcase() { echo ${@,,}; }
+make-bak() { test $# -ne 0 && cp ${1}{,.bak}; }
+__rm__() {
+  # 眠いのでまた今度な
+  if [[ $(grep -E '-(rf|fr)[ ]{1,}\/[ ]{1,}|-[rf]{}[ ]{1,}-[rf]\/[ ]{1,}') ]]; then
+    echo damepo
+  fi
+  rm $*
+}
+
+rsync-helpo(){
+  cat <<-'EOL'
+	# the fllowing example, copy xml file and directories. (on ubuntu rsync)
+	rsync -r --include='*/' --include='*.xml' --exclude='*' src dst
+
+	# シンボリックリンクを実体として、.tmpと.db以外コピー の条件でテストラン
+	 rsync -ahvL --include='*/' --exclude='*.db' --exclude='*.tmp' src/ dst --dry-run
+
+	-a -rlptgoDを指定することでなるべくコピー元のファイルと同一条件でコピーする。
+	-h human readable unit
+	-v verbose
+	--progress ファイル単位での状況表示
+	-n --dry-run
+	-l シンボリックリンクをシンボリックリンクのままコピー
+	-L シンボリックリンクを実体としてコピー
+	--max-size 転送対象のファイルサイズの上限
+	-e sshのポート指定。ex. rsync -e "ssh -p 22222"
+	EOL
+}
+
+# alias lanana='curl -sS https://www.lanana.org/lsbreg/providers/providers.txt | grep -vE '\''^\s'\'' | grep -v '\''^\s*$'\'' | awk '\''{print $1}'\'''
+lanana() {
+  # The Linux Assigned Names And Numbers Authority
+  # Linux Standard Base (LSB)
+  local URL LIST HZLINE
+  case "$1" in
+  providers)
+    # LSB Provider Names - LSB Provider Name Registry
+    URL=https://www.lanana.org/lsbreg/providers/providers.txt
+    ;;
+  packages)
+    # LSB Package Names - LSB Package Name Registry
+    URL=https://www.lanana.org/lsbreg/packages/packages.txt
+    ;;
+  init-script)
+    # LSB Init Script Names - LSB Init Script Name Registry
+    URL=https://www.lanana.org/lsbreg/init/init.txt
+    ;;
+  cron-script)
+    # LSB Cron Script Names - LSB Cron Script Name Registry
+    URL=https://www.lanana.org/lsbreg/packages/packages.txt
+    ;;
+  *)
+    echo 'invalid arg error'
+    return 1
+    ;;
+  esac
+
+  LIST=$(curl -sS ${URL}) | grep -vE '^\s' | grep -v '^\s*$' | awk '{print $1}'
+  HZLINE=$(curl -sS ${URL} | grep -nE '^-+' | cut -d':' -f1)
+  curl -sS ${URL} | grep -vE '^\s' | grep -v '^\s*$' | awk "NR>${HZLINE}{print \$1}"
+}
+
+_lanana_comp() {
+  local cur complist
+  _get_comp_words_by_ref -n : cur
+  complist="providers packages init-script cron-script"
+  COMPREPLY=($(compgen -W "${complist}" -- "${cur}"))
+} && complete -F _lanana_comp lanana
+
 function git-get-short-hash {
   # shift
   # local dst=${2:-\~}
@@ -119,6 +190,10 @@ google() {
   esac
 }
 
+# 場所は、pkg-config --variable=completionsdir bash-completion (要インストール)でチェックして、
+# /usr/share/bash-completion/completions に置くのが正しいかもしれない
+# 基本的に ~/.bash_completion を作成しておけば読み込まれるようだが。。。
+
 # git completion
 if [[ -d /etc/bash_completion.d ]]; then
   if [[ ! -f /etc/bash_completion.d/git-prompt.sh ]]; then
@@ -137,6 +212,7 @@ if [[ -d /etc/bash_completion.d ]]; then
 			__git_complete gd _git_diff
 			__git_complete gl _git_log
 			__git_complete gs _git_status
+			__git_complete gsh _git_stash
 		EOF
   fi
   alias g="git"
@@ -147,6 +223,7 @@ if [[ -d /etc/bash_completion.d ]]; then
   alias gd="git diff"
   alias gl="git log"
   alias gs="git status"
+  alias gsh="git stash"
 
   # if type __git_ps1 > /dev/null 2>&1; then
   # __git_ps1 プロンプトに各種情報を表示
@@ -180,7 +257,25 @@ enable-git-completion() {
   source ${GIT_COMPLETION_PATH}
 }
 
+# イラネーな
 # enable-git-completion
+
+install-manpages-ja() {
+  read -p 'change locale to JP, ok? (y)' input
+  test "$input" != "y" && return 1
+
+  # by JM Project
+  sudo apt update
+  sudo apt install manpages-ja
+  sudo apt install manpages-ja-dev
+  sudo apt install language-pack-ja
+  sudo update-locale LANG=ja_JP.utf8
+  locale
+  sleep 4
+  exec $SHELL -l
+  # export LC_ALL=ja_JP.utf8
+  # export LANGUAGE=ja_JP.utf8
+}
 
 install-docker-compose-v1() {
   sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
