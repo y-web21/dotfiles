@@ -26,7 +26,7 @@ if [ -d "$HOME/.local/bin" ]; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-if [ -d "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 # # homebrew bash-completion
