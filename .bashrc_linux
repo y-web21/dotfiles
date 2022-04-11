@@ -36,14 +36,16 @@ else
   PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\n\$ '
 fi
 
-if is_ubuntu && ! is_ubuntu ; then
-# Jekyll on Ubuntu
-# https://jekyllrb.com/docs/installation/ubuntu/
+if [ $# -lt 2 ]; then a2=''; else a2="@~${2}"; fi; git diff @~${1:0} $a2
+
+if is_ubuntu && ! is_ubuntu; then
+  # Jekyll on Ubuntu
+  # https://jekyllrb.com/docs/installation/ubuntu/
   sudo apt-get install ruby-full build-essential zlib1g-dev
 
-  echo '# Install Ruby Gems to ~/gems' >> ~/.bashrc
-  echo 'export GEM_HOME="$HOME/gems"' >> ~/.bashrc
-  echo 'export PATH="$HOME/gems/bin:$PATH"' >> ~/.bashrc
+  echo '# Install Ruby Gems to ~/gems' >>~/.bashrc
+  echo 'export GEM_HOME="$HOME/gems"' >>~/.bashrc
+  echo 'export PATH="$HOME/gems/bin:$PATH"' >>~/.bashrc
   source ~/.bashrc
 
   gem install jekyll bundler
