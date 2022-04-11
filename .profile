@@ -35,7 +35,8 @@ if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
 
     if [ -z $(brew list -1 | grep ^bash-completion$) ];then
         while read completion; do
-            ln -fs "${completion}" "${__BASH_COMPLETION_USER_DIR}"
+            # ln -fs "${completion}" "${__BASH_COMPLETION_USER_DIR}"
+            . ${completion}
         done < <(find ${HOMEBREW_PREFIX}/etc/bash_completion.d -type f -or -type l)
     fi
 fi

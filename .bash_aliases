@@ -20,6 +20,8 @@ alias list_func='declare -f | grep -E "^[^ ].*\(\)" | sed -e s/\ \(\)//'
 alias show_func='typeset -f'
 alias show_func='declare -f'
 
+alias datetime="date +%Y-%m-%d_%H:%M:%S"
+
 if ! is_mac; then
   # open app by extension
   alias open='xdg-open'
