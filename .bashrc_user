@@ -23,7 +23,7 @@ export LESSCHARSET=utf-8
 # color syntax less
 export LESS='-iRXS'
 # sudo apt install source-highlight
-shpath="$(which source-highlight)/src-hilite-lesspipe.sh"
+shpath="/usr/share/source-highlight/src-hilite-lesspipe.sh"
 if [[ -f ${shpath} ]]; then
   export LESSOPEN="| ${shpath} %s"
 fi
@@ -44,6 +44,7 @@ unset shpath
 
 ucase() { echo ${@^^}; }
 lcase() { echo ${@,,}; }
+mkcd() { mkdir -p $1; cd $1; }
 make-bak() { test $# -ne 0 && cp ${1}{,.bak}; }
 __rm__() {
   # 眠いのでまた今度な
@@ -51,6 +52,20 @@ __rm__() {
     echo damepo
   fi
   rm $*
+}
+
+metapack(){
+  if [[ $(apt 2>/dev/null) ]];then
+    apt search --names-only $1
+  fi
+  if [[ $(brew -v 2>/dev/null) ]];then
+    brew search $1
+  fi
+}
+
+# memo
+port_listen(){
+  sudo lsof -i -P -n
 }
 
 rsync-helpo(){
@@ -148,6 +163,27 @@ function git-parent-branch {
 		\$2 = branch
 		EOF
   fi
+}
+
+git-config-options-helpo(){
+    cat <<-EOF
+	git config core.xxx --local yyy
+
+	# ignore case はPHPでは困るなぁ
+	ignorecase = <default:true>
+
+	# prevent changes to perimission 644 when push from windows
+	filemode = <default:true>
+
+	# lf に固定 (主に for windows)
+  git config --global core.autocrlf input
+  # それよりも false で git側に改行コード変換するコントロールを渡さない方がいいと思った。
+  git config --global core.autocrlf false (linux default)
+
+	# Win向けの改行コードをリポジトリに保持する場合
+	add .gitattributes > echo '*.html diff=sjis' > .gitattributes
+
+	EOF
 }
 
 function grepsjis-recursive {
