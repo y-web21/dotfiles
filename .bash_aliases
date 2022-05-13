@@ -13,6 +13,9 @@ alias sudo='sudo '
 alias ..='\cd ..'
 alias relogin='exec $SHELL -l'
 
+# use user .vimrc with sudo vim.
+alias sudovim='sudo vim -u ~/.vimrc'
+
 alias awp='awk-print-num'; awk-print-num(){ awk '{print $'$1'}'; }
 alias hunit='numfmt --to iec --format "%8.4f"'
 alias list_func='compgen -A function'
@@ -28,7 +31,6 @@ if ! is_mac; then
 fi
 
 if is_wsl; then
-  alias cd='pushd'
   # alias sjisgrep='`echo key | nkf -s` *.txt | nkf -w'
   alias sleep-bear='curl -sS http://pipe-to-sh-poc.herokuapp.com/install.sh | cat'
 
@@ -135,30 +137,36 @@ if [ -e "$(which docker-compose 2>/dev/null)" ]; then
 fi
 
 if [ -e "$(which docker 2>/dev/null)" ]; then
+  alias d='docker '
   alias drmiall='docker rmi $(docker images -q)'
   alias ddestoroy='docker ps -q | xargs docker stop && docker ps -aq | xargs docker rm && docker images -qa | xargs docker rmi'
   alias dmountedvolume='docker inspect $(docker ps -q ${1}) | grep -i source | tr -d '\'' '\'''
+  alias drmbyName='docker-remove-by-name'; docker-remove-by-name() { docker ps -a -f 'name='$1 | sed "1d" | cut -d" "  -f1 | xargs docker rm ; }
 
   alias container-ip='docker inspect -format='\''{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'\'''
 
   docker-helpo() {
-    docker pull nginx
-    docker run --rm --name test2 -d -p 80:80 -t nginx:latest
-    docker ps -a
-    docker rm
-    docker images
-    docker rmi
-    # Dockerfile から image build
-    docker build -t nginfox:oldest .
-    docker run -d -p 80:80 -t nginfox:oldest
-    # -q で id列のみ。awk '{print $1}'的
-    $ docker ps -q | xargs docker stop
+    cat <<-'EOF'
+		docker pull nginx
+		docker run --rm --name test2 -d -p 80:80 -t nginx:latest
+		docker ps -a
+		docker rm
+		docker images
+		docker rmi
+		# Dockerfile から image build
+		docker build -t nginfox:oldest .
+		docker run -d -p 80:80 -t nginfox:oldest
+		# -q で id列のみ。awk '{print $1}'的
+		$ docker ps -q | xargs docker stop
+		EOF
   }
 
   # 宙ぶらりんイメージ（dangling image）のみ削除します。宙ぶらりんイメージとは、タグを持たず、他のコンテナからも参照されないイメージです。
   # docker image prune
   # 既存のコンテナ～使われていないイメージすべてを削除するには、 -a フラグを使います。
   # docker image prune -a
+  # remove dangling image cotainer volume network
+  # alias drune='docker system prune'
 
   # docker container
   alias dphp='docker exec -it php bash'
@@ -183,6 +191,10 @@ if which composer >/dev/null 2>&1; then
   alias paoc='php artisan optimize:clear'
   alias pdotenv_reload='php artisan cache:clear & php artisan config:cache'
   alias edit_composer-json='composer dump-autoload'
+fi
+
+if bundle -v >/dev/null 2>&1; then
+  alias jkwatch='undle exec jekyll serve --force-polling --drafts --livereload --host=0.0.0.0' # --port 4001 --detach
 fi
 
 if [ -e "$(which aws 2>/dev/null)" ]; then
@@ -238,3 +250,8 @@ test ! -v CURRENT_SSH_PEM && CURRENT_SSH_PEM=
 test ! -v CURRENT_SSH_USER && CURRENT_SSH_USER=ec2-user
 test ! -v CURRENT_SSH_SERVER && export CURRENT_SSH_SERVER=127.0.0.1
 if [ -n "$(which wslpath 2>/dev/null)" ]; then print-current-ssh-var; fi
+
+
+if is_wsl;then
+  alias e.='explorer.exe .'
+fi
