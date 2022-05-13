@@ -30,7 +30,7 @@ fi
 # /home/<username>/.linuxbrew/bin/brew or /home/linuxbrew/.linuxbrew/bin/brew
 if type /home/linuxbrew/.linuxbrew/bin/brew >/dev/null 2>&1; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-elif type /home/linuxbrew/.linuxbrew/bin/brew >/dev/null 2>&1; then
+elif type /home/$(whoami)/.linuxbrew/bin/brew >/dev/null 2>&1; then
     eval "$(/home/$(whoami)/.linuxbrew/bin/brew shellenv)"
 fi
 
