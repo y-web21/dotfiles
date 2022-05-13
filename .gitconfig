@@ -49,6 +49,8 @@
 	recent = !git for-each-ref --sort=-committerdate --count=${1:-10} --format='Date: %(color:red)%(authordate:iso)%(color:reset)\t%(color:green)[%(authorname)]%(color:reset)\nRef: %(color:yellow)%(refname:short)%(color:reset)\nSubject: %(subject)\n' refs/heads refs/remotes
 	unstage = reset HEAD --
 	sts = "!f() { stack=''; if [ $# -gt 0 ];then stack=stash@{$1}; fi;  git stash show -p ${stack}; }; f"
+	logf = log --pretty=fuller
+	stamer = merge "stash@{"
 [include]
 	path = ~/.gitconfig.local
 
