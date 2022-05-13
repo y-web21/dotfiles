@@ -26,20 +26,24 @@ if [ -d "$HOME/.local/bin" ]; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+# linuxbrew default install path is
+# /home/<username>/.linuxbrew/bin/brew or /home/linuxbrew/.linuxbrew/bin/brew
+if type /home/linuxbrew/.linuxbrew/bin/brew >/dev/null 2>&1; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif type /home/linuxbrew/.linuxbrew/bin/brew >/dev/null 2>&1; then
+    eval "$(/home/$(whoami)/.linuxbrew/bin/brew shellenv)"
+fi
 
-    __BASH_COMPLETION_USER_DIR="${HOME}/.local/share/bash-completion/completions"
-    # brew で bash-completion をインストールしていない場合
-    [ ! -d ${__BASH_COMPLETION_USER_DIR} ] && mkdir -p ${__BASH_COMPLETION_USER_DIR}
-
+# load homebrew bash-completion file by apt bash-completion.
+if type brew >/dev/null 2>&1; then
     if [ -z $(brew list -1 | grep ^bash-completion$) ];then
         while read completion; do
-            # ln -fs "${completion}" "${__BASH_COMPLETION_USER_DIR}"
-            . ${completion}
+            echo 'completion file loaded.       '${completion}
+            . "${completion}"
         done < <(find ${HOMEBREW_PREFIX}/etc/bash_completion.d -type f -or -type l)
     fi
 fi
+
 # # homebrew bash-completion
 # if type brew &>/dev/null; then
 #     HOMEBREW_PREFIX="$(brew --prefix)"
