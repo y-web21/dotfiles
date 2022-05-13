@@ -15,4 +15,5 @@
 !.dircolors
 !.gitconfig
 
+!make_link.bash
 !/README.md
