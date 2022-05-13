@@ -29,6 +29,16 @@ if [[ -f ${shpath} ]]; then
 fi
 unset shpath
 
+# ==================== ~/.local ====================
+# putting completion files in ~/.local/share/bash-completion/completions/ should 100% work on modern Linux systems.
+__BASH_COMPLETION_USER_DIR__="${HOME}/.local/share/bash-completion/completions"
+if [ ! -d ${__BASH_COMPLETION_USER_DIR__} ]; then
+  if apt list --installed 2>/dev/null | grep bash-completion >/dev/null 2>&1 ;then
+    mkdir -p ${__BASH_COMPLETION_USER_DIR__}
+  fi
+fi
+unset __BASH_COMPLETION_USER_DIR__
+
 # ============= function ==============
 # function source_file {
 #   if [ $# -lt 1 ];then
