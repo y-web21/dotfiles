@@ -29,6 +29,8 @@ if [[ -f ${shpath} ]]; then
 fi
 unset shpath
 
+# sudoedit default editor is nano on wls2. if you use vim, set EDITOR=vim
+
 # ==================== ~/.local ====================
 # putting completion files in ~/.local/share/bash-completion/completions/ should 100% work on modern Linux systems.
 __BASH_COMPLETION_USER_DIR__="${HOME}/.local/share/bash-completion/completions"
