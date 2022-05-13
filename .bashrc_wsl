@@ -49,7 +49,7 @@ else
 fi
 
 if [[ "$(which vagrant)" = '' ]]; then
-	# . /opt/vagrant/embedded/gems/2.2.19/gems/vagrant-2.2.19/contrib/bash/completion.sh
+  # . /opt/vagrant/embedded/gems/2.2.19/gems/vagrant-2.2.19/contrib/bash/completion.sh
 
   echo 'export vagrant env var'
   # WSL2 の Vagrant が Windows の VirtualBox を使えるようにする
@@ -109,10 +109,38 @@ if [[ "$(which vagrant)" = '' ]]; then
 
 fi
 
-# read -p "Hit enter: "
+# network
+if [ 0 -ne 0 ]; then
+  ss -atn
+  ss -nultp
+  netstat -anp
+fi
 
-list-ms-settings-URI (){
-cat <<-EOL
+if [ $(cat /proc/meminfo | grep MemTotal | awk '{print $2}') -gt 4000000 ]; then
+  # exit 時に history 共有できるように設定
+  export PROMPT_COMMAND="history -a"
+  # リアルタイム共有、用途別の窓でも即共有してしまうので扱いづらい。負荷も高い。
+  # export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+fi
+
+if [ 0 -ne 0 ]; then
+  # M/B,cpu,memory,gpu,networkcard
+  sudo dmidecode -t baseboard
+  cat /proc/cpuinfo
+  cat /proc/meminfo
+  lspci | grep VGA
+  lspci | grep Ethernet
+  wichi nvidia-smi
+  # disc
+  df                       # simple disc info
+  sudo parted -l           # model
+  lsblk                    # hierarchy construction
+  ls -la /dev/disk/by-uuid # uuid
+  # read -p "Hit enter: "
+fi
+
+list-ms-settings-URI() {
+  cat <<-EOL
 	ms-settings:～	設定画面
 	ms-settings:	Windowsの設定
 システム
@@ -232,5 +260,177 @@ Cortana
 	ms-settings:findmydevice	デバイスの検索
 	ms-settings:developers	開発者向け
 	ms-settings:windowsinsider	Windows Insider Program
+コマンド	プログラム
+calc	電卓
+charmap	文字コード表
+chrome	Google Chrome
+cmd	コマンドプロンプト
+drwatson	ワトソン博士
+dxdiag	DirectX診断ツール
+eudcedit	外部エディター
+excel	Excel (Microsoft Office)
+explorer	エクスプローラー
+firewall.cpl	Windows Firewall
+ftp	ftpクライアント
+fxscover	FAX送付状エディター
+iexplorer	Internet Explorer
+joy.cpl	ゲームコントローラー
+magnify	拡大鏡
+mrt	悪意のあるソフトウェアの削除ツール
+mspaint	ペイント
+narrator	ナレーター
+notepad	メモ帳
+osk	スクリーンキーボード
+outlook	Outlook (Microsoft Office)
+packager	オブジェクトパッケジャー
+pbrush	ペイント
+powerpnt	Powerpoint (Microsoft Office)
+powershell	Powershell
+sndrec32	サウンドレコーダー
+winchat	チャット
+winword	Word (Microsoft Office)
+wmimgmt.msc	WMIコントロール
+wmplayer	Windows Media Player
+wordpad	ワードパッド
+write	ワードパッド
+システム関連機能を起動（開く）
+コマンド	システム機能
+accwiz	ユーザー補助の設定ウィザード
+appwiz.cpl	プログラムの追加と削除
+certmgr.msc	証明書
+ciadv.msc	インデックスサービス
+cleanmgr	ディスククリーンアップ
+compmgmt.msc	コンピューターの管理
+control admintools	管理ツール
+control	コントロールパネル
+control folders	フォルダーオプション
+control fonts	フォント
+control keyboad	キーボードのプロパティ
+control mouse	マウスのプロパティ
+control printers	プリンターとFAX
+dcomcnfg	分散COMの構成のプロパティ
+ddeshare	DDE共有
+desk.cpl	ディスプレイのカスタマイズ
+devmgmt.msc	デバイスマネージャー
+dfrgui	ドライブのデフラグと最適化
+diskmgmt.msc	ドライブの管理（ディスクの管理）
+eventvwr	イベントビューア
+fonts	フォントフォルダー
+fsmgmt.msc	共有フォルダー
+gpedit.msc	グループポリシーエディター
+hdwwiz.cpl	デバイスマネージャー
+iexpress	自己解凍書庫作成
+inetcpl.cpl	インターネットオプション
+intl.cpl	地域と言語のオプション
+logoff	ログオフしてサインイン画面
+lusrmgr.msc	ローカルユーザーとグループ
+main.cpl	マウスのプロパティ
+migwiz	ファイルと設定の転送ウィザード
+mmc	マイクロソフト管理コンソール
+mmsys.cpl	サウンドとオーディオデバイスのプロパティ
+msaccess	アクセス
+msconfig	システム構成ユーティリティ
+msinfo32	システム情報
+mstsc	リモートデスクトップ接続
+ncpa.cpl	ネットワーク接続
+netsetup.cpl	ネットワークセットアップウィザード
+netstat	ネットワーク接続の有効状態を表示
+nslookup	ドメインのIPアドレスを取得
+ntmsmgr.msc	リムーバブル記憶域
+ntmsoprq.msc	リムーバブル記憶域の操作要求
+nusrmgr.cpl	ユーザーアカウント
+odbcad32	ODBCデータソースアドミニストレーター
+odbccp32.cpl	ODBCデータソースアドミニストレーター
+perfmon.msc	パフォーマンスモニター
+powercfg.cpl	電源オプション
+regedit	レジストリエディター
+regedit32	レジストリエディター
+rsop.msc	ポリシーの結果セット
+secpol.msc	ローカルセキュリティポリシー
+services.msc	サービス
+shrpubw	共有フォルダーの作成
+shutdown /r /t 0	パソコンのシャットダウン
+sigverif	ファイルの署名と確認
+sndvol32	ボリュームコントロール
+sysdm.cpl	システムのプロパティ
+sysedit	システム構成エディター
+syskey	SAMロックツール
+taskmgr	タスクマネージャー
+telephon.cpl	電話とモデムのオプション
+telnet	Telnet接続
+timedate.cpl	日付と時刻
+utilman	ユーティリティマネージャー
+verifier	ドライバの検証ツールマネージャー
+visio32	Visio
+winmsd	システム情報
+winver	Windowsのバージョン情報
+wscript	Windows Script Host
+wscui.msc	セキュリティセンター
+wuaucpl.cpl	自動更新
+wupdmgr	Microsoft Update
+特定のフォルダーを起動（開く）
+shell:AddNewProgramsFolder	プログラムの取得
+shell:Administrative Tools	Windows管理ツール
+shell:AppData	C:\Users\ユーザー名\AppData\Roaming
+shell:AppUpdatesFolder	インストールされた更新プログラム
+shell:Cache	インターネット一時ファイル
+shell:CD Burning	一時書き込みフォルダー
+shell:ChangeRemoveProgramsFolder	プログラムと機能
+shell:Common AppData	C:\ProgramData
+shell:Common Templates	C:\ProgramData\Microsoft\Windows\Templates
+shell:ConflictFolder	競合
+shell:ConnectionsFolde	ネットワーク接続
+shell:Contacts	アドレス帳
+shell:ControlPanelFolder	すべてのコントロールパネル項目
+shell:Cookies	Cookie
+shell:Default Gadgets	Gadgets
+shell:Desktop	デスクトップ
+shell:DocumentsLibrary	ライブラリのドキュメント
+shell:Downloads	ダウンロード
+shell:Favorites	お気に入り
+shell:Fonts	フォントフォルダー
+shell:Gadgets	ユーザーのガジェット
+shell:Games	ゲーム
+shell:History	履歴
+shell:HomeGroupFolder	ホームグループ
+shell:Libraries	ライブラリ
+shell:Links	リンク
+shell:Local AppData	C:\Users\ユーザー名\AppData\Local
+shell:MusicLibrary	ライブラリのミュージック
+shell:My Music	マイミュージック
+shell:My Pictures	マイピクチャー
+shell:My Video	マイビデオ
+shell:MyComputerFolder	PC
+shell:NetHood	Network Shortcuts
+shell:NetworkPlacesFolder	ネットワーク
+shell:Personal	マイドキュメント
+shell:PicturesLibrary	ライブラリのピクチャー
+shell:PrintersFolder	プリンター
+shell:PrintHood	Printer Shortcuts
+shell:Profile	ユーザーフォルダー
+shell:ProgramFiles	プログラムのインストールフォルダー
+shell:ProgramFilesCommon	Common Files
+shell:Programs	Programs
+shell:Quick Launch	Quick Launch
+shell:Recent	Recent
+shell:RecycleBinFolder	ごみ箱
+shell:ResourceDir	リソースフォルダー
+shell:SavedGames	保存したゲーム
+shell:Searches	ユーザーの検索
+shell:SearchHomeFolder	検索結果
+shell:SendTo	SendTo
+shell:Start Menu	Start Menu
+shell:Startup	Startup
+shell:SyncCenterFolder	同期センター
+shell:SyncResultsFolder	同期結果
+shell:SyncSetupFolder	同期のセットアップ
+shell:System	system32
+shell:Templates	Templates
+shell:User Pinned	User Pinned
+shell:UserProfiles	ユーザーフォルダー
+shell:UsersFilesFolder	ユーザーフォルダー
+shell:UsersLibrariesFolder	ライブラリ
+shell:VideosLibrary	ライブラリのビデオ
+shell:Windows	システムフォルダー
 EOL
 }
