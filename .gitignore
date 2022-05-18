@@ -13,6 +13,7 @@
 !.sshrc
 !.vimrc
 !.dircolors
+!.nanorc
 !.gitconfig
 
 !make_link.bash
