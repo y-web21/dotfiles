@@ -55,3 +55,5 @@ fi
 #         done
 #     fi
 # fi
+
+if [ -e /home/$(whoami)/.nix-profile/etc/profile.d/nix.sh ]; then . /home/$(whoami)/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer

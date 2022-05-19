@@ -251,7 +251,61 @@ test ! -v CURRENT_SSH_USER && CURRENT_SSH_USER=ec2-user
 test ! -v CURRENT_SSH_SERVER && export CURRENT_SSH_SERVER=127.0.0.1
 if [ -n "$(which wslpath 2>/dev/null)" ]; then print-current-ssh-var; fi
 
+alias timestmp2date='date +"%Y-%m-%d %T" -d' # e.g. @11111111111
 
 if is_wsl;then
   alias e.='explorer.exe .'
 fi
+
+# if wl-copy -v >/dev/null 2>&1;then
+if [ -f .nix-profile/bin/wl-copy ];then
+  alias clip='wl-copy'
+fi
+
+if [ -e "$(which code-server 2>/dev/null)" ]; then 
+  alias code='code-server'
+fi
+
+alias s='systemctl '
+
+# /usr/share/bash-completion/completions/systemctl
+# complete -F _systemctl systemctl s 
+
+
+alias path='echo -e ${PATH//:/\\n}'
+alias now='date +"%T"'
+alias nowtime=now
+alias nowdate='date +"%d-%m-%Y"'
+alias mount='mount |column -t'
+
+# Stop after sending count ECHO_REQUEST packets #
+alias ping='ping -c 5'
+# Do not wait interval 1 second, go fast #
+alias fastping='ping -c 100 -s.2'
+alias ports='netstat -tulanp'
+
+
+# get web server headers #
+alias header='curl -I'
+ 
+# find out if remote server supports gzip / mod_deflate or not #
+alias headerc='curl -I --compress'
+
+# reboot / halt / poweroff
+alias reboot='sudo /sbin/reboot'
+alias poweroff='sudo /sbin/poweroff'
+alias halt='sudo /sbin/halt'
+alias shutdown='sudo /sbin/shutdown'
+
+
+# also pass it via sudo so whoever is admin can reload it without calling you #
+alias nginxreload='sudo /usr/local/nginx/sbin/nginx -s reload'
+alias nginxtest='sudo /usr/local/nginx/sbin/nginx -t'
+alias lightyload='sudo /etc/init.d/lighttpd reload'
+alias lightytest='sudo /usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf -t'
+alias httpdreload='sudo /usr/sbin/apachectl -k graceful'
+alias httpdtest='sudo /usr/sbin/apachectl -t && /usr/sbin/apachectl -t -D DUMP_VHOSTS'
+
+# handy short cuts #
+alias h='history'
+alias j='jobs -l' # fg job_id to continue, stop job_id to stop
