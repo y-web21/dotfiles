@@ -16,5 +16,7 @@
 !.nanorc
 !.gitconfig
 
-!make_link.bash
+!.config/gh/config.yml
+
+!*make_link.bash
 !/README.md

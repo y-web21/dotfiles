@@ -2,18 +2,25 @@
 
 # set -eou pipefail
 
-# not suppoted batch proc.
+# support only user interactive process.
 
-for line in $(find ./ -maxdepth 1 -type f | cut -c 3- | grep -i '^\.' | grep -v gitignore); do
-  read -rp "execute:  ln -s $(pwd)/${line} ${HOME}/${line}"' ok? (y/N) ' input
-  if [ "$input" == "y" ];then
-    echo "${HOME}/${line}"
-    if [ -e "${HOME}/${line}" ];then
+make_link() {
+  read -rp "execute:  ln -s $(pwd)/${1} ${HOME}/${1}"' ok? (y/N) ' input
+  if [ "$input" == "y" ]; then
+    echo "${HOME}/${1}"
+    if [ -e "${HOME}/${1}" ]; then
       read -rp "file already exist. remove the file? (y/N) " input
-      test "${input}" != "y" && continue
-      rm "${HOME}/${line}"
+      test "${input}" != "y" && return # continue
+      rm "${HOME}/${1}"
     fi
-    ln -s "$(pwd)/${line}" ~/"${line}" && echo "${line}" 'lineked.'
+    ln -s "$(pwd)/${1}" ~/"${1}" && echo "${1}" 'lineked.'
   fi
+}
+
+for TOPLEVELDOTFILE in $(find ./ -maxdepth 1 -type f | cut -c 3- | grep -i '^\.' | grep -v gitignore); do
+  make_link $TOPLEVELDOTFILE
 done
 
+for GH_CONFIG in $(find ./.config/gh -maxdepth 1 -type f | cut -c 3- | grep -i '^\.' | grep -v gitignore); do
+  make_link $GH_CONFIG
+done
