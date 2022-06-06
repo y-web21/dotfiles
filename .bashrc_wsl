@@ -9,8 +9,15 @@ alias subntu='$(wslpath -u C:\\Windows\\System32\\wsl.exe) -d Ubuntu-20.04-exper
 export WINHOME="/mnt/c/Users/${USER}"
 # wslvar がスクロールバッファをクリアするのでこの方法は保留
 # export WINHOME="$(wslpath "$(wslvar USERPROFILE)")"
-CONFIG_DIR_WIN="/mnt/c/Users/${USER}/user/config/dotfiles"
+export CONFIG_DIR_WIN="/mnt/c/Users/${USER}/user/dotfiles"
+export CONFIG_DIR_WIN_PRI="/mnt/c/Users/${USER}/user/dotfiles_private"
 # ========================================
+
+# test -r ${CONFIG_DIR_WIN_PRI}/.bashrc.local && . ${CONFIG_DIR_WIN_PRI}/.bashrc.local
+# test -r ${CONFIG_DIR_WIN_PRI}/.gitconfig.local && . ${CONFIG_DIR_WIN_PRI}/.gitconfig.local
+
+test -e ~/.bashrc.local || ln -s ${CONFIG_DIR_WIN_PRI}/.bashrc.local ~/.bashrc.local
+test -e ~/.gitconfig.local || ln -s ${CONFIG_DIR_WIN_PRI}/.gitconfig.local ~/.gitconfig.local
 
 ############### ターミナルのコマンド受付状態の表示変更
 # \u ユーザ名
@@ -69,7 +76,7 @@ if [[ "$(which vagrant)" = '' ]]; then
     local port=${3:-2222}
     local hostname=${5:-localhost}
     local username=${6:-vagrant}
-    if [[ $# < 3 ]]; then
+    if (( $# < 3 )); then
       cat <<-EOF
 			2 args required
 			\$1 = filepath(host)
@@ -92,7 +99,7 @@ if [[ "$(which vagrant)" = '' ]]; then
     local port=${3:-2222}
     local hostname=${5:-localhost}
     local username=${6:-vagrant}
-    if [[ $# < 3 ]]; then
+    if (( $# < 3 )); then
       cat <<-EOF
 			2 args required
 			\$1 = filepath(guest)

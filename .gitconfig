@@ -10,10 +10,10 @@
 	autoCRLF = false
 [fetch]
 	prune = true
-[init]
 	defaultBranch = main
 [alias]
 	a = add
+	ah = add -p
 	acm = !git add . && git commit
 	acmm = !git add . && git commit -m
 	b = branch
@@ -22,7 +22,16 @@
 	cmm = commit -m
 	cma = commit --amend
 	cmam = commit --amend -m
+	cmr = reset --soft HEAD~
+	co = checkout
 	d = !"f() { a2=''; [ $# -ge 2 ] && a2=\"@~${2}\"; git diff @~${1:-0} $a2; echo @~${1:-0} $a2; }; f"
+	n = now --all --stat
+	s = status
+	gistpush = !git add . && git commit --allow-empty-message -m '' && git push
+	rb = !git rebase -i @~${1:-5} && :
+	stave = stash save
+	stap = ! git stash drop stash@{$1} && :
+	show-stash-detail = diff stash@{0}
 	# reset hard & remove untracked file
 	reset-exhard = "!f() { git reset --hard ${1:-@} && git clean -fdx; }; f"
 	vibase = !export GIT_EDITOR=vi && git rebase -i @~${1:-10} && :

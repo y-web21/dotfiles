@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # enable i-search. (disable terminal stop)
 if [[ -t 0 ]]; then
   stty stop undef
@@ -238,6 +236,45 @@ google() {
   esac
 }
 
+ssh-list-config-files(){
+
+  local SSH_DIR=$HOME/.ssh/
+
+  if test -d $SSH_DIR; then
+    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
+      echo "$file"
+    done
+  fi
+}
+
+ssh-list-known-hosts(){
+
+  local SSH_DIR=$HOME/.ssh/
+
+  if test -d $SSH_DIR; then
+    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
+      grep ^Host "$file" | sed 's/^Host //'
+    done
+  fi
+}
+
+ssh-show-known-hosts(){
+
+  local SSH_DIR=$HOME/.ssh/
+  local displayFileName=${1:-false}
+
+  if test -d $SSH_DIR; then
+    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
+      if ${displayFileName}; then echo -e "\n$file"; fi
+      cat "$file"
+    done
+  fi
+}
+
+ssh-show-known-hosts-with-filename(){
+  ssh-show-known-hosts true
+}
+
 # git completion
 _BASH_COMPLETION_DIR="/etc/bash_completion.d"
 # _BASH_COMPLETION_DIR="${HOME}/.local/share/bash-completion/completions"
@@ -330,6 +367,10 @@ install-manpages-ja() {
 install-docker-compose-v1() {
   sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   sudo chmod +x /usr/local/bin/docker-compose
+  # add completion file
+  sudo curl \
+    -L https://raw.githubusercontent.com/docker/compose/1.29.2/contrib/completion/bash/docker-compose \
+    -o /etc/bash_completion.d/docker-compose
 }
 
 install-awscliv2() {
@@ -405,3 +446,12 @@ fi
 
 test -r ~/.bash_aliases && . ~/.bash_aliases
 test -r ~/.bashrc.local && . ~/.bashrc.local
+
+if !is_debian_based;then
+  apt moo
+  sudo apt list --upgradable
+  sudo apt install --only-upgrade
+  apt-mark hold
+  apt-mark unhold
+  holdlist=dpkg --get-selections | grep hold
+fi

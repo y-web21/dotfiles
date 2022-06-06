@@ -1,3 +1,5 @@
+#!/bin/#!/usr/bin/env bash
+
 # system
 # alias ='cat /etc/passwd'
 # alias ='cat /etc/groups'
@@ -88,7 +90,7 @@ if [ -e "$(which git 2>/dev/null)" ]; then
   alias glohashs='git-get-short-hash'
 
   alias galias='git config -l | grep ^alias | sed s/^alias\./alias\ /'
-  git-parmanent-delete() {
+  git-permanent-delete() {
     read -p "delete <${1}> (y/n)" INPUT
     if [ "$INPUT" = "y" ]; then
       git filter-branch --force --index-filter "git rm --cached --ignore-unmatch ${1}" -- --all
@@ -126,6 +128,7 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 if [ -e "$(which docker-compose 2>/dev/null)" ]; then
+  alias dc='docker-compose'
   alias dcu='docker-compose up -d'
   alias dcub='docker-compose up -d --build'
   alias dcurb='docker-compose up -d --no-deps --build' # 1イメージをのみリビルド
@@ -138,10 +141,11 @@ fi
 
 if [ -e "$(which docker 2>/dev/null)" ]; then
   alias d='docker '
+  alias dsize='docker ps --format "{{.ID}} {{.Names}} {{.Image}} {{.Size}}" | column -t'
   alias drmiall='docker rmi $(docker images -q)'
   alias ddestoroy='docker ps -q | xargs docker stop && docker ps -aq | xargs docker rm && docker images -qa | xargs docker rmi'
   alias dmountedvolume='docker inspect $(docker ps -q ${1}) | grep -i source | tr -d '\'' '\'''
-  alias drmbyName='docker-remove-by-name'; docker-remove-by-name() { docker ps -a -f 'name='$1 | sed "1d" | cut -d" "  -f1 | xargs docker rm ; }
+  alias drmByName='docker-remove-by-name'; docker-remove-by-name() { docker ps -a -f 'name='$1 | sed "1d" | cut -d" "  -f1 | xargs docker rm ; }
 
   alias container-ip='docker inspect -format='\''{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'\'''
 
@@ -150,6 +154,7 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
 		docker pull nginx
 		docker run --rm --name test2 -d -p 80:80 -t nginx:latest
 		docker ps -a
+    docker ps -as
 		docker rm
 		docker images
 		docker rmi
@@ -262,14 +267,16 @@ if [ -f .nix-profile/bin/wl-copy ];then
   alias clip='wl-copy'
 fi
 
-if [ -e "$(which code-server 2>/dev/null)" ]; then 
-  alias code='code-server'
+if which code-server >/dev/null 2>&1; then
+  if ! which code >/dev/null 2>&1;then
+    alias code='code-server'
+  fi
 fi
 
 alias s='systemctl '
 
 # /usr/share/bash-completion/completions/systemctl
-# complete -F _systemctl systemctl s 
+# complete -F _systemctl systemctl s
 
 
 alias path='echo -e ${PATH//:/\\n}'
@@ -287,7 +294,7 @@ alias ports='netstat -tulanp'
 
 # get web server headers #
 alias header='curl -I'
- 
+
 # find out if remote server supports gzip / mod_deflate or not #
 alias headerc='curl -I --compress'
 
@@ -308,4 +315,4 @@ alias httpdtest='sudo /usr/sbin/apachectl -t && /usr/sbin/apachectl -t -D DUMP_V
 
 # handy short cuts #
 alias h='history'
-alias j='jobs -l' # fg job_id to continue, stop job_id to stop
+alias j='jobs -l' # fg|bg job_id to continue, kill %job_id to stop
