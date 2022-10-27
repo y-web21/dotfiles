@@ -16,7 +16,10 @@
 !.nanorc
 !.gitconfig
 
+!aliases/*
+
 !.config/gh/config.yml
+
 !.docker/config.json
 !.docker/link.bash
 !.docker/README.md
