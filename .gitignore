@@ -17,6 +17,9 @@
 !.gitconfig
 
 !.config/gh/config.yml
+!.docker/config.json
+!.docker/link.bash
+!.docker/README.md
 
 !*make_link.bash
 !/README.md
