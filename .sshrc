@@ -1,3 +1,16 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC1090,SC2034
+#
+# Shellcheck ignore list:
+#  - SC1090: Can't follow non-constant source. Use a directive to specify location.
+#  - SC2034: foo appears unused. Verify it or export it.
+#
+# You can find more details for each warning at the following page:
+#    https://github.com/koalaman/shellcheck/wiki/<SCXXXX>
+#    https://www.shellcheck.net/wiki/<SCXXXX>
+#
+# __shellcheck source=/dev/null # [sample] Avoid warning SC1090
+
 if [[ -f ~/.bash_profile ]]; then
   . ~/.bash_profile
   echo prof
@@ -22,7 +35,7 @@ PS1='\e[0;33;40m\t\e[1;37;49m \u\e[30;32m@\H \e[39;49m \W \e[0m \! \n\$ '
 # docker
 alias drmiall='docker rmi $(docker images -q)'
 alias ddestoroy='docker ps -q | xargs docker stop && docker ps -aq | xargs docker rm && docker images -qa | xargs docker rmi'
-alias dmountedvolume='docker inspect $(docker ps -q ${1}) | grep -i source | tr -d '\'' '\'''
+dmountedvolume (){ docker inspect "$(docker ps -q "${1}")" | grep -i source | tr -d ' '; }
 
 # docker container
 alias dphp='docker exec -it php bash'
@@ -30,15 +43,25 @@ alias dfpmreload='docker exec php ps aux | grep master | sed '\''s/ \+/ /g'\'' |
 alias dmysql='docker exec -it db bash -c '\''mysql -uroot -p'\'''
 alias dnginxreload='docker exec -it nginx bash -c '\''nginx -s reload'\'''
 
-# docker-compose
-alias dcu='docker-compose up -d'
-alias dcub='docker-compose up -d --build'
-alias dcurb='docker-compose up -d --no-deps --build' # 1イメージをのみリビルド
-alias dcd='docker-compose down'
-alias dcdi='docker-compose down --rmi=all'
-alias dcr='docker-compose down && docker-compose up -d'
-alias dcri='docker-compose down --rmi=all && docker-compose up -d --build'
-alias dcconf='docker-compose config'
+# docker-compose v1
+# alias dcu='docker-compose up -d'
+# alias dcub='docker-compose up -d --build'
+# alias dcurb='docker-compose up -d --no-deps --build' # 1イメージをのみリビルド
+# alias dcd='docker-compose down'
+# alias dcdi='docker-compose down --rmi=all'
+# alias dcr='docker-compose down && docker-compose up -d'
+# alias dcri='docker-compose down --rmi=all && docker-compose up -d --build'
+# alias dcconf='docker-compose config'
+
+# docker compose v2
+alias dcu='docker compose up -d'
+alias dcub='docker compose up -d --build'
+alias dcurb='docker compose up -d --no-deps --build' # 1イメージをのみリビルド
+alias dcd='docker compose down'
+alias dcdi='docker compose down --rmi=all'
+alias dcr='docker compose down && docker compose up -d'
+alias dcri='docker compose down --rmi=all && docker compose up -d --build'
+alias dcconf='docker compose config'
 
 helpo() {
   cat <<EOS

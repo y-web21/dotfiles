@@ -127,19 +127,17 @@ if [ -x /usr/bin/dircolors ]; then
   test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 fi
 
-if [ -e "$(which docker-compose 2>/dev/null)" ]; then
-  alias dc='docker-compose'
-  alias dcu='docker-compose up -d'
-  alias dcub='docker-compose up -d --build'
-  alias dcurb='docker-compose up -d --no-deps --build' # 1イメージをのみリビルド
-  alias dcd='docker-compose down'
-  alias dcdi='docker-compose down --rmi=all'
-  alias dcr='docker-compose down && docker-compose up -d'
-  alias dcri='docker-compose down --rmi=all && docker-compose up -d --build'
-  alias dcconf='docker-compose config'
-fi
-
 if [ -e "$(which docker 2>/dev/null)" ]; then
+  alias dc='docker compose'
+  alias dcu='docker compose up -d'
+  alias dcub='docker compose up -d --build'
+  alias dcurb='docker compose up -d --no-deps --build' # 1イメージをのみリビルド
+  alias dcd='docker compose down'
+  alias dcdi='docker compose down --rmi=all'
+  alias dcr='docker compose down && docker compose up -d'
+  alias dcri='docker compose down --rmi=all && docker compose up -d --build'
+  alias dcconf='docker compose config'
+
   alias d='docker '
   alias dsize='docker ps --format "{{.ID}} {{.Names}} {{.Image}} {{.Size}}" | column -t'
   alias drmiall='docker rmi $(docker images -q)'

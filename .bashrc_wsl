@@ -1,3 +1,16 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC1090,SC2034
+#
+# Shellcheck ignore list:
+#  - SC1090: Can't follow non-constant source. Use a directive to specify location.
+#  - SC2034: foo appears unused. Verify it or export it.
+#
+# You can find more details for each warning at the following page:
+#    https://github.com/koalaman/shellcheck/wiki/<SCXXXX>
+#    https://www.shellcheck.net/wiki/<SCXXXX>
+#
+# __shellcheck source=/dev/null # [sample] Avoid warning SC1090
+
 # ================ alias =================
 alias qfind='find / \( -path /mnt* -o -path /proc* -o -path /var* \) -prune -o -print'
 # alias qfind='sudo find / -path /mnt* -prune -o -path /proc* -prune -o -print'
