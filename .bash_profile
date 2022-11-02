@@ -40,7 +40,7 @@ if type brew >/dev/null 2>&1; then
     echo 'load bash completions in brew... '
     while read comp_file; do
       if ! [[ "${comp_file}" =~ /(gh)$ ]]; then
-        echo 'completion file loaded.       '${comp_file}
+        # echo 'completion file loaded.       '${comp_file}
         . "${comp_file}"
       fi
     done < <(find ${HOMEBREW_PREFIX}/etc/bash_completion.d -type f -or -type l)
@@ -50,5 +50,4 @@ fi
 # added by Nix installer
 if [ -e /home/$(whoami)/.nix-profile/etc/profile.d/nix.sh ]; then . /home/$(whoami)/.nix-profile/etc/profile.d/nix.sh; fi
 
-# doesn't work wsl2
 eval "$(gh completion -s bash)"

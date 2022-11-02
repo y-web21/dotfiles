@@ -30,7 +30,7 @@ alias relogin='exec $SHELL -l'
 alias dishis='unset HISTFILE'
 alias k9='kill -9 $$'
 alias filesize='wc -c < '
-alias s='systemctl '
+alias type='type'
 
 # handy short cuts #
 alias h='history'
@@ -73,7 +73,8 @@ fi
 
 if is_ubuntu; then
   alias sai='sudo apt install -y'
-  alias _a_pt-outdated='sudo apt update && apt list --upgradable'
+  alias _apt-outdated='sudo apt update && apt list --upgradable'
+  alias _apt-update-single-package='sudo apt install --only-upgrade'
   alias _alldeclare='set'
   alias _alias=__-alias; __-alias(){ alias | grep -E "${1:-.*}" "${@:2}" --color; }
   alias _functions='declare -f'
@@ -109,9 +110,6 @@ alias _timestmp2date='date +"%Y-%m-%d %T" -d' # e.g. @11111111111
 # find . -size +100M -print0 | xargs --null
 # find . -size +100M -print0 | xargs --null -i du -h "{}" | sort -h
 # grep -l 10 * --null | xargs --null -n 1 echo
-
-# /usr/share/bash-completion/completions/systemctl
-# complete -F _systemctl systemctl s
 
 alias mount='mount |column -t'
 
@@ -166,3 +164,8 @@ while read -d $'\0' file; do
     source "${file}"
 done < <(find ${SRC} -mindepth 1 -maxdepth 1 -print0)
 unset SRC
+
+# -- for bash completions -- #
+# /usr/share/bash-completion/completions/systemctl
+# complete -F _systemctl systemctl s
+alias s='systemctl '

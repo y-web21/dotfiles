@@ -27,6 +27,9 @@ if [[ -f ${shpath} ]]; then
 fi
 unset shpath
 
+# history counts
+HISTSIZE=100000
+
 # sudoedit default editor is nano on wls2. if you use vim, set EDITOR=vim
 
 # ==================== ~/.local ====================
@@ -65,13 +68,45 @@ __rm__() {
 }
 
 metapack(){
-  if [[ $(apt 2>/dev/null) ]];then
-    apt search --names-only $1
+  if apt-get -v >/dev/null 2>&1; then
+    echo '=== apt list, apt-get install ==='
+    dpkg -l "*${1}*" | grep --color "${1}"
+    # apt list "*${1}*" | grep --color "${1}"
   fi
-  if [[ $(brew -v 2>/dev/null) ]];then
-    brew search $1
+
+  if yum -v >/dev/null 2>&1; then
+    echo -e '\n=== yum search, yum install ==='
+    yum search "${1}" | grep --color "${1}"
+  fi
+
+  if dnf -v >/dev/null 2>&1; then
+    echo -e '\n=== dnf search, dnf install ==='
+    dnf search "${1}" | grep --color "${1}"
+  fi
+
+  if nix --version >/dev/null 2>&1; then
+    echo -e '\n=== nix-env -qa, nix-env --install ==='
+    nix-env --query --available"${1}" | grep --color "${1}"
+  fi
+
+  if brew -v >/dev/null 2>&1; then
+    echo -e '\n=== brew search, brew install ==='
+    brew search "${1}" | grep --color "${1}"
+  fi
+
+  if scoop -v >/dev/null 2>&1; then
+    echo -e '\n=== scoop search, scoop install ==='
+    scoop search "${1}" | grep --color "${1}"
   fi
 }
+
+apt-remove-purge(){
+  sudo apt-get -y remove $1
+  sudo apt-get -y remove --auto-remove $1
+  sudo apt-get -y purge $1
+  sudo apt-get -y purge --auto-remove $1
+}
+
 
 # memo
 port_listen(){
@@ -176,7 +211,7 @@ function git-parent-branch {
 }
 
 git-config-options-helpo(){
-    cat <<-EOF
+  cat <<-EOF
 	git config core.xxx --local yyy
 
 	# ignore case はPHPでは困るなぁ
@@ -473,11 +508,11 @@ fi
 test -r ~/.bash_aliases && . ~/.bash_aliases
 test -r ~/.bashrc.local && . ~/.bashrc.local
 
-if !is_debian_based;then
+if is_debian_based;then
   apt moo
-  sudo apt list --upgradable
-  sudo apt install --only-upgrade
-  apt-mark hold
-  apt-mark unhold
-  holdlist=dpkg --get-selections | grep hold
+  # sudo apt list --upgradable
+  # sudo apt install --only-upgrade
+  # apt-mark hold
+  # apt-mark unhold
+  # APT_HOLD_LIST=$(dpkg --get-selections | grep hold)
 fi

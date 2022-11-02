@@ -20,12 +20,38 @@ alias subntu='$(wslpath -u C:\\Windows\\System32\\wsl.exe) -d Ubuntu-20.04-exper
 
 # =============== env, var ===============
 export WINHOME="/mnt/c/Users/${USER}"
-# wslvar がスクロールバッファをクリアするのでこの方法は保留
+# WINHOMEの出力に wslvar を使うとスクロールバッファをクリアされる？のでこの方法は保留
 # export WINHOME="$(wslpath "$(wslvar USERPROFILE)")"
 export CONFIG_DIR_WIN="/mnt/c/Users/${USER}/user/dotfiles"
 export CONFIG_DIR_WIN_PRI="/mnt/c/Users/${USER}/user/dotfiles_private"
+
+if which scoop; then
+  SCOOP_HOME=$(dirname "$(dirname "$(which scoop)")")
+fi
+
+# =============== host michine ===============
+# zsh
+# alias chrome='(){/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe $(wslpath -w $(realpath $1))'
+
+chrome(){
+  /mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe "$(wslpath -w "$(realpath "${1}")")"
+}
 # ========================================
 
+fix_wsl2_interop() {
+  # C:\Windows\System32\wsl.exe code などから実行されると $WSL_INTEROP 変数がセットされていない状態になることがあるその回避のため
+  # e.g. $ echo a | clip.exe
+  #      <3>init: (15155) ERROR: UtilConnectToInteropServer:307: connect failed 2
+  # [[WSL2] [Interop] Keep a single shared /run/WSL/* socket · Issue #5065 · microsoft/WSL](https://github.com/microsoft/WSL/issues/5065)
+  for i in $(pstree -np -s $$ | grep -o -E '[0-9]+'); do
+      if [[ -e "/run/WSL/${i}_interop" ]]; then
+          export WSL_INTEROP=/run/WSL/${i}_interop
+      fi
+  done
+}
+fix_wsl2_interop
+
+# ========================================
 # test -r ${CONFIG_DIR_WIN_PRI}/.bashrc.local && . ${CONFIG_DIR_WIN_PRI}/.bashrc.local
 # test -r ${CONFIG_DIR_WIN_PRI}/.gitconfig.local && . ${CONFIG_DIR_WIN_PRI}/.gitconfig.local
 
@@ -89,7 +115,7 @@ if [[ "$(which vagrant)" = '' ]]; then
     local port=${3:-2222}
     local hostname=${5:-localhost}
     local username=${6:-vagrant}
-    if (( $# < 3 )); then
+    if (($# < 3)); then
       cat <<-EOF
 			2 args required
 			\$1 = filepath(host)
@@ -112,7 +138,7 @@ if [[ "$(which vagrant)" = '' ]]; then
     local port=${3:-2222}
     local hostname=${5:-localhost}
     local username=${6:-vagrant}
-    if (( $# < 3 )); then
+    if (($# < 3)); then
       cat <<-EOF
 			2 args required
 			\$1 = filepath(guest)
