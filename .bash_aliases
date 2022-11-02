@@ -13,7 +13,7 @@
 # alias ='cat /etc/passwd'
 # alias ='cat /etc/groups'
 
-# built in
+# built in or familiar
 alias l='ls -CF'
 alias la='ls --color=always -AF --time-style=long-iso'
 alias ll='ls --color=always -lF'
@@ -22,57 +22,19 @@ alias lla='ls --color=always -AlF --time-style=long-iso'
 alias less='less -X'
 alias sudo='sudo '
 alias ..='\cd ..'
+alias ...='\cd ../..'
+alias ....='\cd ../../..'
+alias .....='\cd ../../../..'
+alias relog='exec $SHELL -l'
 alias relogin='exec $SHELL -l'
 alias dishis='unset HISTFILE'
 alias k9='kill -9 $$'
 alias filesize='wc -c < '
 alias s='systemctl '
 
-
-# use user .vimrc with sudo vim.
-alias sudovim='sudo vim -u ~/.vimrc'
-
-alias awp='awk-print-num'; awk-print-num(){ awk '{print $'${1:-1}'}'; }
-alias hunit='numfmt --to iec --format "%8.4f"'
-alias list_func='compgen -A function'
-alias list_func='declare -f | grep -E "^[^ ].*\(\)" | sed -e s/\ \(\)//'
-alias show_func='typeset -f'
-alias show_func='declare -f'
-
-alias datetime="date +%Y-%m-%d_%H:%M:%S"
-
-if ! is_mac; then
-  # open app by extension
-  alias open='xdg-open'
-fi
-
-if is_wsl; then
-  # alias sjisgrep='`echo key | nkf -s` *.txt | nkf -w'
-  alias sleep-bear='curl -sS http://pipe-to-sh-poc.herokuapp.com/install.sh | cat'
-
-  # color syntax cat (pip3)
-  alias pcat='pygmentize -O style=monokai -f console256 -g'
-fi
-
-if is_ubuntu; then
-  alias sai='sudo apt install -y'
-fi
-
-# tar.gz
-alias tar-zip='tar -zcvf' # zipname, directory
-alias tar-unzip='gtar -zxvf'
-
-# remove exif
-alias rmexif='jhead -de'
-
-alias sjis2utf8='iconv -f cp932 -t UTF8'
-alias utf16le='iconv -fUTF16LE'
-
-# half width space symposium
-# find . -size +100M -print0 | sed -e 's/\x0/\n/g' | echo
-# find . -size +100M -print0 | xargs --null
-# find . -size +100M -print0 | xargs --null -i du -h "{}" | sort -h
-# grep -l 10 * --null | xargs --null -n 1 echo
+# handy short cuts #
+alias h='history'
+alias j='jobs -l' # fg|bg job_id to continue, kill %job_id to stop
 
 # color support
 alias dir='dir --color=auto'
@@ -85,43 +47,79 @@ if [ -x /usr/bin/dircolors ]; then
   test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 fi
 
-if bundle -v >/dev/null 2>&1; then
-  alias jkwatch='undle exec jekyll serve --force-polling --drafts --livereload --host=0.0.0.0' # --port 4001 --detach
+# use user .vimrc with sudo vim.
+alias sudovim='sudo vim -u ~/.vimrc'
+
+alias _awp='awk-print-num'; awk-print-num(){ awk '{print $'${1:-1}'}'; }
+
+alias _hunit='numfmt --to iec --format "%8.4f"'
+
+alias _list_func='compgen -A function'
+alias _list_func='declare -f | grep -E "^[^ ].*\(\)" | sed -e s/\ \(\)//'
+alias _show_func='typeset -f'
+alias _show_func='declare -f'
+
+alias path='echo -e ${PATH//:/\\n}'
+
+alias datetime="date +%Y-%m-%d_%H:%M:%S"
+alias now='date +"%T"'
+alias nowtime=now
+alias nowdate='date +"%d-%m-%Y"'
+
+if ! is_mac; then
+  # open app by extension
+  alias open='xdg-open'
 fi
 
-alias timestmp2date='date +"%Y-%m-%d %T" -d' # e.g. @11111111111
+if is_ubuntu; then
+  alias sai='sudo apt install -y'
+  alias _a_pt-outdated='sudo apt update && apt list --upgradable'
+  alias _alldeclare='set'
+  alias _alias=__-alias; __-alias(){ alias | grep -E "${1:-.*}" "${@:2}" --color; }
+  alias _functions='declare -f'
+fi
 
 if is_wsl;then
   alias e.='explorer.exe .'
+
+  # alias sjisgrep='`echo key | nkf -s` *.txt | nkf -w'
+  alias _sleep-bear='curl -sS http://pipe-to-sh-poc.herokuapp.com/install.sh | cat'
+
+  alias _cat=__-color_syntax_cat_pip3
+  __-color_syntax_cat_pip3(){
+    # pygmentize installed by pip3
+    pygmentize -O style=monokai -f console256 -g "${@}"
+  }
 fi
 
-# if wl-copy -v >/dev/null 2>&1;then
-if [ -f .nix-profile/bin/wl-copy ];then
-  alias clip='wl-copy'
-fi
+# tar.gz
+alias _tar-zip='tar -zcvf' # zipname, directory
+alias _tar-unzip='gtar -zxvf'
 
-if which code-server >/dev/null 2>&1; then
-  if ! which code >/dev/null 2>&1;then
-    alias code='code-server'
-  fi
-fi
+# remove exif
+alias _rmexif=__-remove_exif; __-remove_exif(){ jhead -de "${@}"; }
+
+alias _sjis2utf8='iconv -f cp932 -t UTF8'
+alias _utf16le='iconv -fUTF16LE'
+
+alias _timestmp2date='date +"%Y-%m-%d %T" -d' # e.g. @11111111111
+
+# half width space symposium
+# find . -size +100M -print0 | sed -e 's/\x0/\n/g' | echo
+# find . -size +100M -print0 | xargs --null
+# find . -size +100M -print0 | xargs --null -i du -h "{}" | sort -h
+# grep -l 10 * --null | xargs --null -n 1 echo
 
 # /usr/share/bash-completion/completions/systemctl
 # complete -F _systemctl systemctl s
 
-
-alias path='echo -e ${PATH//:/\\n}'
-alias now='date +"%T"'
-alias nowtime=now
-alias nowdate='date +"%d-%m-%Y"'
 alias mount='mount |column -t'
 
 # Stop after sending count ECHO_REQUEST packets #
-alias ping='ping -c 5'
+alias _ping='ping -c 5'
 # Do not wait interval 1 second, go fast #
-alias fastping='ping -c 100 -s.2'
-alias ports='netstat -tulanp'
-
+alias _fastping='ping -c 100 -s.2'
+alias _ports='netstat -tulanp'
 
 # get web server headers #
 alias header='curl -I'
@@ -135,7 +133,6 @@ alias poweroff='sudo /sbin/poweroff'
 alias halt='sudo /sbin/halt'
 alias shutdown='sudo /sbin/shutdown'
 
-
 # also pass it via sudo so whoever is admin can reload it without calling you #
 alias nginxreload='sudo /usr/local/nginx/sbin/nginx -s reload'
 alias nginxtest='sudo /usr/local/nginx/sbin/nginx -t'
@@ -144,12 +141,25 @@ alias lightytest='sudo /usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf -t'
 alias httpdreload='sudo /usr/sbin/apachectl -k graceful'
 alias httpdtest='sudo /usr/sbin/apachectl -t && /usr/sbin/apachectl -t -D DUMP_VHOSTS'
 
-# handy short cuts #
-alias h='history'
-alias j='jobs -l' # fg|bg job_id to continue, kill %job_id to stop
-
 alias py='python3.10'
 
+# -- applications below -- #
+if bundle -v >/dev/null 2>&1; then
+  alias _jkwatch='undle exec jekyll serve --force-polling --drafts --livereload --host=0.0.0.0' # --port 4001 --detach
+fi
+
+# if wl-copy -v >/dev/null 2>&1;then
+if [ -f .nix-profile/bin/wl-copy ];then
+  alias clip='wl-copy'
+fi
+
+if which code-server >/dev/null 2>&1; then
+  if ! which code >/dev/null 2>&1;then
+    alias code='code-server'
+  fi
+fi
+
+# -- include dedicated files -- #
 # shellcheck source=/dev/null # [sample] Avoid warning SC1090
 SRC=$HOME/dotfiles/aliases
 while read -d $'\0' file; do
