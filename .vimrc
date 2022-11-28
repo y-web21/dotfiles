@@ -24,7 +24,7 @@ set nocompatible  " vi vim を別物 プラグインの誤動作を防止
 set encoding=utf-8
 set fileencodings=utf-8,cp932,euc-jp,sjis
 "set fileencodings=iso-2022-jp,enc-jp,enc-jp,sjis,utf-8
-set fileformat=unix
+set fileformats=unix,dos,mac
 set shell=/bin/bash
 
 "------------------------------------

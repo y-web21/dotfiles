@@ -1,3 +1,5 @@
+test -f ~/dotfiles/private_settings/pre.bash && source ~/dotfiles/private_settings/pre.bash
+
 # enable i-search. (disable terminal stop)
 if [[ -t 0 ]]; then
   stty stop undef
@@ -27,8 +29,12 @@ if [[ -f ${shpath} ]]; then
 fi
 unset shpath
 
-# history counts
-HISTSIZE=100000
+# history
+export HISTSIZE=300
+export HISTFILESIZE=100000
+export HISTTIMEFORMAT='%F %T '
+export HISTIGNORE='history:pwd:ls:ls *:ll:lla:cd:..:gl:glo'
+export HISTCONTROL=erasedups
 
 # sudoedit default editor is nano on wls2. if you use vim, set EDITOR=vim
 
@@ -281,7 +287,7 @@ google() {
   esac
 }
 
-ssh-list-config-files(){
+__ssh-list-config-files(){
 
   local SSH_DIR=$HOME/.ssh/
 
@@ -292,7 +298,7 @@ ssh-list-config-files(){
   fi
 }
 
-ssh-list-known-hosts(){
+__ssh-list-known-hosts(){
 
   local SSH_DIR=$HOME/.ssh/
 
@@ -303,7 +309,27 @@ ssh-list-known-hosts(){
   fi
 }
 
-ssh-show-known-hosts(){
+__ssh-list-known-keys(){
+
+  local SSH_DIR=$HOME/.ssh/
+
+  if test -d $SSH_DIR; then
+    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
+      grep IdentityFile "$file" | sed -E 's/^[ \t]{0,}IdentityFile //'
+    done
+  fi
+}
+
+__ssh-list-all-keys(){
+
+  local SSH_DIR=$HOME/.ssh/
+
+  if test -d $SSH_DIR; then
+    find "$SSH_DIR" | grep -E '(pem|pub)$' | sed 's/\.pub$//'
+  fi
+}
+
+__ssh-show-known-hosts(){
 
   local SSH_DIR=$HOME/.ssh/
   local displayFileName=${1:-false}
@@ -316,7 +342,7 @@ ssh-show-known-hosts(){
   fi
 }
 
-ssh-show-known-hosts-with-filename(){
+__ssh-show-known-hosts-with-filename(){
   ssh-show-known-hosts true
 }
 
@@ -516,3 +542,9 @@ if is_debian_based;then
   # apt-mark unhold
   # APT_HOLD_LIST=$(dpkg --get-selections | grep hold)
 fi
+
+test -f ~/dotfiles/private_settings/post.bash && source ~/dotfiles/private_settings/post.bash
+
+f(){
+  touch "$1" 2>/dev/null || mkdir -p "${1%/*}" && touch "${1}"
+}

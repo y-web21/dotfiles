@@ -31,6 +31,8 @@ alias dishis='unset HISTFILE'
 alias k9='kill -9 $$'
 alias filesize='wc -c < '
 alias type='type'
+alias functoin-list='compgen -A function'
+alias ag='alias | grep -E'
 
 # handy short cuts #
 alias h='history'
@@ -119,6 +121,14 @@ alias _ping='ping -c 5'
 alias _fastping='ping -c 100 -s.2'
 alias _ports='netstat -tulanp'
 
+# test loobback address
+alias _lb='__curl_local_host__'
+__curl_local_host__(){
+  curl 127.0.0.1:${1:-8000} ${2}
+}
+# lsof -i:8080 | awk '{print $2}' | tail +2 | xargs kill
+alias _po=__po__; __po__(){ lsof -i:${1}; }
+
 # get web server headers #
 alias header='curl -I'
 
@@ -155,6 +165,11 @@ if which code-server >/dev/null 2>&1; then
   if ! which code >/dev/null 2>&1;then
     alias code='code-server'
   fi
+fi
+
+if which youtube-dl >/dev/null 2>&1; then
+  alias ydl-sub-en='youtube-dl --no-cache-dir --write-auto-sub --sub-lang en'
+  alias ydl-sub-ja='youtube-dl --no-cache-dir --write-auto-sub --sub-lang ja'
 fi
 
 # -- include dedicated files -- #

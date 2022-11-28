@@ -24,20 +24,29 @@
 	cmam = commit --amend -m
 	cmr = reset --soft HEAD~
 	co = checkout
+	conyou = checkout --theirs
+	conme = checkout --ours
+	cp = cherry-pick
 	d = !"f() { a2=''; [ $# -ge 2 ] && a2=\"@~${2}\"; git diff @~${1:-0} $a2; echo @~${1:-0} $a2; }; f"
+	f = log -p
 	n = now --all --stat
 	s = status
-	r = "!git reset HEAD~${1:-1}"
-	rb = rebase -i
-	rbx = !git rebase -i @~${1:-5} && :
+	r = !"f() { git reset HEAD~${1:-1}; }; f"
+	rb = rebase
+	rbi = !"f() { git rebase -i HEAD~${1:-5}; }; f"
+	onto = "!git rebase --onto"
+	; rbx = !git rebase -i @~${1:-5} && :
 	# == add, commit, push ==
+	apply-gitignore = rm -r --cached .
 	gistpush = !git add . && git commit --allow-empty-message -m '' && git push
 	pust = !git add . && git commit -m 'test [skip ci]' && git push origin @
 	tesh = !git add . && git commit -m \"$(date \"+%Y-%m-%d_%H:%M:%S\")\" && git push origin @
 	hold = update-index --skip-worktree
 	unhold = update-index --no-skip-worktree
 	ls-hold = !"bash -cv 'git ls-files -v | grep ^S'"
-	reset-exhard = "!f() { git reset --hard ${1:-@} && git clean -fdx; }; f"
+	reset-aslo-unstage = "!git reset && git clean -df"
+	# .env とかも全部吹っ飛ぶので使用禁止
+	# reset-exhard = "!f() { git reset --hard ${1:-@} && git clean -fdx; }; f"
 	# hold = update-index --assume-unchanged
 	# unhold = update-index --no-assume-unchanged
 	# ls-hold = !"git ls-files -v | grep ^[a-z]"
@@ -49,18 +58,19 @@
 	sho = !git show $(git hash ${1}):${2} && :
 	show-stash-detail = diff stash@{0}
 	# reset hard & remove untracked file
-    # assume unchanged は、そもそも編集すべきでないファイルを無視リストに登録して高速化を図るもの。よってreset --hard や merge で消える。
+	# assume unchanged は、そもそも編集すべきでないファイルを無視リストに登録して高速化を図るもの。よってreset --hard や merge で消える。
 	vibase = !export GIT_EDITOR=vi && git rebase -i @~${1:-10} && :
 	codase = !export GIT_EDITOR=code && git rebase -i @~${1:-10} && :
 	rm-merged-branch = !git branch --merged | sed -e 's/^\\*.*//' | awk 'NF' | xargs git branch -d
-    # == log, blame ==
+	branch-delete-merged="!f(){git branch --merged | grep -vE '(main|master|dev|develop)' | xargs git branch -d"
+	# == log, blame ==
 	hash = !git log --oneline --format="%H" | awk NR==$((${1:-1}+1)) && :
 	hasha = !git log --oneline --all --format="%H" | awk NR==$((${1:-1}+1)) && :
 	logv = log --pretty='format:%C(yellow)%h %C(green)%cd %C(cyan)[%an] %C(reset)%s %C(red)%d' --date=iso
-    logf = log --name-status
+	logf = log --name-status
 	logfull = log --pretty=fuller
 	blam = !git blame $(git hash ${1}) -- ${2} && :
-    # == util ==
+	# == util ==
 	alias="!bash -c '\
 		GA=$(git config -l | grep ^alias | sed s/^alias\\.// | sed s/=.*$// | sort); \
 		TMP=$(mktemp); \
@@ -81,6 +91,8 @@
 	unstage = reset HEAD --
 	sts = "!f() { stack=''; if [ $# -gt 0 ];then stack=stash@{$1}; fi;  git stash show -p ${stack}; }; f"
 	ignore-list = "! cd -- \"${GIT_PREFIX:-.}\" && git ls-files -v ${1:-.} | sed -n -e \"s,^[a-z] \\(.*\\)$,${GIT_PREFIX:-./}\\1,p\" && git status --ignored --porcelain ${1:-.} 2>/dev/null | sed -n -e \"s/^\\(\\!\\! \\)\\(.*\\)$/\\2/p\" #"
+	conflicts = !git ls-files -u | cut -f 2 | sort -u
+	last = log -1 HEAD
     # git check-ignore
     # git check-attr
 	# stamer = merge "stash@{"

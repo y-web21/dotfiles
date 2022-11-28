@@ -1,24 +1,42 @@
 # What protocol to use when performing git operations. Supported values: ssh, https
 git_protocol: https
 # What editor gh should run when creating issues, pull requests, etc. If blank, will refer to environment.
-editor:
+editor: nano
 # When to interactively prompt. This is a global config that cannot be overridden by hostname. Supported values: enabled, disabled
 prompt: enabled
 # A pager program to send command output to, e.g. "less". Set the value to "cat" to disable the pager.
 pager:
 # Aliases allow you to create nicknames for gh commands
 aliases:
+    # -- pull request --
     co: pr checkout
-    mypr: '!gh pr list -s all -a $(git config user.name)'
-    sr: !gh api -X GET search/repositories -f q="$1" --template "{{range.items}}{{.full_name}} ⭐ {{.stargazers_count | color \"yellow\"}} ({{.description}}){{\"\\n\"}}{{end}}"
-    ignore: '!gh api /gitignore/templates/$1 --jq .source'
-    ignore-ls: '!gh api /gitignore/templates --jq .[] | grep -i "$1"'
-    watches: '!gh api /users/${1:-$(git config user.name)}/subscriptions --paginate --jq .[].full_name'
-    unwatch: '!gh api -X DELETE /repos/${1:-$(git config user.name)}/subscription'
+    mypr: "!gh pr list -s all -a $(git config user.name)"
+    # -- gist with peco --
+    gist-clone: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist clone"
+    gist-view: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view"
+    gist-hash: "!gh gist list -L 500 | peco | awk '{print $1}'"
+    gist-add: |-
+        !gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist edit -a "${1}"
+    gist-new-describe: |-
+        !gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist edit -d "${1}"
+    gist-web: |-
+        !gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view -w
+    gist-edit-file: |-
+        !: && _H_SH=$(gh gist list -L 500 | peco | awk '{print $1}') && gh api https://api.github.com/gists | jq -r --arg _H_ $_H_SH '.[] | select(.id == $_H_).files | keys[]' | peco | xargs gh gist edit $_H_SH -f && unset $_H_SH
+
+    # ++ config ++
+    editor-nano: config set editor "nano"
+    editor-vim: config set editor "vim"
+    editor-vscode: config set editor "code --wait"
+    # -- repos --
+    watches: "!gh api /users/${1:-$(git config user.name)}/subscriptions --paginate --jq .[].full_name"
+    unwatch: "!gh api -X DELETE /repos/${1:-$(git config user.name)}/subscription"
     # gh wf-id | gh action-del
+
+    # == git api test ==
     wf-id: '!gh api repos/$(git config user.name)/$(basename $(git config remote.origin.url) | sed s/\.git//)/actions/runs --paginate -q ".workflow_runs[] | select(.head_branch == \"main\") | (.id)"'
     action-del: '!xargs -i gh api  -X DELETE repos/$(git config user.name)/$(basename $(git config remote.origin.url) | sed s/\.git//)/actions/runs/{}'
-    # aa: api -H "Accept: application/vnd.github.v3+json" /repos/github/gitignore/contents/LICENSE
+    aa: '!gh api -H "Accept: application/vnd.github.v3+json" /repos/github/gitignore/contents/LICENSE'
     ls-gist: '!gh api -H Accept:application/vnd.github+json gists | jq ".[] | .id, ([.files?[].filename] | join(\",\")), (.description | gsub(\" \"; \"__　__\"))" | xargs -n3 echo | grep ${1:-".*"} | column -t | sed -e "s/__　__/ /g"'
     sync-fork-main: |-
         !
@@ -27,6 +45,12 @@ aliases:
         git checkout main
         git merge upstream/main
         git push
+    # -- from web --
+    ignore: "!gh api /gitignore/templates/$1 --jq .source"
+    ignore-ls: '!gh api /gitignore/templates --jq .[] | grep -i "$1"'
+    sr: |-
+        !gh api -X GET search/repositories -f q="$1" --template "{{range.items}}{{.full_name}} ⭐ {{.stargazers_count | color \"yellow\"}} ({{.description}}){{\"\\n\"}}{{end}}"
+
 # The path to a unix socket through which send HTTP connections. If blank, HTTP traffic will be handled by net/http.DefaultTransport.
 http_unix_socket:
 # What web browser gh should use when opening URLs. If blank, will refer to environment.

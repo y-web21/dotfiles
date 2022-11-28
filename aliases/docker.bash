@@ -49,6 +49,19 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
   # alias drune='docker system prune'
 
   # docker container
+  alias da='docker container attache'
+
+  dsh (){
+    CONTAINER=${1:-${CONTAINER}}
+    echo "container 【${CONTAINER}】 shell"
+    docker exec -t ${CONTAINER} bash -c "$2"
+  }
+  dish (){
+    CONTAINER=${1:-${CONTAINER}}
+    echo "container 【${CONTAINER}】 intaractive shell"
+    docker exec -it ${CONTAINER} bash
+  }
+
   alias dphp='docker exec -it php bash'
   alias dfpmreload='docker exec php ps aux | grep master | sed '\''s/ \+/ /g'\'' | cut -d '\'' '\'' -f 2 | xargs docker exec php kill -USR2' # sshrc用
   alias dfpmreload='docker exec php kill -USR2 $(docker exec php ps aux | grep master | awk '\''{print $2}'\'')'

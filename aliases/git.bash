@@ -23,9 +23,12 @@ if [ -e "$(which git 2>/dev/null)" ]; then
   alias gl2='git log -2'
   alias gl3='git log -3'
   alias gl4='git log -4'
+  alias glf='git log --pretty=fuller'
   alias glg='git log --graph'
   alias glo='git log --oneline'
+  alias gloa='git log --oneline --all'
   alias glop='git log --pretty=oneline'
+  alias grl='git reflog'
 
   # log advanced
   alias granking-merge='git log --merges --format="%cn" | sort | uniq -c | sort -r | head'
