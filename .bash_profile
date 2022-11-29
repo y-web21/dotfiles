@@ -8,6 +8,14 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
+
+COMMON_RC=$HOME/.shellrc
+
+# TBDevelopment
+if [ -e $COMMON_RC ]
+  then source $COMMON_RC
+fi
+
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
   # include .bashrc if it exists
@@ -51,3 +59,5 @@ fi
 if [ -e /home/$(whoami)/.nix-profile/etc/profile.d/nix.sh ]; then . /home/$(whoami)/.nix-profile/etc/profile.d/nix.sh; fi
 
 eval "$(gh completion -s bash)"
+
+COMMON_PROFILE=$HOME/.profile_common

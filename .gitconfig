@@ -93,6 +93,7 @@
 	ignore-list = "! cd -- \"${GIT_PREFIX:-.}\" && git ls-files -v ${1:-.} | sed -n -e \"s,^[a-z] \\(.*\\)$,${GIT_PREFIX:-./}\\1,p\" && git status --ignored --porcelain ${1:-.} 2>/dev/null | sed -n -e \"s/^\\(\\!\\! \\)\\(.*\\)$/\\2/p\" #"
 	conflicts = !git ls-files -u | cut -f 2 | sort -u
 	last = log -1 HEAD
+	o = checkout
     # git check-ignore
     # git check-attr
 	# stamer = merge "stash@{"

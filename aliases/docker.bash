@@ -29,7 +29,7 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
 		docker pull nginx
 		docker run --rm --name test2 -d -p 80:80 -t nginx:latest
 		docker ps -a
-    docker ps -as
+		docker ps -as
 		docker rm
 		docker images
 		docker rmi
@@ -40,6 +40,9 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
 		$ docker ps -q | xargs docker stop
 		EOF
   }
+
+  # docker exec -it P bash -g は、グローバルエイリアスで zsh の機能らしい
+  # alias -g P='`docker ps | tail -n +2 | peco | cut -d" " -f1`'
 
   # 宙ぶらりんイメージ（dangling image）のみ削除します。宙ぶらりんイメージとは、タグを持たず、他のコンテナからも参照されないイメージです。
   # docker image prune

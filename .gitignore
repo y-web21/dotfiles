@@ -1,9 +1,7 @@
 *
 !*/
 
-!scripts/*
-!git/**
-
+# main files
 !.gitignore
 !.profile
 !.bash_aliases
@@ -15,14 +13,26 @@
 !.dircolors
 !.nanorc
 !.gitconfig
+!.zshrc
+!.shellrc
 
+# sample
+!.bash_profile__
+
+# main files sub
 !aliases/*
 
+# dotgit
+!git/**
+
+# subfolders
 !.config/gh/config.yml
 
 !.docker/config.json
 !.docker/link.bash
 !.docker/README.md
 
+# doc and scripts
 !*make_link.bash
+!scripts/*
 !/README.md

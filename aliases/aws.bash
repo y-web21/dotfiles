@@ -40,7 +40,7 @@ if [ -e "$(which aws 2>/dev/null)" ]; then
   alias eeee='echo ${CURRENT_SSH_PEM}'
   alias set-env-CURRENT_SSH_SERVER-ec2='export CURRENT_SSH_SERVER=$(ec2list text | grep running | awk '\''NR==1 {print $2}'\'') && echo set ${CURRENT_SSH_SERVER}'
   __ec2connect() {
-    # 要修正
+    # 要修正。EC2コンテナが1つだけ走っていることを前提としているため。peco使うといいかも
     local CURRENT_RUNNING_IID=$(aws ec2 describe-instances --filter 'Name=instance-state-name,Values=running' --query "Reservations[].Instances[].InstanceId" | jq -r .[])
     local IID=${1:-${CURRENT_RUNNING_IID}}
     local EC2_IP=$(aws ec2 describe-instances --instance-ids $IID --output json | jq -r '.Reservations[].Instances[].PublicIpAddress' | head -1)

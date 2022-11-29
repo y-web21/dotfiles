@@ -52,6 +52,8 @@ fi
 # use user .vimrc with sudo vim.
 alias sudovim='sudo vim -u ~/.vimrc'
 
+alias dot='/path/to/dotfiles'
+
 alias _awp='awk-print-num'; awk-print-num(){ awk '{print $'${1:-1}'}'; }
 
 alias _hunit='numfmt --to iec --format "%8.4f"'
