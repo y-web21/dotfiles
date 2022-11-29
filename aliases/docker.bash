@@ -41,9 +41,6 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
 		EOF
   }
 
-  # docker exec -it P bash -g は、グローバルエイリアスで zsh の機能らしい
-  # alias -g P='`docker ps | tail -n +2 | peco | cut -d" " -f1`'
-
   # 宙ぶらりんイメージ（dangling image）のみ削除します。宙ぶらりんイメージとは、タグを持たず、他のコンテナからも参照されないイメージです。
   # docker image prune
   # 既存のコンテナ～使われていないイメージすべてを削除するには、 -a フラグを使います。
@@ -53,6 +50,20 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
 
   # docker container
   alias da='docker container attache'
+
+  alias dphp='docker exec -it php bash'
+  alias dfpmreload='docker exec php ps aux | grep master | sed '\''s/ \+/ /g'\'' | cut -d '\'' '\'' -f 2 | xargs docker exec php kill -USR2' # sshrc用
+  alias dfpmreload='docker exec php kill -USR2 $(docker exec php ps aux | grep master | awk '\''{print $2}'\'')'
+  alias dmysql='docker exec -it db bash -c '\''mysql -uroot -p'\'''
+  alias dnginxreload='docker exec -it nginx bash -c '\''nginx -s reload'\'''
+
+  # docker 2nd gen
+
+  # docker exec -it P bash -g は、グローバルエイリアスで zsh の機能らしい
+  # alias -g P='`docker ps | tail -n +2 | peco | cut -d" " -f1`'
+
+  # bash 代替
+  alias P='CURRENT_CONTAINER=$(docker ps | tail -n +2 | peco | cut -d" " -f1)'
 
   dsh (){
     CONTAINER=${1:-${CONTAINER}}
@@ -64,10 +75,4 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
     echo "container 【${CONTAINER}】 intaractive shell"
     docker exec -it ${CONTAINER} bash
   }
-
-  alias dphp='docker exec -it php bash'
-  alias dfpmreload='docker exec php ps aux | grep master | sed '\''s/ \+/ /g'\'' | cut -d '\'' '\'' -f 2 | xargs docker exec php kill -USR2' # sshrc用
-  alias dfpmreload='docker exec php kill -USR2 $(docker exec php ps aux | grep master | awk '\''{print $2}'\'')'
-  alias dmysql='docker exec -it db bash -c '\''mysql -uroot -p'\'''
-  alias dnginxreload='docker exec -it nginx bash -c '\''nginx -s reload'\'''
 fi
