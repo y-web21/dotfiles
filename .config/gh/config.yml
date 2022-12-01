@@ -11,6 +11,8 @@ aliases:
     # -- pull request --
     co: pr checkout
     mypr: "!gh pr list -s all -a $(git config user.name)"
+    # -- gh with peco --
+    repo-clone: "!gh repo clone $(gh repo list | peco | awk '{print $1}')"
     # -- gist with peco --
     gist-clone: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist clone"
     gist-view: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view"
