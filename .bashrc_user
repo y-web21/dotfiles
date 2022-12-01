@@ -34,7 +34,7 @@ export HISTSIZE=300
 export HISTFILESIZE=100000
 export HISTTIMEFORMAT='%F %T '
 export HISTIGNORE='history:pwd:ls:ls *:ll:lla:cd:..:gl:glo'
-export HISTCONTROL=erasedups
+export HISTCONTROL=ignoreboth # ignorespace and ignoredups
 
 # sudoedit default editor is nano on wls2. if you use vim, set EDITOR=vim
 

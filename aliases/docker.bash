@@ -53,14 +53,28 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
 
   alias dphp='docker exec -it php bash'
   alias dfpmreload='docker exec php ps aux | grep master | sed '\''s/ \+/ /g'\'' | cut -d '\'' '\'' -f 2 | xargs docker exec php kill -USR2' # sshrc用
+  # shellcheck disable=SC2142
   alias dfpmreload='docker exec php kill -USR2 $(docker exec php ps aux | grep master | awk '\''{print $2}'\'')'
+  alias dphpserve='docker exec -t php bash -c "php artisan serve --host 0.0.0.0"'
+
   alias dmysql='docker exec -it db bash -c '\''mysql -uroot -p'\'''
   alias dnginxreload='docker exec -it nginx bash -c '\''nginx -s reload'\'''
+
 
   # docker 2nd gen
 
   # docker exec -it P bash -g は、グローバルエイリアスで zsh の機能らしい
   # alias -g P='`docker ps | tail -n +2 | peco | cut -d" " -f1`'
+
+  # shellcheck disable=SC2142
+  alias dget-cid='docker ps -a | tail +2 | peco | awk '\''{print $1}'\'''
+  # shellcheck disable=SC2142
+  alias dget-image='docker ps -a | tail +2 | peco | awk '\''{print $2}'\'''
+  alias dget-name='docker ps -a | tail +2 | peco | awk '\''{print $NF}'\'''
+  # なぜかエラー
+  # alias d-bash='docker ps -a | tail +2 | peco | awk '\''{print $NF}'\'' | xargs -i docker exec -it {} bash'
+  alias d-bash='docker exec -it $(docker ps -a | tail +2 | peco | awk '\''{print $NF}'\'') bash'
+
 
   # bash 代替
   alias P='CURRENT_CONTAINER=$(docker ps | tail -n +2 | peco | cut -d" " -f1)'
