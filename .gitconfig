@@ -45,6 +45,8 @@
 	unhold = update-index --no-skip-worktree
 	ls-hold = !"bash -cv 'git ls-files -v | grep ^S'"
 	reset-aslo-unstage = "!git reset && git clean -df"
+	ciskip = !git add . && git commit -m 'test [skip ci]' && git push origin @
+	tesh = !git add . && git commit -m \"$(date \"+%Y-%m-%d_%H:%M:%S\")\" && git push origin @
 	# .env とかも全部吹っ飛ぶので使用禁止
 	# reset-exhard = "!f() { git reset --hard ${1:-@} && git clean -fdx; }; f"
 	# hold = update-index --assume-unchanged
@@ -64,6 +66,7 @@
 	rm-merged-branch = !git branch --merged | sed -e 's/^\\*.*//' | awk 'NF' | xargs git branch -d
 	branch-delete-merged="!f(){git branch --merged | grep -vE '(main|master|dev|develop)' | xargs git branch -d"
 	# == log, blame ==
+	blam = !git blame $(git hash ${1}) -- ${2} && :
 	hash = !git log --oneline --format="%H" | awk NR==$((${1:-1}+1)) && :
 	hasha = !git log --oneline --all --format="%H" | awk NR==$((${1:-1}+1)) && :
 	logv = log --pretty='format:%C(yellow)%h %C(green)%cd %C(cyan)[%an] %C(reset)%s %C(red)%d' --date=iso

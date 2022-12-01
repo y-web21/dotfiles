@@ -44,6 +44,7 @@ set statusline=%F%m%r%h%w%=\ %{fugitive#statusline()}\ [%{&ff}:%{&fileencoding}]
 "------------------------------------
 " normal mode settings
 "------------------------------------
+" set ignorecase " with smartcase
 set smartcase  " lower upperのみのときはignorecaseしない
 
 "------------------------------------
@@ -82,6 +83,7 @@ nnoremap gj j
 nnoremap gk k
 " nnoremap ; :
 " nnoremap : ;
+nnoremap <ESC><ESC> :nohl<CR>
 
 "------------------------------------
 " command line key binding

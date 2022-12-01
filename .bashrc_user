@@ -113,7 +113,15 @@ apt-remove-purge(){
   sudo apt-get -y purge --auto-remove $1
 }
 
+version(){
+  echo '- OS'
+  echo cat /etc/os-release | grep PRETTY_NAME | sed -e 's/PRETTY_NAME=//' | sed 's/"//g'
+  docker --version 2>/dev/null
+  docker-compose --version 2>/dev/null
+  nginx -v 2>/dev/null
+}
 
+>>>>>>> origin/littleblue
 # memo
 port_listen(){
   sudo lsof -i -P -n
@@ -275,7 +283,7 @@ google() {
     local opt=$1
     shift
   fi
-  local url="https://google.co.jp/search?q=${*// /+}"
+  local url="https://google.com/search?q=${*// /+}"
   local c="Google Chrome"
   local f="Firefox"
   local s="Safari"
@@ -287,6 +295,7 @@ google() {
   esac
 }
 
+<<<<<<< HEAD
 __ssh-list-config-files(){
 
   local SSH_DIR=$HOME/.ssh/
@@ -357,6 +366,7 @@ if [[ -d /etc/bash_completion.d ]]; then
     curl -sS https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh -o ~/git-prompt &&
       sudo mv ~/git-prompt.sh ${_BASH_COMPLETION_DIR}/
   fi
+
   if [[ ! -f ${_BASH_COMPLETION_DIR}/git-completion.bash ]]; then
     curl -sS https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/git-completion.bash &&
       sudo mv ~/git-completion.bash ${_BASH_COMPLETION_DIR}/ &&
