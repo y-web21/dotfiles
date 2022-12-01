@@ -22,7 +22,7 @@ if [[ "$(getent passwd vagrant)" != "" && -f /etc/bash_completion.d/git-prompt.s
 
   PS1="${BEGIN}\u@${HOST_NAME}${BEGIN_TRIANGLE} ${MIDDLE} \W ${MIDDLE_TRIANGLE}${GIT_CLR}\$(__git_ps1 '(%s)')${END} \! \\$ "
 
-elif [ -f /etc/bash_completion.d/git-prompt.sh ]; then
+elif [[ $($__git_ps1 >/dev/null 2>&1) -eq 0 ]]; then
   # debian prompt + git
   PS1='\t ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\033[00m:\033[01;34m\w\[\033[00m $(__git_ps1 "\e[30;47m(%s)")\e[39;49m <`git config user.name`>\n\$ '
 

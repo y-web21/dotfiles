@@ -75,6 +75,14 @@ metapack(){
   fi
 }
 
+version(){
+  echo '- OS'
+  echo cat /etc/os-release | grep PRETTY_NAME | sed -e 's/PRETTY_NAME=//' | sed 's/"//g'
+  docker --version 2>/dev/null
+  docker-compose --version 2>/dev/null
+  nginx -v 2>/dev/null
+}
+
 # memo
 port_listen(){
   sudo lsof -i -P -n
@@ -226,7 +234,7 @@ google() {
     local opt=$1
     shift
   fi
-  local url="https://google.co.jp/search?q=${*// /+}"
+  local url="https://google.com/search?q=${*// /+}"
   local c="Google Chrome"
   local f="Firefox"
   local s="Safari"

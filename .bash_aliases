@@ -176,6 +176,11 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
   alias dnginxreload='docker exec -it nginx bash -c '\''nginx -s reload'\'''
 fi
 
+# github cli
+if which gh 1>/dev/null; then
+  alias gh-repo-ssh='gh repo list --json sshUrl --jq '\''.[].sshUrl'\'' | sort' 
+fi
+
 # circleci
 alias install-circleci='curl -fLSs https://circle.ci/cli | sudo bash && circleci setup'
 if [ -e "$(which circleci 2>/dev/null)" ]; then
@@ -257,10 +262,12 @@ if is_wsl;then
   alias e.='explorer.exe .'
 fi
 
-# if wl-copy -v >/dev/null 2>&1;then
-if [ -f .nix-profile/bin/wl-copy ];then
+if wl-copy -v >/dev/null 2>&1;then
+# if [ -f .nix-profile/bin/wl-clipboard ];then
   alias clip='wl-copy'
 fi
+
+alias nix-list='nix-env --query --available --installed "*"'
 
 if [ -e "$(which code-server 2>/dev/null)" ]; then 
   alias code='code-server'
@@ -308,4 +315,10 @@ alias httpdtest='sudo /usr/sbin/apachectl -t && /usr/sbin/apachectl -t -D DUMP_V
 
 # handy short cuts #
 alias h='history'
-alias j='jobs -l' # fg job_id to continue, stop job_id to stop
+alias j='jobs -l' # fg job_id to continue, kill %job_id to stop, bg job_id to continue background
+
+# pass to @ddddddddddddddd
+alias timestmp2date='date +"%Y-%m-%d %T" -d'
+alias dc='docker compose'
+alias sai='sudo apt install -y'
+alias apt-installed='sudo dpkg -l'
