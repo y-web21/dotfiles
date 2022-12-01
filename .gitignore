@@ -27,6 +27,7 @@
 
 # subfolders
 !.config/gh/config.yml
+!.aws/config
 
 !.docker/config.json
 !.docker/link.bash
