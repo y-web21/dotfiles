@@ -14,7 +14,8 @@ is_slackware_based() { :; }
 is_centos() { [ "$(cat /etc/redhat-release | cut -d' ' -f1 2>/dev/null)" == 'CentOS' ]; }
 is_linux() { [ "$(expr substr $(uname -s) 1 5)" == 'Linux' ]; }
 is_mac() { [ "$(uname)" == 'Darwin' ]; }
-is_ubuntu() { grep '^NAME="Ubuntu' /etc/os-release >/dev/null 2>&1; }
+is_ubuntu() { grep '^ID=ubuntu' /etc/os-release >/dev/null 2>&1; }
+is_debian() { grep '^ID=debian' /etc/os-release >/dev/null 2>&1; }
 is_wsl() { [ -n "$(which wslpath 2>/dev/null)" ]; } # type2
 is_wsl() { [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; }
 
