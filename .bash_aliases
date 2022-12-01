@@ -75,7 +75,7 @@ if ! is_mac; then
   alias open='xdg-open'
 fi
 
-if is_ubuntu; then
+if is_debian_based; then
   alias sai='sudo apt install -y'
   alias _apt-outdated='sudo apt update && apt list --upgradable'
   alias _apt-update-single-package='sudo apt install --only-upgrade'

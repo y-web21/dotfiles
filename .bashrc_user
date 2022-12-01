@@ -7,7 +7,7 @@ if [[ -t 0 ]]; then
 fi
 
 # base type
-is_debian_based() { [ -f /etc/debian_version ]; }
+is_debian_based() { [ -f /etc/debian_version ]; } # /etc/os-release ID_LIKE=debian || ID=debian
 is_redhat_based() { [ -f /etc/redhat-release ]; }
 is_slackware_based() { :; }
 # os
