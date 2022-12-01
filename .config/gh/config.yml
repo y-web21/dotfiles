@@ -1,7 +1,7 @@
 # What protocol to use when performing git operations. Supported values: ssh, https
 git_protocol: https
 # What editor gh should run when creating issues, pull requests, etc. If blank, will refer to environment.
-editor: code --wait
+editor: vim
 # When to interactively prompt. This is a global config that cannot be overridden by hostname. Supported values: enabled, disabled
 prompt: enabled
 # A pager program to send command output to, e.g. "less". Set the value to "cat" to disable the pager.
@@ -14,7 +14,7 @@ aliases:
     # -- gh with peco --
     repo-clone: "!gh repo clone $(gh repo list | peco | awk '{print $1}')"
     # -- gist with peco --
-    gist-create: "!find . -maxdepth {$1} -type f | peco | awk '{print $}' | xargs -i gh gist create {} -f {}"
+    gist-create: "!find . -maxdepth ${1:-1} -type f | peco | awk '{print $1}' | xargs -i gh gist create {} -f {}"
     gist-delete: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist delete"
     gist-clone: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist clone"
     gist-view: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view"
