@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eo pipefailset -eo pipefail
+set -eo pipefail
 
 cd $(dirname $0)/..
 
@@ -19,7 +19,7 @@ fi
 
 while read file; do
   echo $file
-  rm ~/$file
+  test -e ~/$file && rm ~/$file
   ln -s ~/dotfiles/$file ~/$file
 done < <(find . -mindepth 1 \( -path '*/.git/*' -o -path '*/.gat/*' \) -prune -o -type f -print |
   cut -c 3- | grep ^\\. | grep -v \\.gitignore)
