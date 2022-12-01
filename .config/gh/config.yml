@@ -14,6 +14,7 @@ aliases:
     # -- gh with peco --
     repo-clone: "!gh repo clone $(gh repo list | peco | awk '{print $1}')"
     # -- gist with peco --
+    gist-create: "!find . -type f -maxdepth {$1} | peco | awk '{print $}' | xargs -i gh gist create {} -f {}"
     gist-clone: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist clone"
     gist-view: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view"
     gist-hash: "!gh gist list -L 500 | peco | awk '{print $1}'"
