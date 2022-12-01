@@ -1,0 +1,83 @@
+# [tig(1) · Tig - Text-mode interface for Git](https://jonas.github.io/tig/doc/tig.1.html)
+# [jonas/tig: Text-mode interface for git](https://github.com/jonas/tig)
+# [Tigマニュアル 日本語訳](http://mogile.web.fc2.com/tig/manual.html)
+
+# --- set command ---
+
+set main-view = id date author commit-title:graph=yes,refs=yes
+
+set blob-view-line-number = yes
+set blame-view-line-number = yes
+
+set mouse = true
+# at-eol = ignore space diff on diff-view (toggle W)
+set ignore-space = at-eol
+set ignore-case = true
+set tab-size = 2
+
+
+# --- key maps ---
+# - supported modifier only Ctrl (<C> or <Ctrl>)
+# - two stroke bind not supported (e.g <Ctrl-c-n>)
+# - supported action is show manual
+
+# <F5> or R  :nohl
+bind generic <esc> refresh
+
+# doesn't work <Esc> Crostini
+bind main <Esc>o options
+
+# unmap
+# bind main G none
+
+bind generic <Ctrl-w> move-page-down
+# bind generic <Ctrl-d> move-page-down
+# bind generic <Ctrl-u> move-page-up
+# horizontal movement
+bind generic <Ctrl-f> scroll-right
+bind generic <Ctrl-b> scroll-left
+
+# vim like
+bind generic <Esc>a move-first-line
+bind generic g move-first-line
+bind generic G move-last-line
+
+# remap default conflict with vim like
+bind generic E view-grep
+
+# --- key maps diff view ---
+# jump next diff chunk
+# bind stage <Enter> :/^@@
+
+bind generic <Ctrl-s> find-next
+bind generic <Ctrl-r> find-prev
+bind diff <SingleQuote> :/^@@
+bind diff ; :?^@@
+bind diff <Esc><SingleQuote> :/^diff --(git|cc)
+bind diff <Esc>; :?^diff --(git|cc)
+bind stage <SingleQuote> :/^@@
+bind stage ; :?^@@
+bind stage <Esc><SingleQuote> :/^diff --(git|cc)
+bind stage <Esc>; :?^diff --(git|cc)
+bind pager <SingleQuote> :/^@@
+bind pager ; :?^@@
+bind pager <Esc><SingleQuote> :/^diff --(git|cc)
+bind pager <Esc>; :?^diff --(git|cc)
+bind log <SingleQuote> :/^commit
+bind log ; :?^commit
+
+# --- execute external command ---
+# !ls   immediately
+# ?ls   confirm brefore executeion
+# @ls   execute in the background
+
+# git
+bind generic F !git fetch
+
+# reflog and reset
+bind generic L !sh -c "git reflog --pretty=raw | tig --pretty=raw"
+bind generic _ ?git reset --hard HEAD@{"%(prompt Enter HEAD@{} number: )"}
+
+# copy commit id
+bind generic ` @bash -c "echo -n '%(commit)' | pbcopy"
+
