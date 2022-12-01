@@ -1,0 +1,11 @@
+# !!CAUTION!! '.lesskey' should generate '.less' with the 'lesskey' command.
+#
+# command
+h left-scroll
+l right-scroll
+
+# args memo
+# side scroll step 5
+# less -S -# 5
+
+

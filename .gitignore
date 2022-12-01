@@ -15,6 +15,7 @@
 !.gitconfig
 !.zshrc
 !.shellrc
+!.lesskey
 
 # sample
 !.bash_profile__
