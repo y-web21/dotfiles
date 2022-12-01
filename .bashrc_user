@@ -39,6 +39,9 @@ export HISTCONTROL=ignoreboth # ignorespace and ignoredups
 
 # sudoedit default editor is nano on wls2. if you use vim, set EDITOR=vim
 
+# brew install fzf
+export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -path '*/.node_modules' -prune -o -type f -print"
+
 # ==================== ~/.local ====================
 # putting completion files in ~/.local/share/bash-completion/completions/ should 100% work on modern Linux systems.
 __BASH_COMPLETION_USER_DIR__="${HOME}/.local/share/bash-completion/completions"
