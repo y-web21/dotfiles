@@ -32,6 +32,8 @@ alias grep='grep --color=auto'
 
 PS1='\e[0;33;40m\t\e[1;37;49m \u\e[30;32m@\H \e[39;49m \W \e[0m \! \n\$ '
 
+alias sha1='echo -n "${1}" | openssl sha1 | sed -E "s/.*= //"'
+
 # docker
 alias drmiall='docker rmi $(docker images -q)'
 alias ddestoroy='docker ps -q | xargs docker stop && docker ps -aq | xargs docker rm && docker images -qa | xargs docker rmi'

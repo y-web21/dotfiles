@@ -70,6 +70,8 @@ alias now='date +"%T"'
 alias nowtime=now
 alias nowdate='date +"%d-%m-%Y"'
 
+alias sha1='echo -n "${1}" | openssl sha1 | sed -E "s/.*= //"'
+
 if ! is_mac; then
   # open app by extension
   alias open='xdg-open'
