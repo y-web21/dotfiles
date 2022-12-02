@@ -47,6 +47,9 @@ export HISTCONTROL=ignorespace:ignoredups:erasedups
 
 # sudoedit default editor is nano on wls2. if you use vim, set EDITOR=vim
 
+# prevent garbled Japanese characters such as tig.
+export LC_ALL=en_US.UTF-8
+
 # brew install fzf
 export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -path '*/.node_modules' -prune -o -type f -print"
 

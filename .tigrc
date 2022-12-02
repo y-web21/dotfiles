@@ -80,4 +80,5 @@ bind generic _ ?git reset --hard HEAD@{"%(prompt Enter HEAD@{} number: )"}
 
 # copy commit id
 bind generic ` @bash -c "echo -n '%(commit)' | pbcopy"
+bind generic 9 @bash -c "echo -n '%(commit)' | clip.exe"
 
