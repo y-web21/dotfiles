@@ -8,12 +8,12 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
-
-COMMON_RC=$HOME/.shellrc
-
-# TBDevelopment
-if [ -e $COMMON_RC ]
-  then source $COMMON_RC
+# linuxbrew default install path is
+# /home/<username>/.linuxbrew/bin/brew or /home/linuxbrew/.linuxbrew/bin/brew
+if type /home/linuxbrew/.linuxbrew/bin/brew >/dev/null 2>&1; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif type /home/"$(whoami)"/.linuxbrew/bin/brew >/dev/null 2>&1; then
+  eval "$(/home/"$(whoami)"/.linuxbrew/bin/brew shellenv)"
 fi
 
 # if running bash
@@ -32,14 +32,6 @@ fi
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/.local/bin" ]; then
   PATH="$HOME/.local/bin:$PATH"
-fi
-
-# linuxbrew default install path is
-# /home/<username>/.linuxbrew/bin/brew or /home/linuxbrew/.linuxbrew/bin/brew
-if type /home/linuxbrew/.linuxbrew/bin/brew >/dev/null 2>&1; then
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-elif type /home/"$(whoami)"/.linuxbrew/bin/brew >/dev/null 2>&1; then
-  eval "$(/home/"$(whoami)"/.linuxbrew/bin/brew shellenv)"
 fi
 
 # load homebrew bash-completion file by apt bash-completion.

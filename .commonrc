@@ -1,7 +1,9 @@
 # export PATH=$HOME/.bin:$PATH
 # export CDPATH=$HOME:$CDPATH
 
-export EDITOR="vim"
+# export EDITOR=vim
+# export EDITOR=nano
+# export EDITOR=code --wait
 
 alias ls="ls -F"
 
@@ -25,7 +27,7 @@ is_wsl() { [ -n "$(which wslpath 2>/dev/null)" ]; } # type2
 is_wsl() { [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; }
 
 # =========== ENV, VAR ===========
-export EDITOR=code
+# export EDITOR=vim
 export LESSCHARSET=utf-8
 # color syntax less, sidescroll step 5
 export LESS='-iRXS -# 5'
@@ -122,8 +124,6 @@ __ssh-show-known-hosts-with-filename(){
 
 
 if which brew >/dev/null 2>&1 ; then
-  echo brew\'s
-
   if brew ls z &>/dev/null; then
     . $HOMEBREW_PREFIX/etc/profile.d/z.sh
     # source "$(brew --prefix)"/etc/profile.d/z.sh
