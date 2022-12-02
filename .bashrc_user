@@ -1,47 +1,10 @@
 test -f ~/dotfiles/private_settings/pre.bash && source ~/dotfiles/private_settings/pre.bash
 
-# enable i-search. (disable terminal stop)
-if [[ -t 0 ]]; then
-  stty stop undef
-  # stty start undef
+COMMON_RC=$HOME/.commonrc
+
+if [ -e $COMMON_RC ]
+then source $COMMON_RC
 fi
-
-# base type
-is_debian_based() { [ -f /etc/debian_version ]; } # /etc/os-release ID_LIKE=debian || ID=debian
-is_redhat_based() { [ -f /etc/redhat-release ]; }
-is_slackware_based() { :; }
-# os
-is_centos() { [ "$(cat /etc/redhat-release | cut -d' ' -f1 2>/dev/null)" == 'CentOS' ]; }
-is_linux() { [ "$(expr substr $(uname -s) 1 5)" == 'Linux' ]; }
-is_mac() { [ "$(uname)" == 'Darwin' ]; }
-is_ubuntu() { grep '^ID=ubuntu' /etc/os-release >/dev/null 2>&1; }
-is_debian() { grep '^ID=debian' /etc/os-release >/dev/null 2>&1; }
-is_wsl() { [ -n "$(which wslpath 2>/dev/null)" ]; } # type2
-is_wsl() { [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; }
-
-# =========== ENV, VAR ===========
-export EDITOR=code
-export LESSCHARSET=utf-8
-# color syntax less, sidescroll step 5
-export LESS='-iRXS -# 5'
-# sudo apt install source-highlight
-shpath="/usr/share/source-highlight/src-hilite-lesspipe.sh"
-if [[ -f ${shpath} ]]; then
-  export LESSOPEN="| ${shpath} %s"
-fi
-unset shpath
-
-# history
-export HISTSIZE=300
-export HISTFILESIZE=100000
-export HISTTIMEFORMAT='%F %T '
-export HISTIGNORE='history:pwd:ls:ls *:ll:lla:cd:..:gl:glo'
-export HISTCONTROL=ignoreboth # ignorespace and ignoredups
-
-# sudoedit default editor is nano on wls2. if you use vim, set EDITOR=vim
-
-# brew install fzf
-export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -path '*/.node_modules' -prune -o -type f -print"
 
 # ==================== ~/.local ====================
 # putting completion files in ~/.local/share/bash-completion/completions/ should 100% work on modern Linux systems.
@@ -126,10 +89,6 @@ version(){
   nginx -v 2>/dev/null
 }
 
-# memo
-port_listen(){
-  sudo lsof -i -P -n
-}
 
 rsync-helpo(){
   cat <<-'EOL'
@@ -195,7 +154,7 @@ function git-get-short-hash {
   # shift
   # local dst=${2:-\~}
   # \$2 = destination(guest) default : ${dst}
-  if [[ $# > 0 ]]; then
+  if [[ $# -gt 0 ]]; then
     git log --oneline | head -${1} | tail -1 | awk '{print $1}'
   else
     cat <<-EOF
@@ -206,7 +165,7 @@ function git-get-short-hash {
 }
 
 function git-get-hash {
-  if [[ $# > 0 ]]; then
+  if [[ $# -gt 0 ]]; then
     git log --pretty=oneline | head -${1} | tail -1 | awk '{print $1}'
   else
     cat <<-EOF
@@ -217,7 +176,7 @@ function git-get-hash {
 }
 
 function git-parent-branch {
-  if [[ $# > 1 ]]; then
+  if [[ $# -gt 1 ]]; then
     git show-branch --sha1-name $1 $2 | tail -1
   else
     cat <<-EOF
@@ -299,65 +258,6 @@ google() {
   esac
 }
 
-__ssh-list-config-files(){
-
-  local SSH_DIR=$HOME/.ssh/
-
-  if test -d $SSH_DIR; then
-    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
-      echo "$file"
-    done
-  fi
-}
-
-__ssh-list-known-hosts(){
-
-  local SSH_DIR=$HOME/.ssh/
-
-  if test -d $SSH_DIR; then
-    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
-      grep ^Host "$file" | sed 's/^Host //'
-    done
-  fi
-}
-
-__ssh-list-known-keys(){
-
-  local SSH_DIR=$HOME/.ssh/
-
-  if test -d $SSH_DIR; then
-    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
-      grep IdentityFile "$file" | sed -E 's/^[ \t]{0,}IdentityFile //'
-    done
-  fi
-}
-
-__ssh-list-all-keys(){
-
-  local SSH_DIR=$HOME/.ssh/
-
-  if test -d $SSH_DIR; then
-    find "$SSH_DIR" | grep -E '(pem|pub)$' | sed 's/\.pub$//'
-  fi
-}
-
-__ssh-show-known-hosts(){
-
-  local SSH_DIR=$HOME/.ssh/
-  local displayFileName=${1:-false}
-
-  if test -d $SSH_DIR; then
-    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
-      if ${displayFileName}; then echo -e "\n$file"; fi
-      cat "$file"
-    done
-  fi
-}
-
-__ssh-show-known-hosts-with-filename(){
-  ssh-show-known-hosts true
-}
-
 # git completion
 _BASH_COMPLETION_DIR="/etc/bash_completion.d"
 # _BASH_COMPLETION_DIR="${HOME}/.local/share/bash-completion/completions"
@@ -406,7 +306,7 @@ if [[ -d /etc/bash_completion.d ]]; then
 fi
 unset _BASH_COMPLETION_DIR
 
-# instalation.bash 用へ移行予定の者たち =================================
+# installation.bash 用へ移行予定の者たち =================================
 # /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # curl -LI https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o /dev/null -w '%{http_code}'
@@ -531,7 +431,7 @@ elif is_linux; then
 elif is_mac; then
   :
 else
-  exit 1
+  echo 'nomatch'
 fi
 
 # ============= PS1 sample ===============
