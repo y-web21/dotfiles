@@ -4,7 +4,7 @@
 
 # support only user interactive process.
 
-EXCEPT='grep -v -e gitignore -e README -e \.git -e ^\.vscode -e \.bak$'
+EXCEPT='grep -v -e ^\.gitignore -e README -e \.git$ -e ^\.vscode -e \.bak$'
 
 make_link() {
   read -rp "execute:  ln -s $(pwd)/${1} ${HOME}/${1}"' ok? (y/N) ' input
@@ -15,6 +15,7 @@ make_link() {
       test "${input}" != "y" && return # continue
       rm "${HOME}/${1}"
     fi
+    if [ ! -d "$(dirname ${HOME}/${1})" ]; then mkdir -p "$(dirname ${HOME}/${1})"; fi
     ln -s "$(pwd)/${1}" ~/"${1}" && echo "${1}" 'lineked.'
   fi
 }

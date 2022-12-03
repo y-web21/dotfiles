@@ -44,14 +44,15 @@
 	tesh = !git add . && git commit -m \"$(date \"+%Y-%m-%d_%H:%M:%S\")\" && git push origin @
 	hold = update-index --skip-worktree
 	unhold = update-index --no-skip-worktree
+	# hold = update-index --assume-unchanged
+	# unhold = update-index --no-assume-unchanged
 	ls-hold = !"bash -cv 'git ls-files -v | grep ^S'"
 	reset-aslo-unstage = "!git reset && git clean -df"
 	ciskip = !git add . && git commit -m 'test [skip ci]' && git push origin @
 	tesh = !git add . && git commit -m \"$(date \"+%Y-%m-%d_%H:%M:%S\")\" && git push origin @
+    rm-from-git = rm --cached
 	# .env とかも全部吹っ飛ぶので使用禁止
 	# reset-exhard = "!f() { git reset --hard ${1:-@} && git clean -fdx; }; f"
-	# hold = update-index --assume-unchanged
-	# unhold = update-index --no-assume-unchanged
 	# ls-hold = !"git ls-files -v | grep ^[a-z]"
 	# == secondary ==
 	stash-one = stash push --

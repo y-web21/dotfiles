@@ -28,12 +28,10 @@
 !git/**
 
 # subfolders
-!.config/gh/config.yml
+!.config/**/*
 !.aws/config
 
 !.docker/config.json
-!.docker/link.bash
-!.docker/README.md
 
 # doc and scripts
 !*make_link.bash
