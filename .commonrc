@@ -17,6 +17,9 @@ fi
 is_debian_based() { [ -f /etc/debian_version ]; } # /etc/os-release ID_LIKE=debian || ID=debian
 is_redhat_based() { [ -f /etc/redhat-release ]; }
 is_slackware_based() { :; }
+# window 
+is_wayland() { [ -v WAYLAND_DISPLAY ]; }
+is_xorg() { [ flase ]; } # X11, TBDevelopment
 # os
 is_centos() { [ "$(cat /etc/redhat-release | cut -d' ' -f1 2>/dev/null)" == 'CentOS' ]; }
 is_linux() { [ "$(expr substr $(uname -s) 1 5)" == 'Linux' ]; }
