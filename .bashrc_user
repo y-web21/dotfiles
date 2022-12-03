@@ -434,6 +434,40 @@ else
   echo 'nomatch'
 fi
 
+__history_with_fzf() {
+  local RET
+  # add current session history to ~/.bash_history
+  history -a
+  RET=$(HISTTIMEFORMAT='' ; tac ~/.bash_history | grep -v '^#' | uniq | fzf --query "$READLINE_LINE")
+  if [ '' = "$RET" ]; then return; fi
+  # put text in the bash command line buffer
+  READLINE_LINE="$RET"
+  READLINE_POINT=${#RET}
+}
+
+__history_with_peco() {
+  local RET
+  # add current session history to ~/.bash_history
+  history -a
+  RET=$(HISTTIMEFORMAT='' ; tac ~/.bash_history | grep -v '^#' | uniq | peco --query "$READLINE_LINE")
+  if [ '' = "$RET" ]; then return; fi
+  # put text in the bash command line buffer
+  READLINE_LINE="$RET"
+  READLINE_POINT=${#RET}
+}
+
+# ============= keybind    ===============
+# = [Bindable Readline Commands (Bash Reference Manual)](https://www.gnu.org/software/bash/manual/html_node/Bindable-Readline-Commands.html)
+# = list of keybind -> bind -p 
+# = list of funcions -> bind --function-names
+# = remove default bind -> e.g. stty stop undef
+stty werase undef
+bind '"\C-w": unix-filename-rubout'  # delimiter = /
+bind '"\ew": unix-word-rubout' # delimiter = space (default C-w)
+bind -x '"\eh": __history_with_peco'
+bind -x '"\e\C-h": __history_with_fzf'
+
+
 # ============= PS1 sample ===============
 # if [ -f /etc/bash_completion.d/git-prompt.sh ];then
 #     PS1='\e[30;47m \t \e[30;44m\e[30;37m \W $(__git_ps1 "\e[30;47m(%s)")\e[39;49m <`git config user.name`> \e[0m\n\$ '
