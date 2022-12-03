@@ -25,7 +25,18 @@ aliases:
         !gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist edit -d "${1}"
     gist-web: |-
         !gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view -w
-    gist-edit-file: |-
+    # ファイル単位で見る
+        # _H_SH=$(gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}')
+    gist-show: |-
+        !: &&
+        _H_SH=$(gh gist list -L 500 | peco | awk '{print $1}')
+        _F_LE=$(gh api https://api.github.com/gists --paginate | jq -r --arg _H_ $_H_SH '.[] | select(.id == $_H_).files | keys[]')
+        if [ 1 -ne $(echo $_F_LE | wc -w) ]; then
+          _F_LE=$(gh api https://api.github.com/gists --paginate | jq -r --arg _H_ $_H_SH '.[] | select(.id == $_H_).files | keys[]' | peco)
+        fi
+        gh gist show $_H_SH -f $_F_LE
+        unset _H_SH _F_LE
+    gist-edit: |-
         !: &&
         _H_SH=$(gh gist list -L 500 | peco | awk '{print $1}')
         _F_LE=$(gh api https://api.github.com/gists --paginate | jq -r --arg _H_ $_H_SH '.[] | select(.id == $_H_).files | keys[]')
@@ -35,11 +46,13 @@ aliases:
         gh gist edit $_H_SH -f $_F_LE
         unset _H_SH _F_LE
     gist-search: |-
-        !gh api https://api.github.com/gists --paginate | jq -r '.[] | .id + " " + .description + " " + .files[].filename' | peco | awk '{print $1}' | xargs gh gist view
+        !gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}' | xargs gh gist view
     gist-search-hash: |-
-        !gh api https://api.github.com/gists --paginate | jq -r '.[] | .id + " " + .description + " " + .files[].filename' | peco | awk '{print $1}'
-    gist-search-and-edit: |-
-        !gh api https://api.github.com/gists --paginate | jq -r '.[] | .id + " " + .description + " " + .files[].filename' | peco | awk '{print $1}' | xargs gh gist edit'
+        !gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}'
+    gist-file-edit: |-
+        !gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}' | xargs gh gist edit
+    gist-file-view: |-
+        !gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}' | xargs gh gist view
     gist-all-files: "!gh api https://api.github.com/gists --paginate | jq -r '..|.raw_url?|select(.!=null)'"
     # ++ config ++
     editor-nano: config set editor "nano"

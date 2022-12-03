@@ -72,7 +72,11 @@ alias nowdate='date +"%d-%m-%Y"'
 
 alias sha1='echo -n "${1}" | openssl sha1 | sed -E "s/.*= //"'
 
+# baes
+alias C='xclip -selection c'
+
 if ! is_mac; then
+  alias C='pbcopy'
   # open app by extension
   alias open='xdg-open'
 fi
@@ -87,6 +91,7 @@ if is_debian_based; then
 fi
 
 if is_wsl;then
+  alias C='clip.exe'
   alias e.='explorer.exe .'
 
   # alias sjisgrep='`echo key | nkf -s` *.txt | nkf -w'
