@@ -4,6 +4,8 @@
 
 # support only user interactive process.
 
+EXCEPT='grep -v -e gitignore -e README -e \.git -e ^\.vscode -e \.bak$'
+
 make_link() {
   read -rp "execute:  ln -s $(pwd)/${1} ${HOME}/${1}"' ok? (y/N) ' input
   if [ "$input" == "y" ]; then
@@ -17,10 +19,12 @@ make_link() {
   fi
 }
 
-for TOPLEVELDOTFILE in $(find ./ -maxdepth 1 -type f | cut -c 3- | grep -i '^\.' | grep -v gitignore); do
+for TOPLEVELDOTFILE in $(find ./ -maxdepth 1 -type f | cut -c 3- | grep -i '^\.' | $EXCEPT); do
   make_link $TOPLEVELDOTFILE
 done
 
-for GH_CONFIG in $(find ./.config/gh -maxdepth 1 -type f | cut -c 3- | grep -i '^\.' | grep -v gitignore); do
-  make_link $GH_CONFIG
+for DOT_FOLDER in $(find ./ -maxdepth 1 -type d | cut -c 3- | grep -i '^\.' | $EXCEPT); do
+  for DOT_CONFIG in $(find ${DOT_FOLDER} -maxdepth 3 -type f | $EXCEPT); do
+    make_link $DOT_CONFIG
+  done
 done

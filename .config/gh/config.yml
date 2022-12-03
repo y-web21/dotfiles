@@ -1,7 +1,7 @@
 # What protocol to use when performing git operations. Supported values: ssh, https
 git_protocol: https
 # What editor gh should run when creating issues, pull requests, etc. If blank, will refer to environment.
-editor: vim
+editor:
 # When to interactively prompt. This is a global config that cannot be overridden by hostname. Supported values: enabled, disabled
 prompt: enabled
 # A pager program to send command output to, e.g. "less". Set the value to "cat" to disable the pager.
@@ -49,10 +49,11 @@ aliases:
         !gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}' | xargs gh gist view
     gist-search-hash: |-
         !gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}'
+    # !gh editor="${EDITOR}"
     gist-file-edit: |-
-        !gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}' | xargs gh gist edit
+        !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n 2 bash -c 'gh gist edit $0 -f $1'
     gist-file-view: |-
-        !gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}' | xargs gh gist view
+        !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n2 sh -c 'gh gist view $0 -f $1'
     gist-all-files: "!gh api https://api.github.com/gists --paginate | jq -r '..|.raw_url?|select(.!=null)'"
     # ++ config ++
     editor-nano: config set editor "nano"
