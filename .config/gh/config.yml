@@ -19,39 +19,16 @@ aliases:
     gist-clone: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist clone"
     gist-view: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view"
     gist-hash: "!gh gist list -L 500 | peco | awk '{print $1}'"
-    gist-add: |-
-        !gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist edit -a "${1}"
-    gist-new-describe: |-
-        !gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist edit -d "${1}"
+    gist-add-file: |-
+        !gh gist list -L 500 | peco | awk '{print $1}' | xargs -i gh gist edit {} -a "${1}"
+    gist-add-describe: |-
+        !gh gist list -L 500 | peco | awk '{print $1}' | xargs -i gh gist edit {} -d "${1}"
     gist-web: |-
-        !gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view -w
-    # ファイル単位で見る
-        # _H_SH=$(gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}')
-    gist-show: |-
-        !: &&
-        _H_SH=$(gh gist list -L 500 | peco | awk '{print $1}')
-        _F_LE=$(gh api https://api.github.com/gists --paginate | jq -r --arg _H_ $_H_SH '.[] | select(.id == $_H_).files | keys[]')
-        if [ 1 -ne $(echo $_F_LE | wc -w) ]; then
-          _F_LE=$(gh api https://api.github.com/gists --paginate | jq -r --arg _H_ $_H_SH '.[] | select(.id == $_H_).files | keys[]' | peco)
-        fi
-        gh gist show $_H_SH -f $_F_LE
-        unset _H_SH _F_LE
-    gist-edit: |-
-        !: &&
-        _H_SH=$(gh gist list -L 500 | peco | awk '{print $1}')
-        _F_LE=$(gh api https://api.github.com/gists --paginate | jq -r --arg _H_ $_H_SH '.[] | select(.id == $_H_).files | keys[]')
-        if [ 1 -ne $(echo $_F_LE | wc -w) ]; then
-          _F_LE=$(gh api https://api.github.com/gists --paginate | jq -r --arg _H_ $_H_SH '.[] | select(.id == $_H_).files | keys[]' | peco)
-        fi
-        gh gist edit $_H_SH -f $_F_LE
-        unset _H_SH _F_LE
-    gist-search: |-
-        !gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}' | xargs gh gist view
-    gist-search-hash: |-
-        !gh api https://api.github.com/gists --paginate | jq -r '.[] | .files[].language + "\t"  + .files[].filename + "\t" + .description + "\t" + .id' | peco | awk '{print $NF}'
-    # !gh editor="${EDITOR}"
+        !gh gist list -L 500 | peco | awk '{print $1}' | xargs -i gh gist view {} -w
+    gist-file-hash: |-
+        !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF}'
     gist-file-edit: |-
-        !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n 2 bash -c 'gh gist edit $0 -f $1'
+        !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n 2 sh -c 'gh gist edit $0 -f $1'
     gist-file-view: |-
         !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n2 sh -c 'gh gist view $0 -f $1'
     gist-all-files: "!gh api https://api.github.com/gists --paginate | jq -r '..|.raw_url?|select(.!=null)'"
