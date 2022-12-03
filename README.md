@@ -5,6 +5,17 @@
 curl -L https://github.com/y-web21/dotfiles/main/init/install.bash | bash
 ```
 
+## files
+
+### .lesskey
+
+以下コマンドで`~/.less`を生成してから機能する。
+
+```sh
+cd ~
+lesskey
+```
+
 ## git
 
 ### gitignore
