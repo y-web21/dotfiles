@@ -89,8 +89,27 @@ version(){
   nginx -v 2>/dev/null
 }
 
+asc(){
+  echo "$1" | od -tx1 -tc -An
+}
 
-rsync-helpo(){
+cs-bin(){
+  cat <<-'EOL'
+	# x byte output
+	xxd -g1 cha
+	od -tx1 cha
+	od -tc cha
+	od -tx1 -tc -An <(echo -n abcd)
+	od -tx1 -tc -An <(echo ABCD)
+	# file header
+	xxd -l 50 bash_function.png
+	xxd -l 50 asdf.jpg
+	xxd -l 300 sample.wav
+	od -tc -N 50 return_code.txt
+	EOL
+}
+
+cs-rsync(){
   cat <<-'EOL'
 	# the fllowing example, copy xml file and directories. (on ubuntu rsync)
 	rsync -r --include='*/' --include='*.xml' --exclude='*' src dst
@@ -449,24 +468,73 @@ __history_with_peco() {
   local RET
   # add current session history to ~/.bash_history
   history -a
-  RET=$(HISTTIMEFORMAT='' ; tac ~/.bash_history | grep -v '^#' | uniq | peco --query "$READLINE_LINE")
+  RET=$(HISTTIMEFORMAT='' ; tac ~/.bash_history | grep -v '^#' | uniq | peco --layout=bottom-up --query "$READLINE_LINE")
   if [ '' = "$RET" ]; then return; fi
   # put text in the bash command line buffer
   READLINE_LINE="$RET"
   READLINE_POINT=${#RET}
 }
 
+__interactive_cd() {
+  local DIR
+  DIR=$(find . -mindepth 1 -maxdepth 1 -type d | fzf)
+  pushd "$DIR"
+}
+
+__interacrive_cd_recurse() {
+  local DIR
+  DIR=$(find . -type d | peco --layout=bottom-up)
+  pushd "$DIR"
+}
+
+__relogin(){
+  exec $SHELL -l
+}
+
+__test_bind(){ echo valid; }
+
 # ============= keybind    ===============
 # = [Bindable Readline Commands (Bash Reference Manual)](https://www.gnu.org/software/bash/manual/html_node/Bindable-Readline-Commands.html)
-# = list of keybind -> bind -p 
-# = list of funcions -> bind --function-names
-# = remove default bind -> e.g. stty stop undef
+# = /etc/inputrc ~/.inputrc
+# = list of keybind        -> bind -p
+# = list of funcions       -> bind --function-names
+# = remove bind            -> bind -r "\C-y"
+# = reset all              -> `set -o emacs` or `set -o vi`
+# = disable tty readline   -> stty stop undef
+# = check current settings -> stty -a
+
 stty werase undef
 bind '"\C-w": unix-filename-rubout'  # delimiter = /
 bind '"\ew": unix-word-rubout' # delimiter = space (default C-w)
 bind -x '"\eh": __history_with_peco'
-bind -x '"\e\C-h": __history_with_fzf'
 
+# valid combination
+bind -x '"\e9": __test_bind'
+bind -x '"\ey": __test_bind'
+bind -x '"\e\C-a": __test_bind'
+bind -x '"\e\C-s": __interacrive_cd_recurse'
+bind -x '"\e\C-d": __interactive_cd'
+bind -x '"\e\C-f": __test_bind'
+bind -x '"\e\C-g": __test_bind'
+bind -x '"\e\C-h": __history_with_fzf'
+bind -x '"\e\C-k": __test_bind'
+bind -x '"\e\C-l": __relogin'
+# bind -x '"\e\C-l": __test_bind' あと勝ち上書き。
+bind -x '"\e\C-;": __test_bind'
+# bind -x '"\x27": __test_bind' # single quote
+bind -x '"\e\x27": __test_bind'
+
+# invalid combination cannot map
+bind -x '"\e\C-j": __test_bind'
+bind -x '"\C\x27": __test_bind'
+bind -x '"\e\C-\x27": __test_bind'
+bind -x '"\e\C-c": __test_bind'
+bind -x '"\e\C-z": __test_bind'
+
+# inputrc
+# "\C-h": backward-kill-word  # Ctrl-Backspace
+# "\e[1;5H": unix-line-discard    # Ctrl-Home
+# "\e[1;5F": kill-line        # Ctrl-End
 
 # ============= PS1 sample ===============
 # if [ -f /etc/bash_completion.d/git-prompt.sh ];then
