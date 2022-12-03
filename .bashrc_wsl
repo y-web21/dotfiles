@@ -109,7 +109,7 @@ if [[ "$(which vagrant)" = '' ]]; then
   export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
   # export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/home/${USER}/imo"
 
-  function cp-to-vagrant {
+  cp-to-vagrant() {
     echo 'ex.scp -r -P 2222 -F ssh.config ./src vagrant@localhost:/home/vagrant/'
     local src=$1
     local dst=$2
@@ -132,7 +132,7 @@ if [[ "$(which vagrant)" = '' ]]; then
     fi
   }
 
-  function cp-from-vagrant {
+  cp-from-vagrant() {
     echo 'ex.scp -r -P 2222 -F ssh.config vagrant@localhost:/home/vagrant/src ./'
     local src=$1
     local dst=$2
