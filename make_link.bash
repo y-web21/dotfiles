@@ -20,11 +20,11 @@ make_link() {
   fi
 }
 
-for TOPLEVELDOTFILE in $(find ./ -maxdepth 1 -type f | cut -c 3- | grep -i '^\.' | $EXCEPT); do
+for TOPLEVELDOTFILE in $(find ./ -maxdepth 1 -type f | cut -c 3- | grep -i '^\.' | $EXCEPT | sort); do
   make_link $TOPLEVELDOTFILE
 done
 
-for DOT_FOLDER in $(find ./ -maxdepth 1 -type d | cut -c 3- | grep -i '^\.' | $EXCEPT); do
+for DOT_FOLDER in $(find ./ -maxdepth 1 -type d | cut -c 3- | grep -i '^\.' | $EXCEPT | sort); do
   for DOT_CONFIG in $(find ${DOT_FOLDER} -maxdepth 3 -type f | $EXCEPT); do
     make_link $DOT_CONFIG
   done
