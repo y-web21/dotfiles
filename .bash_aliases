@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1090,SC2034
+# shellcheck disable=SC1090,SC2034,SC2148
 #
-# Shellcheck ignore list:
+# ShellCheck ignore list:
 #  - SC1090: Can't follow non-constant source. Use a directive to specify location.
 #  - SC2034: foo appears unused. Verify it or export it.
+#  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
 #
 # You can find more details for each warning at the following page:
 #    https://github.com/koalaman/shellcheck/wiki/<SCXXXX>
@@ -73,10 +74,10 @@ alias nowdate='date +"%d-%m-%Y"'
 alias sha1='echo -n "${1}" | openssl sha1 | sed -E "s/.*= //"'
 
 # baes
-alias C='xclip -selection c'
+alias C="sed -z -e '$ s/\n//' |xclip -selection c"
 
 if ! is_mac; then
-  alias C='pbcopy'
+  alias C="gsed -z -e '$ s/\n//' | pbcopy"
   # open app by extension
   alias open='xdg-open'
 fi
@@ -84,7 +85,7 @@ fi
 if is_debian_based; then
   if is_wayland; then
     # apt install wl-cpoy
-    alias C='wl-copy'
+    alias C="sed -z -e '$ s/\n//' | wl-copy"
   fi
   alias sai='sudo apt install -y'
   alias _apt-outdated='sudo apt update && apt list --upgradable'
@@ -95,7 +96,7 @@ if is_debian_based; then
 fi
 
 if is_wsl;then
-  alias C='clip.exe'
+  alias C="sed -z -e '$ s/\n//' | clip.exe"
   alias e.='explorer.exe .'
 
   # alias sjisgrep='`echo key | nkf -s` *.txt | nkf -w'
