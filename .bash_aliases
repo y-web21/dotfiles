@@ -71,8 +71,6 @@ alias now='date +"%T"'
 alias nowtime=now
 alias nowdate='date +"%d-%m-%Y"'
 
-alias sha1='echo -n "${1}" | openssl sha1 | sed -E "s/.*= //"'
-
 # baes
 alias C="sed -z -e '$ s/\n//' |xclip -selection c"
 
