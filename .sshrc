@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1090,SC2034
 #
-# Shellcheck ignore list:
+# ShellCheck ignore list:
 #  - SC1090: Can't follow non-constant source. Use a directive to specify location.
 #  - SC2034: foo appears unused. Verify it or export it.
 #

@@ -34,6 +34,12 @@
 
 !.docker/config.json
 
+# submodules
+!functions/primary.bash
+!modules/keybind.bash
+!modules/PS1.sh
+!modules/*.md
+
 # doc and scripts
 !*make_link.bash
 !scripts/*

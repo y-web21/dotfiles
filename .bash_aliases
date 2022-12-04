@@ -32,7 +32,6 @@ alias dishis='unset HISTFILE'
 alias k9='kill -9 $$'
 alias filesize='wc -c < '
 alias type='type'
-alias functoin-list='compgen -A function'
 alias ag='alias | grep -E'
 
 # handy short cuts #
@@ -59,10 +58,10 @@ alias _awp='awk-print-num'; awk-print-num(){ awk '{print $'${1:-1}'}'; }
 
 alias _hunit='numfmt --to iec --format "%8.4f"'
 
-alias _list_func='compgen -A function'
-alias _list_func='declare -f | grep -E "^[^ ].*\(\)" | sed -e s/\ \(\)//'
-alias _show_func='typeset -f'
-alias _show_func='declare -f'
+alias _func-list='compgen -A function'
+alias _func-list='declare -f | grep -E "^[^ ].*\(\)" | sed -e s/\ \(\)//'
+alias _func-show='typeset -f'
+alias _func-show='declare -f'
 
 alias path='echo -e ${PATH//:/\\n}'
 

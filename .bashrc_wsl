@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1090,SC2034
 #
-# Shellcheck ignore list:
+# ShellCheck ignore list:
 #  - SC1090: Can't follow non-constant source. Use a directive to specify location.
 #  - SC2034: foo appears unused. Verify it or export it.
 #
@@ -31,6 +31,8 @@ if which scoop; then
   SCOOP_HOME=$(dirname "$(dirname "$(which scoop)")")
 fi
 
+. ./modules/PS1.sh 'wsl'
+
 # =============== host michine ===============
 # zsh
 # alias chrome='(){/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe $(wslpath -w $(realpath $1))'
@@ -59,42 +61,6 @@ fix_wsl2_interop
 
 test -e ~/.bashrc.local || ln -s ${CONFIG_DIR_WIN_PRI}/.bashrc.local ~/.bashrc.local
 test -e ~/.gitconfig.local || ln -s ${CONFIG_DIR_WIN_PRI}/.gitconfig.local ~/.gitconfig.local
-
-############### ターミナルのコマンド受付状態の表示変更
-# \u ユーザ名
-# \h ホスト名
-# \W カレントディレクトリ
-# \w カレントディレクトリのパス
-# \n 改行
-# \d 日付
-# \[ 表示させない文字列の開始
-# \] 表示させない文字列の終了
-# \$ $
-# ##############
-# ANSI escape codes:
-# https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
-# 装飾
-#   attributes
-# 1	bold
-# 2	low intensity
-# 4	underline
-# 5	blink
-# 7	reverse video
-# 8	invisible text
-# ##############
-# []は無くても良い。(bash限定?dashはダメかも。dashは、echo -e もだめ)
-# \e[<font-style>;<font-color>;<back-color>m
-# 39,49mでそれぞれ色リセット。\e[0m オールリセット
-# PS1='\e[0;33;40m\t\e[1;37;49m \u\e[30;32m@\H \e[39;49m \W \e[0m \! \n\$ '
-
-__git_ps1 >/dev/null 2>&1
-if [ $? -eq 0 ]; then
-  PS1='\e[30;47m \t \e[30;44m\e[30;37m \W $(__git_ps1 "\e[30;47m(%s)")\e[39;49m <`git config user.name`> \e[0m\n\$ '
-elif [ 1==1 ]; then
-  PS1='\e[30;47m \t \e[30;44m\e[30;37m \W \e[0m we need git-prompt! \n\$ '
-else
-  PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
 
 if [[ "$(which vagrant)" = '' ]]; then
   # . /opt/vagrant/embedded/gems/2.2.19/gems/vagrant-2.2.19/contrib/bash/completion.sh
