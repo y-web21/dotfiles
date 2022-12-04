@@ -510,6 +510,7 @@ __cd_z() {
 
 __relogin(){
   stty echo
+  stty sane
   exec $SHELL -l
 }
 

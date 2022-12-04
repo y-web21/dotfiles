@@ -1,5 +1,7 @@
 # =============== keybind =================
 # = [Bindable Readline Commands (Bash Reference Manual)](https://www.gnu.org/software/bash/manual/html_node/Bindable-Readline-Commands.html)
+# = [Readline Init File Syntax (Bash Reference Manual)](https://www.gnu.org/software/bash/manual/html_node/Readline-Init-File-Syntax.html)
+# = [Debugging with GDB - Readline Init File Syntax](https://ftp.gnu.org/old-gnu/Manuals/gdb/html_node/gdb_244.html)
 # = find key label
 # = 1. Press "cat" and Enter
 # = 2. press the up arrow to display "^[[A"
@@ -9,6 +11,8 @@
 # = "\C-h": backward-kill-word  # Ctrl-Backspace
 # = "\e[1;5H": unix-line-discard    # Ctrl-Home
 # = "\e[1;5F": kill-line        # Ctrl-End
+# =
+# = !! Inline comments can trigger unexpected bugs in inputrc. !!
 
 # GNU readline
 set bind-tty-special-chars Off
@@ -21,9 +25,12 @@ set bind-tty-special-chars Off
 set completion-ignore-case on
 set colored-stats on
 set colored-completion-prefix on
+# pressing the TAB key once behaviors like pressing the TAB key twice
+set show-all-if-ambiguous on
 
-# mark executable
+# mark executable files
 set visible-stats on
+
 
 # overwrite __test_bind
 # "\e\C-l": "__relogin\n"'
