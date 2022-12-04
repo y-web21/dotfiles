@@ -1,0 +1,57 @@
+# =============== keybind =================
+# = [Bindable Readline Commands (Bash Reference Manual)](https://www.gnu.org/software/bash/manual/html_node/Bindable-Readline-Commands.html)
+# = find key label
+# = 1. Press "cat" and Enter
+# = 2. press the up arrow to display "^[[A"
+# = 3. substitute "^[" to "\e"
+# =    bind -x '"\e[A": your_function'
+# =
+# = "\C-h": backward-kill-word  # Ctrl-Backspace
+# = "\e[1;5H": unix-line-discard    # Ctrl-Home
+# = "\e[1;5F": kill-line        # Ctrl-End
+
+# GNU readline
+set bind-tty-special-chars Off
+# delimiter = /
+"\C-w": unix-filename-rubout
+# delimiter = space (default C-w)
+"\ew": unix-word-rubout
+
+# tab completion
+set completion-ignore-case on
+set colored-stats on
+set colored-completion-prefix on
+
+# mark executable
+set visible-stats on
+
+# overwrite __test_bind
+# "\e\C-l": "__relogin\n"'
+# "\e\C-l": "__test_bind\n"'
+
+# complex bind
+# esc -> ctrl+k -> ;
+# "\e\C-k;": "__test_bind\n"
+
+# valid combination
+# "\e9": "__test_bind\n"
+# "\ey": "__test_bind\n"
+# "\e\C-a": "__test_bind\n"
+# "\e\C-s": "__test_bind\n"
+# "\e\C-d": "__test_bind\n"
+# "\e\C-f": "__test_bind\n"
+# "\e\C-g": "__test_bind\n"
+# "\e\C-h": "__test_bind\n"
+# "\e\C-j": "__test_bind\n"
+# "\e\C-k": "__test_bind\n"
+# "\e\C-l": "__test_bind\n"
+# "\e\C-;": "__test_bind\n"
+# "\e\x27": "__test_bind\n" # single quote (od -t x1 -An <(echo -n \'))
+# "\e[A": "__test_bind\n" # up arrow (cat)
+
+# # invalid combination cannot map
+# "\e\C-c": "__test_bind\n"
+# "\e\C-z": "__test_bind\n"
+# bind -x '"\ez": __test_bind'
+
+

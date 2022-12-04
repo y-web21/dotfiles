@@ -17,6 +17,7 @@
 !.commonrc
 !.lesskey
 !.tigrc
+!.inputrc
 
 # sample
 !.bash_profile__

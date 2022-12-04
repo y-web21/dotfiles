@@ -44,6 +44,7 @@ __rm__() {
 metapack(){
   if apt-get -v >/dev/null 2>&1; then
     echo '=== apt list, apt-get install ==='
+    # sudo apt update
     dpkg -l "*${1}*" | grep --color "${1}"
     # apt list "*${1}*" | grep --color "${1}"
   fi
@@ -453,6 +454,7 @@ else
   echo 'nomatch'
 fi
 
+
 __history_with_fzf() {
   local RET
   # add current session history to ~/.bash_history
@@ -478,23 +480,32 @@ __history_with_peco() {
 __interactive_cd() {
   local DIR
   DIR=$(find . -mindepth 1 -maxdepth 1 -type d | fzf)
-  pushd "$DIR"
+  if [ '' = "$DIR" ]; then return; fi
+  cd "$DIR"
 }
 
 __interacrive_cd_recurse() {
   local DIR
-  DIR=$(find . -type d | peco --layout=bottom-up)
-  pushd "$DIR"
+  DIR=$(find . -mindepth 1 -type d | peco --layout=bottom-up)
+  if [ '' = "$DIR" ]; then return; fi
+  cd "$DIR"
+}
+
+__cd_z() {
+  local DIR
+  DIR=$(z | peco | awk '{print $NF}')
+  if [ '' = "$DIR" ]; then return; fi
+  cd "$DIR"
 }
 
 __relogin(){
+  stty echo
   exec $SHELL -l
 }
 
 __test_bind(){ echo valid; }
 
-# ============= keybind    ===============
-# = [Bindable Readline Commands (Bash Reference Manual)](https://www.gnu.org/software/bash/manual/html_node/Bindable-Readline-Commands.html)
+# =============== keybind =================
 # = /etc/inputrc ~/.inputrc
 # = list of keybind        -> bind -p
 # = list of funcions       -> bind --function-names
@@ -503,38 +514,13 @@ __test_bind(){ echo valid; }
 # = disable tty readline   -> stty stop undef
 # = check current settings -> stty -a
 
-stty werase undef
-bind '"\C-w": unix-filename-rubout'  # delimiter = /
-bind '"\ew": unix-word-rubout' # delimiter = space (default C-w)
-bind -x '"\eh": __history_with_peco'
-
-# valid combination
-bind -x '"\e9": __test_bind'
-bind -x '"\ey": __test_bind'
-bind -x '"\e\C-a": __test_bind'
-bind -x '"\e\C-s": __interacrive_cd_recurse'
-bind -x '"\e\C-d": __interactive_cd'
-bind -x '"\e\C-f": __test_bind'
-bind -x '"\e\C-g": __test_bind'
-bind -x '"\e\C-h": __history_with_fzf'
-bind -x '"\e\C-k": __test_bind'
+# user defined function
 bind -x '"\e\C-l": __relogin'
-# bind -x '"\e\C-l": __test_bind' あと勝ち上書き。
-bind -x '"\e\C-;": __test_bind'
-# bind -x '"\x27": __test_bind' # single quote
-bind -x '"\e\x27": __test_bind'
-
-# invalid combination cannot map
-bind -x '"\e\C-j": __test_bind'
-bind -x '"\C\x27": __test_bind'
-bind -x '"\e\C-\x27": __test_bind'
-bind -x '"\e\C-c": __test_bind'
-bind -x '"\e\C-z": __test_bind'
-
-# inputrc
-# "\C-h": backward-kill-word  # Ctrl-Backspace
-# "\e[1;5H": unix-line-discard    # Ctrl-Home
-# "\e[1;5F": kill-line        # Ctrl-End
+bind -x '"\eh": __history_with_peco'
+bind -x '"\e\ed": __interacrive_cd_recurse'
+bind -x '"\ed": __interactive_cd'
+bind -x '"\e\C-h": __history_with_fzf'
+bind -x '"\ej": __cd_z'
 
 # ============= PS1 sample ===============
 # if [ -f /etc/bash_completion.d/git-prompt.sh ];then
@@ -543,8 +529,8 @@ bind -x '"\e\C-z": __test_bind'
 #     PS1='\e[30;47m \t \e[30;44m\e[30;37m \W \e[0m we need git! \n\$ '
 # fi
 
-# ============= to .bashrc ===============
-# test -r ~/.bashrc_user && . ~/.bashrc_user
+# ============== .bashrc =================
+# /etc/skel/.bashrc
 
 test -r ~/.bash_aliases && . ~/.bash_aliases
 test -r ~/.bashrc.local && . ~/.bashrc.local
