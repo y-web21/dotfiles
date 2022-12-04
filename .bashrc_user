@@ -477,6 +477,16 @@ __history_with_peco() {
   READLINE_POINT=${#RET}
 }
 
+__pick_path() {
+  local RET
+  RET=$(find . | fzf)
+  # RET=$(find . -mindepth 1 -maxdepth 5 -perm /u=x,g=x,o=x -type f | fzf)
+  if [ '' = "$RET" ]; then return; fi
+  # put text in the bash command line buffer
+  READLINE_LINE="$READLINE_LINE $RET"
+  READLINE_POINT=${#READLINE_LINE}
+}
+
 __interactive_cd() {
   local DIR
   DIR=$(find . -mindepth 1 -maxdepth 1 -type d | fzf)
@@ -521,6 +531,7 @@ bind -x '"\e\ed": __interacrive_cd_recurse'
 bind -x '"\ed": __interactive_cd'
 bind -x '"\e\C-h": __history_with_fzf'
 bind -x '"\ej": __cd_z'
+bind -x '"\ep": __pick_path'
 
 # ============= PS1 sample ===============
 # if [ -f /etc/bash_completion.d/git-prompt.sh ];then
