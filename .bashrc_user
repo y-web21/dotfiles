@@ -489,9 +489,11 @@ __pick_path() {
 
 __interactive_cd() {
   local DIR
-  DIR=$(find . -mindepth 1 -maxdepth 1 -type d | fzf)
-  if [ '' = "$DIR" ]; then return; fi
-  cd "$DIR"
+  while true; do
+    DIR=$(find ${1:-.} -mindepth 0 -maxdepth 1 -type d | sed '1a ..' | grep -v ^\.$ | fzf)
+    if [ '' = "$DIR" ]; then return; fi
+    cd "$DIR"
+  done
 }
 
 __interacrive_cd_recurse() {
