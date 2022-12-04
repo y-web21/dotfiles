@@ -9,6 +9,10 @@ curl -L https://github.com/y-web21/dotfiles/main/init/install.bash | bash
 
 `rc`には表示するコマンドは書かない。
 
+- [rsync -e ssh error protocol incompatibility](https://www.linuxquestions.org/questions/linux-networking-3/rsync-e-ssh-error-protocol-incompatibility-345101/)
+
+`ssh`でもトラブルが起きる。
+
 ### .lesskey
 
 以下コマンドで`~/.less`を生成してから機能する。
