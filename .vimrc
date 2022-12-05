@@ -81,14 +81,27 @@ nnoremap j gj
 nnoremap k gk
 nnoremap gj j
 nnoremap gk k
-" nnoremap ; :
-" nnoremap : ;
+nnoremap ; :
+nnoremap : ;
 nnoremap <ESC><ESC> :nohl<CR>
+
+augroup main
+  autocmd!
+augroup END
+
+"" Insert line break by Enter in normal mode
+autocmd main BufWinEnter *
+  \  if &modifiable
+  \|   nnoremap <buffer> <CR> i<CR><ESC>
+  \| else
+  \|   nunmap <buffer> <CR>
+  \| endif
+
 
 "------------------------------------
 " command line key binding
 "------------------------------------
-cnoremap oden q!
+cnoremap fuck q!
 
 " no create temp files
 " set noswapfile
