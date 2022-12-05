@@ -31,7 +31,7 @@ if which scoop; then
   SCOOP_HOME=$(dirname "$(dirname "$(which scoop)")")
 fi
 
-. ./modules/PS1.sh 'wsl'
+. ~/dotfiles/modules/PS1.sh 'wsl'
 
 # =============== host michine ===============
 # zsh

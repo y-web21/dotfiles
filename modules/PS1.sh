@@ -1,14 +1,14 @@
 #!/bin/sh
 
 BCHR_WBG='\e[30;47m'
-BCHR_BBG='\e[30;44m'
+WCHR_BBG='\e[37;44m'
 CLR_RESET='\e[39;49m'
 EO_PS1='\e[0m'
 
 if [ "$1" = 'wsl' ]; then
   __git_ps1 >/dev/null 2>&1
   if [ $? -eq 0 ]; then
-    PS1="$BCHR_WBG \t $BCHR_BBG \W $(__git_ps1 "$BCHR_WBG(%s)")$CLR_RESET <$(git config user.name)> $EO_PS1\n\$ "
+    PS1="$BCHR_WBG \t $WCHR_BBG \W $(__git_ps1 "$BCHR_WBG(%s)")$CLR_RESET <$(git config user.name)> $EO_PS1\n\$ "
     return
   fi
   # shellcheck disable=2154
