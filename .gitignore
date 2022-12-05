@@ -35,7 +35,7 @@
 !.docker/config.json
 
 # submodules
-!functions/primary.bash
+!functions/*.bash
 !modules/keybind.bash
 !modules/PS1.sh
 !modules/*.md

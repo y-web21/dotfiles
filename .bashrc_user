@@ -21,18 +21,6 @@ if [ ! -d ${__BASH_COMPLETION_USER_DIR__} ]; then
 fi
 unset __BASH_COMPLETION_USER_DIR__
 
-ucase() { echo ${@^^}; }
-lcase() { echo ${@,,}; }
-mkcd() { mkdir -p $1; cd $1; }
-make-bak() { test $# -ne 0 && cp ${1}{,.bak}; }
-__rm__() {
-  # 眠いのでまた今度な
-  if [[ $(grep -E '-(rf|fr)[ ]{1,}\/[ ]{1,}|-[rf]{}[ ]{1,}-[rf]\/[ ]{1,}') ]]; then
-    echo damepo
-  fi
-  rm $*
-}
-
 metapack(){
   if apt-get -v >/dev/null 2>&1; then
     echo '=== apt list, apt-get install ==='
@@ -67,24 +55,6 @@ metapack(){
   fi
 }
 
-apt-remove-purge(){
-  sudo apt-get -y remove $1
-  sudo apt-get -y remove --auto-remove $1
-  sudo apt-get -y purge $1
-  sudo apt-get -y purge --auto-remove $1
-}
-
-version(){
-  echo '- OS'
-  echo cat /etc/os-release | grep PRETTY_NAME | sed -e 's/PRETTY_NAME=//' | sed 's/"//g'
-  docker --version 2>/dev/null
-  docker-compose --version 2>/dev/null
-  nginx -v 2>/dev/null
-}
-
-asc(){
-  echo "$1" | od -tx1 -tc -An
-}
 
 cs-bin(){
   cat <<-'EOL'
@@ -218,56 +188,6 @@ git-config-options-helpo(){
 	add .gitattributes > echo '*.html diff=sjis' > .gitattributes
 
 	EOF
-}
-
-function grepsjis-recursive {
-  # grep -$1 "${2}" --include="${3}" --include="${4}" | xargs -I% iconv -f cp932 -t UTF8 '%' | grep --color "${2}"
-  grep $1 -l $3 . $4 $5 $6 | xargs -I% iconv -f cp932 -t UTF8 '%' | grep $1 $2 --color $3
-}
-
-# docker
-function dockerhub-tags() {
-  if [[ $# -lt 1 ]]; then
-		cat <<- 'EOL'
-			$1 = image name (ex. node, python, php...)
-			$2 = inquery pages (default 3 pages)
-		EOL
-    return 1
-  fi
-  local MAX_PAGE=${2:-3}
-  local IMAGE=$1
-  local BASE_URL='https://registry.hub.docker.com/v2/repositories/library/'
-  local NEXT_URL=${BASE_URL}${IMAGE}/tags
-  for _ in $(seq 1 $MAX_PAGE); do
-    curl -sS ${NEXT_URL} | jq -r '."results"[]["name"]'
-    NEXT_URL=$(curl -sS ${NEXT_URL} | jq -r '."next"')
-    [ ${NEXT_URL} == "null" ] || [ ${NEXT_URL} == "" ] && break
-  done
-}
-
-function rand-str() {
-  local len=${1:-16}
-  local line=${2:-1}
-  local tr_arg=${3:-a-zA-Z0-9}
-  local prepare=$(($len + 100))
-  cat /dev/urandom | tr -dc ${tr_arg} | fold -w ${len} | head -n ${prepare} | uniq | head -n ${line}
-}
-
-google() {
-  if [ $(echo $1 | grep "^-[cfs]$") ]; then
-    local opt=$1
-    shift
-  fi
-  local url="https://google.com/search?q=${*// /+}"
-  local c="Google Chrome"
-  local f="Firefox"
-  local s="Safari"
-  case $opt in
-  -c) open $url -a $c ;;
-  -f) open $url -a $f ;;
-  -s) open $url -a $s ;;
-  *) open $url ;;
-  esac
 }
 
 # git completion

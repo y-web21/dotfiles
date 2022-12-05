@@ -89,4 +89,27 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
     echo "container 【${CONTAINER}】 intaractive shell"
     docker exec -it ${CONTAINER} bash
   }
+
+  dockerhub-tags() {
+  if [[ $# -lt 1 ]]; then
+		cat <<- 'EOL'
+			$1 = image name (ex. node, python, php...)
+			$2 = inquery pages (default 3 pages)
+		EOL
+    return 1
+  fi
+  local MAX_PAGE=${2:-3}
+  local IMAGE=$1
+  local BASE_URL='https://registry.hub.docker.com/v2/repositories/library/'
+  local NEXT_URL=${BASE_URL}${IMAGE}/tags
+  for _ in $(seq 1 $MAX_PAGE); do
+    curl -sS ${NEXT_URL} | jq -r '."results"[]["name"]'
+    NEXT_URL=$(curl -sS ${NEXT_URL} | jq -r '."next"')
+    [ ${NEXT_URL} == "null" ] || [ ${NEXT_URL} == "" ] && break
+  done
+}
+
+
+
+
 fi
