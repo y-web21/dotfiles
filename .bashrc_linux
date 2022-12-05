@@ -3,7 +3,7 @@
 # ShellCheck ignore list:
 #  - SC2148: Can't follow non-constant source. Use a directive to specify location.
 
-is_debian_based && . ./dotfiles/modules/PS1.sh 'debian'
+is_debian_based && . ~/dotfiles/modules/PS1.sh 'debian'
 
 if is_ubuntu && ! is_ubuntu; then
   # Jekyll on Ubuntu
