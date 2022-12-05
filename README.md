@@ -30,6 +30,13 @@ lesskey
 - `Enter`が`^M`となる -> `stty sane`
   - `stty -a`で確認して`stty icrnl`で解決するケースもあるようだが、遭遇していない
 
+- このあたりで解決しなければ、再起動しよう
+  - `/usr/bash/clear`
+  - `/usr/bash/reset`
+  - `stty sane`
+  - `stty echo`
+  - `stty icrnl`
+
 #### Key sequence に使うキーの調べ方
 
 `cat`して`Home`キーとか制御キーを押して見る。

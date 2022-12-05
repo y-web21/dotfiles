@@ -12,8 +12,11 @@ aliases:
     co: pr checkout
     mypr: "!gh pr list -s all -a $(git config user.name)"
     # -- gh with peco --
+    b: browse
+    wb: "!gh repo list -L 500 | peco | awk '{print $1}' | xargs gh repo view -w"
     repo-clone: "!gh repo clone $(gh repo list | peco | awk '{print $1}')"
     # -- gist with peco --
+    gwb: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view -w"
     gist-create: |-
         !FILE=$(find . -maxdepth ${1:-1} -type f | peco | awk '{print $1}')
         DESC="$(read -p 'description: ' DESC && echo $DESC)"
@@ -24,16 +27,25 @@ aliases:
     gist-hash: "!gh gist list -L 500 | peco | awk '{print $1}'"
     gist-add-file: |-
         !gh gist list -L 500 | peco | awk '{print $1}' | xargs -i gh gist edit {} -a "${1}"
-    gist-add-describe: |-
-        !gh gist list -L 500 | peco | awk '{print $1}' | xargs -i gh gist edit {} -d "${1}"
+    gist-edit-desc: |-
+        !RES="$(gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk -F\" '{print $(NF-1), $NF}')"
+        HASH=$(echo "$RES" | rev | cut -d ' ' -f 1 | rev)
+        OLD_DESC="$(echo ${RES% ${HASH}*})"
+        [ -z "$HASH" ] && exit
+        echo old_description: "${OLD_DESC}\n\n"
+        gh gist view $HASH | less
+        DESC=$(read -p "description: " DESC && echo $DESC)
+        if [ -z "$DESC" ]; then read -p "delete description? (y/N)" YN && [ $YN != y -a $YN != Y ] && exit; fi
+        GH_EDITOR=cat
+        gh gist edit $HASH -d "$DESC" >/dev/null
     gist-web: |-
         !gh gist list -L 500 | peco | awk '{print $1}' | xargs -i gh gist view {} -w
     gist-file-hash: |-
         !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF}'
     gist-file-edit: |-
-        !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n 2 sh -c 'gh gist edit $0 -f $1'
+        !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n 2 sh -c 'gh gist edit "$0" -f "$1"'
     gist-file-view: |-
-        !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n2 sh -c 'gh gist view $0 -f $1'
+        !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n2 sh -c 'gh gist view "$0" -f "$1"'
     gist-all-files: "!gh api https://api.github.com/gists --paginate | jq -r '..|.raw_url?|select(.!=null)'"
     # ++ config ++
     editor-nano: config set editor "nano"
@@ -44,6 +56,9 @@ aliases:
     unwatch: "!gh api -X DELETE /repos/${1:-$(git config user.name)}/subscription"
     # gh wf-id | gh action-del
 
+    ii: |-
+      !/bin/bash -c '$BASH_VERSION'
+    shell: "!echo $SHELL" # Bourne Shell!!!
     # == git api test ==
     wf-id: '!gh api repos/$(git config user.name)/$(basename $(git config remote.origin.url) | sed s/\.git//)/actions/runs --paginate -q ".workflow_runs[] | select(.head_branch == \"main\") | (.id)"'
     action-del: '!xargs -i gh api  -X DELETE repos/$(git config user.name)/$(basename $(git config remote.origin.url) | sed s/\.git//)/actions/runs/{}'
@@ -56,11 +71,16 @@ aliases:
         git checkout main
         git merge upstream/main
         git push
-    # -- from web --
+    # -- foo's --
     ignore: "!gh api /gitignore/templates/$1 --jq .source"
     ignore-ls: '!gh api /gitignore/templates --jq .[] | grep -i "$1"'
     sr: |-
         !gh api -X GET search/repositories -f q="$1" --template "{{range.items}}{{.full_name}} ⭐ {{.stargazers_count | color \"yellow\"}} ({{.description}}){{\"\\n\"}}{{end}}"
+    # -- sample --
+    igrep: '!gh issue list --label="$1" | grep "$2"'
+    bugs: issue list --label=bugs
+    homework: issue list --assignee @me
+    pv: pr view
 # The path to a unix socket through which send HTTP connections. If blank, HTTP traffic will be handled by net/http.DefaultTransport.
 http_unix_socket:
 # What web browser gh should use when opening URLs. If blank, will refer to environment.
