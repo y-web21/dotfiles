@@ -10,7 +10,7 @@ if [ -e "$(which git 2>/dev/null)" ]; then
   alias g-emptypush-run-ci='git commit --allow-empty -m '\''empty commit'\'' && git push origin HEAD'
   alias g-whoami='git rev-parse --abbrev-ref HEAD'
 
-  # git second sub(memo)
+  # git memo
   alias git_untracked='git rm --cached'
   alias git_del_remoteb_ranch='git push --delete origin'
   alias git_empty_commit='git commit --allow-empty -m'
@@ -25,6 +25,7 @@ if [ -e "$(which git 2>/dev/null)" ]; then
   alias gl4='git log -4'
   alias glf='git log --pretty=fuller'
   alias glg='git log --graph'
+  alias glga='git log --graph --all'
   alias glo='git log --oneline'
   alias gloa='git log --oneline --all'
   alias glop='git log --pretty=oneline'
@@ -61,4 +62,23 @@ if [ -e "$(which git 2>/dev/null)" ]; then
     fi
   }
 
+  # if change the following, must also change git-completion.bash
+  alias g="git"
+  alias ga="git add"
+  alias gb="git branch"
+  alias gc="git checkout"
+  alias gcm="git commit"
+  alias gd="git diff"
+  alias gl="git log"
+  alias gs="git status"
+  alias gsh="git stash"
+
+  # if type __git_ps1 > /dev/null 2>&1; then
+  # __git_ps1 プロンプトに各種情報を表示
+  GIT_PS1_SHOWDIRTYSTATE=1     # ファイル変更 unstaged *, staged +
+  GIT_PS1_SHOWUPSTREAM=auto    # HEADとupstreamとの差分 =, <, >, <>(branch)
+  GIT_PS1_SHOWUNTRACKEDFILES=1 # 新規ファイル untracked files %
+  GIT_PS1_SHOWSTASHSTATE=1     # スタッシュあり $
+  GIT_PS1_SHOWCOLORHINTS=1     # 表示内容のカラー化
+  # upstream = remote tracking branch
 fi

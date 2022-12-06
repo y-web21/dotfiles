@@ -21,7 +21,7 @@ if [ "$1" = 'debian' ]; then
 
   __git_ps1 >/dev/null 2>&1
   if [ $? -eq 0 ]; then
-    PS1+='$(__git_ps1 "\e[30;47m(%s)")\e[39;49m <$(git config user.name)>'
+    PS1+=' $(__git_ps1 "\e[30;47m(%s)")\e[39;49m <$(git config user.name)>'
   fi
   PS1+='\n\$ '
   return

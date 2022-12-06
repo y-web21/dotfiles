@@ -11,16 +11,6 @@ if [ -e $COMMON_RC ]
 then source $COMMON_RC
 fi
 
-# ==================== ~/.local ====================
-# putting completion files in ~/.local/share/bash-completion/completions/ should 100% work on modern Linux systems.
-__BASH_COMPLETION_USER_DIR__="${HOME}/.local/share/bash-completion/completions"
-if [ ! -d ${__BASH_COMPLETION_USER_DIR__} ]; then
-  if apt list --installed 2>/dev/null | grep bash-completion >/dev/null 2>&1 ;then
-    mkdir -p ${__BASH_COMPLETION_USER_DIR__}
-  fi
-fi
-unset __BASH_COMPLETION_USER_DIR__
-
 metapack(){
   if apt-get -v >/dev/null 2>&1; then
     echo '=== apt list, apt-get install ==='
@@ -189,57 +179,6 @@ git-config-options-helpo(){
 
 	EOF
 }
-
-# git completion
-_BASH_COMPLETION_DIR="/etc/bash_completion.d"
-# _BASH_COMPLETION_DIR="${HOME}/.local/share/bash-completion/completions"
-# _BASH_COMPLETION_DIR="/usr/share/bash-completion/completions/"
-# source /etc/bash_completion.d/git
-# source /usr/share/bash-completion/completions/git
-# source /etc/bash_completion.d/git-completion.bash
-
-if [[ -d /etc/bash_completion.d ]]; then
-  [[ ! -d ${_BASH_COMPLETION_DIR} ]] && mkdir -p ${_BASH_COMPLETION_DIR}
-  if [[ ! -f ${_BASH_COMPLETION_DIR}/git-prompt ]]; then
-    curl -sS https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh -o ~/git-prompt &&
-      sudo mv ~/git-prompt.sh ${_BASH_COMPLETION_DIR}/
-  fi
-
-  if [[ ! -f ${_BASH_COMPLETION_DIR}/git-completion.bash ]]; then
-    curl -sS https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/git-completion.bash &&
-      sudo mv ~/git-completion.bash ${_BASH_COMPLETION_DIR}/ &&
-      cat <<-EOF >>${_BASH_COMPLETION_DIR}/git-completion.bash
-			__git_complete g __git_main
-			__git_complete ga _git_add
-			__git_complete gb _git_branch
-			__git_complete gc _git_checkout
-			__git_complete gcm _git_commit
-			__git_complete gd _git_diff
-			__git_complete gl _git_log
-			__git_complete gs _git_status
-			__git_complete gsh _git_stash
-		EOF
-  fi
-  alias g="git"
-  alias ga="git add"
-  alias gb="git branch"
-  alias gc="git checkout"
-  alias gcm="git commit"
-  alias gd="git diff"
-  alias gl="git log"
-  alias gs="git status"
-  alias gsh="git stash"
-
-  # if type __git_ps1 > /dev/null 2>&1; then
-  # __git_ps1 プロンプトに各種情報を表示
-  GIT_PS1_SHOWDIRTYSTATE=1     # ファイル変更 unstaged *, staged +
-  GIT_PS1_SHOWUPSTREAM=auto    # HEADとupstreamとの差分 =, <, >, <>(branch)
-  GIT_PS1_SHOWUNTRACKEDFILES=1 # 新規ファイル untracked files %
-  GIT_PS1_SHOWSTASHSTATE=1     # スタッシュあり $
-  GIT_PS1_SHOWCOLORHINTS=1     # 表示内容のカラー化
-  # upstream = remote tracking branch のこと
-fi
-unset _BASH_COMPLETION_DIR
 
 # ============== .bashrc =================
 # /etc/skel/.bashrc
