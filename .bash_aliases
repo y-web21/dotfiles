@@ -72,7 +72,10 @@ alias now='date +"%T"'
 alias nowtime=now
 alias nowdate='date +"%d-%m-%Y"'
 
-# baes
+alias G='grep -in'
+alias GR='grep -irn'
+
+# clipboard base
 alias C="sed -z -e '$ s/\n//' |xclip -selection c"
 
 if ! is_mac; then
