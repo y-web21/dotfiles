@@ -17,7 +17,7 @@ fi
 is_debian_based() { [ -f /etc/debian_version ]; } # /etc/os-release ID_LIKE=debian || ID=debian
 is_redhat_based() { [ -f /etc/redhat-release ]; }
 is_slackware_based() { :; }
-# window 
+# window
 is_wayland() { [ -v WAYLAND_DISPLAY ]; }
 is_xorg() { [ flase ]; } # X11, TBDevelopment
 # os
@@ -59,10 +59,7 @@ export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -pat
 # ============= function ==============
 
 dic () {
-  RES=$(w3m "http://ejje.weblio.jp/content/$1" | grep "用例")
-  echo "${RES}" | wc -c
-  if [ 1 -ge  "$(echo "${RES}" | wc -c)" ]; then echo 'no result'; return; fi
-  echo "$RES"
+  ~/dotfiles/scripts/dict.js ${1} | grep -E "$|${1}" --color
 }
 
 port_listen(){
