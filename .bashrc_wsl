@@ -123,13 +123,6 @@ if [[ "$(which vagrant)" = '' ]]; then
 
 fi
 
-# network
-if [ 0 -ne 0 ]; then
-  ss -atn
-  ss -nultp
-  netstat -anp
-fi
-
 if [ $(cat /proc/meminfo | grep MemTotal | awk '{print $2}') -gt 4000000 ]; then
   # exit 時に history 共有できるように設定
   export PROMPT_COMMAND="history -a"
