@@ -62,6 +62,12 @@ __relogin(){
   exec $SHELL -l
 }
 
+__reset_screen(){
+  stty echo
+  stty sane
+  exec $SHELL -l
+}
+
 __test_bind(){ echo valid; }
 
 # =============== keybind =================
@@ -81,3 +87,4 @@ bind -x '"\ed": __interactive_cd'
 bind -x '"\e\C-h": __history_with_fzf'
 bind -x '"\ej": __cd_z'
 bind -x '"\ep": __pick_path'
+bind -x '"\e\C-rr": __reset_screen'

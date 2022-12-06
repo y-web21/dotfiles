@@ -32,11 +32,11 @@ aliases:
         HASH=$(echo "$RES" | rev | cut -d ' ' -f 1 | rev)
         OLD_DESC="$(echo ${RES% ${HASH}*})"
         [ -z "$HASH" ] && exit
-        echo old_description: "${OLD_DESC}\n\n"
         gh gist view $HASH | less
-        DESC=$(read -p "description: " DESC && echo $DESC)
-        if [ -z "$DESC" ]; then read -p "delete description? (y/N)" YN && [ $YN != y -a $YN != Y ] && exit; fi
-        GH_EDITOR=cat
+        echo "=======================\nold_description: ${OLD_DESC}"
+        DESC=$(read -p "new_description: " DESC && echo $DESC)
+        if [ -z "$DESC" ]; then read -p "delete description? (y/N): " YN && [ $YN != y -a $YN != Y ] && exit; fi
+        GH_EDITOR=cat && EDITOR=cat
         gh gist edit $HASH -d "$DESC" >/dev/null
     gist-web: |-
         !gh gist list -L 500 | peco | awk '{print $1}' | xargs -i gh gist view {} -w

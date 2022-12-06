@@ -28,9 +28,11 @@ is_ubuntu() { grep '^ID=ubuntu' /etc/os-release >/dev/null 2>&1; }
 is_debian() { grep '^ID=debian' /etc/os-release >/dev/null 2>&1; }
 is_wsl() { [ -n "$(which wslpath 2>/dev/null)" ]; } # type2
 is_wsl() { [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; }
+# vm
+is_lxc_container() { sudo grep -qa container=lxc /proc/1/environ; }
+is_crostini() { is_debian && is_lxc_container; }
 
 # =========== ENV, VAR ===========
-# export EDITOR=vim
 export LESSCHARSET=utf-8
 # color syntax less, sidescroll step 5
 export LESS='-iRXS -# 5'
