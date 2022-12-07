@@ -1,7 +1,8 @@
-# shellcheck disable=SC2148
+# shellcheck disable=SC2148,SC1090
 #
 # ShellCheck ignore list:
-#  - SC2148: Can't follow non-constant source. Use a directive to specify location.
+#  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
+#  - SC1090: Can't follow non-constant source. Use a directive to specify location.
 
 is_debian_based && . ~/dotfiles/modules/PS1.sh 'debian'
 is_crostini && export EDITOR='vim'

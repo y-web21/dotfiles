@@ -1,7 +1,7 @@
 # shellcheck disable=SC2148
 #
 # ShellCheck ignore list:
-#  - SC2148: Can't follow non-constant source. Use a directive to specify location.
+#  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
 
 # ~/.profile: executed by the command interpreter for login shells.
 # This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login

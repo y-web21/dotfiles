@@ -1,4 +1,7 @@
-#!/usr/bin/env bash
+# shellcheck disable=SC2148
+#
+# ShellCheck ignore list:
+#  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
 
 if [ -e "$(which git 2>/dev/null)" ]; then
   # git main
@@ -75,10 +78,80 @@ if [ -e "$(which git 2>/dev/null)" ]; then
 
   # if type __git_ps1 > /dev/null 2>&1; then
   # __git_ps1 プロンプトに各種情報を表示
+  # shellcheck disable=2034
   GIT_PS1_SHOWDIRTYSTATE=1     # ファイル変更 unstaged *, staged +
+  # shellcheck disable=2034
   GIT_PS1_SHOWUPSTREAM=auto    # HEADとupstreamとの差分 =, <, >, <>(branch)
+  # shellcheck disable=2034
   GIT_PS1_SHOWUNTRACKEDFILES=1 # 新規ファイル untracked files %
+  # shellcheck disable=2034
   GIT_PS1_SHOWSTASHSTATE=1     # スタッシュあり $
+  # shellcheck disable=2034
   GIT_PS1_SHOWCOLORHINTS=1     # 表示内容のカラー化
   # upstream = remote tracking branch
+
+  git-get-short-hash() {
+    if [[ $# -gt 0 ]]; then
+      git log --oneline | head -${1} | tail -1 | awk '{print $1}'
+    else
+      cat <<-EOF
+			1 args required.
+			\$1 = line (git log --oneline)
+			EOF
+    fi
+  }
+
+  git-get-hash() {
+    if [[ $# -gt 0 ]]; then
+      git log --pretty=oneline | head -${1} | tail -1 | awk '{print $1}'
+    else
+      cat <<-EOF
+			1 args required.
+			\$1 = line (git log --oneline)
+			EOF
+    fi
+  }
+
+  git-parent-branch() {
+    if [[ $# -gt 1 ]]; then
+      git show-branch --sha1-name $1 $2 | tail -1
+    else
+      cat <<-EOF
+			2 args required.
+			\$1 = branch
+			\$2 = branch
+			EOF
+    fi
+  }
+
+  git-config-options-memo() {
+    cat <<-EOF
+		# ignorecase = <default:true>
+		git config --global core.ignoreCase false
+
+		# prevent changes to perimission 644 when push from windows
+		filemode = <default:true>
+
+		# コミット(チェックイン)時にlfにする。CO時は何もしない。(for windows)
+		git config --global core.autocrlf input
+		# core.eol の値に従う (linux default)
+		git config --global core.autocrlf false
+		git config --global core.eol lf
+		# CIに lf へ、CO時に crlf へ変換。(for windows)論外。
+		git config --global core.autocrlf true
+
+		# Win向けの改行コードをリポジトリに保持する場合(実質はCICO時の変換をコントロール。リモートは常にlf)
+		add .gitattributes > echo '*.html diff=sjis' > .gitattributes
+		EOF
+  }
+
+  # for remove credential file
+  git-permanent-delete() {
+    read -p -r "delete <${1}> (y/N)" INPUT
+    if [ "$INPUT" = "y" ]; then
+      git filter-branch --force --index-filter "git rm --cached --ignore-unmatch ${1}" -- --all
+      git push --all --force origin
+    fi
+  }
+
 fi
