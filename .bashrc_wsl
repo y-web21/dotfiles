@@ -26,6 +26,7 @@ export CONFIG_DIR_WIN="/mnt/c/Users/${USER}/user/dotfiles"
 export CONFIG_DIR_WIN_PRI="/mnt/c/Users/${USER}/user/dotfiles_private"
 
 export GH_EDITOR="code --wait"
+export PLAYER="nircmd.exe mediaplay 1400 "
 
 if which scoop; then
   SCOOP_HOME=$(dirname "$(dirname "$(which scoop)")")

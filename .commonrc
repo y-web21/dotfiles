@@ -62,8 +62,23 @@ export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -pat
 
 # ============= function ==============
 
-dic () {
+dic() {
   ~/dotfiles/scripts/dict.js ${1} | grep -iE "$|${1}" --color
+
+  # -v operator bash => 4.2
+  [ -v $2 ] && return
+  if [ -v PLAYER ]; then
+    SOUND_URL=$(~/dotfiles/scripts/dict.js ${1} | grep -E 'https.*mp3' | head -1)
+    if [ -n "$SOUND_URL" ]; then
+      TEMP_SOUND=$(mktemp) && {
+        curl $SOUND_URL -o $TEMP_SOUND >/dev/null 2>&1
+        $PLAYER $TEMP_SOUND
+        # rm -v $TEMP_SOUND
+      }
+    fi
+  fi
+  # trap '[ -v TEMP_SOUND ] && rm -v "$TEMP_SOUND"' EXIT
+  trap '[ -v TEMP_SOUND ] && rm "$TEMP_SOUND"' EXIT
 }
 
 port_listen(){

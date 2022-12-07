@@ -13,7 +13,10 @@ const url = `https://ejje.weblio.jp/content/${argv[2]}`;
 
 https.get(url, res => {
   let html = '';
-  res.on('data', line => html += line);
+  res.on('data', chunk => {
+    html += chunk;
+    // console.log(`html chunk: ${chunk}`);
+  });
   res.on('end', () => {
     const dom = new JSDOM(html);
     const doc = dom.window.document;
