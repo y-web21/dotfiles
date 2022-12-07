@@ -10,8 +10,7 @@ optional=(
   xdg-utils, xdg-open
   source-highlight
   psmisc,'pstree. '
-  nano, '素人用エディタ'
-  ncdu, '使いやすいdu'
+  ncdu, 'du'
 )
 
 for opt in "${optional[@]}"; do

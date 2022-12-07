@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
 install-ncurses-wc(){
-  # 2バイト文字対応
-  PKG=ncurses
+  # マルチバイト文字対応
   VER=6.3
-  wget http://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz
-  tar -xzvf ncurses-6.3.tar.gz
-  cd ncurses-6.3
+  wget http://ftp.gnu.org/gnu/ncurses/ncurses-${VER}.tar.gz
+  tar -xzvf ncurses-${VER}.tar.gz
+  cd ncurses-${VER}
   ./configure --with-shared --enable-widec
   make
   make install
