@@ -7,6 +7,7 @@ if [ -e "$(which git 2>/dev/null)" ]; then
   # git main
   # alias gpush='git push origin $(git rev-parse --abbrev-ref HEAD)'
   alias gpush='git push origin HEAD'
+  alias gap='git add -p'
 
   # git sub
   alias git-emptypush='git commit --allow-empty -m '\''empty commit[skip ci]'\'' && git push origin @'

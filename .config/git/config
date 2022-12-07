@@ -31,7 +31,8 @@
 	cp = cherry-pick
 	d = !"f() { a2=''; [ $# -ge 2 ] && a2=\"@~${2}\"; git diff @~${1:-0} $a2; echo @~${1:-0} $a2; }; f"
 	f = log -p
-    fu = !"git add . && git commit -m 'fixup' && git rebase -i @~2"
+	fu = !"git commit -m 'fixup' && git stash -u && git rebase -i @~2 && git stash pop"
+	fua = !"git add . && git commit -m 'fixup' && git rebase -i @~2"
 	n = now --all --stat
 	s = status
 	r = !"f() { git reset HEAD~${1:-1}; }; f"
