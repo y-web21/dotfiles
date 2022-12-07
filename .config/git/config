@@ -8,6 +8,8 @@
 	quotepath = false
 	pager = LESSCHARSET=utf-8 less -XFRS
 	autoCRLF = false
+	ignoreCase = false
+	eol = lf
 [fetch]
 	prune = true
 	defaultBranch = main
