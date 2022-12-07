@@ -25,25 +25,15 @@ else
   echo 'nomatch'
 fi
 
-# shellcheck disable=1090
 test -r ~/.bash_aliases && . ~/.bash_aliases
-# shellcheck disable=1090
 test -r ~/.bashrc.local && . ~/.bashrc.local
 
-# shellcheck disable=1090
 . ~/dotfiles/modules/keybind.bash
-# shellcheck disable=1090
 . ~/dotfiles/functions/primary.bash
 
-# shellcheck disable=1090
 test -f ~/dotfiles/private_settings/post.bash && source ~/dotfiles/private_settings/post.bash
 
 if is_debian_based;then
   apt moo
-  # sudo apt list --upgradable
-  # sudo apt install --only-upgrade
-  # apt-mark hold
-  # apt-mark unhold
-  # APT_HOLD_LIST=$(dpkg --get-selections | grep hold)
 fi
 

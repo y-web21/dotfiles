@@ -23,6 +23,9 @@ if [ -n "$BASH_VERSION" ]; then
   if [ -f "$HOME/.bashrc" ]; then
     . "$HOME/.bashrc"
   fi
+  if [ -f "$HOME/.bashrc_user" ]; then
+    . "$HOME/.bashrc_user"
+  fi
 fi
 
 # load homebrew bash-completion file by apt bash-completion.

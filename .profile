@@ -35,4 +35,10 @@ fi
 # shellcheck disable=SC1090
 if [ -e /home/"$(whoami)"/.nix-profile/etc/profile.d/nix.sh ]; then . /home/"$(whoami)"/.nix-profile/etc/profile.d/nix.sh; fi
 
+# Install Ruby Gems to ~/gems
+if [ -d "$HOME/gems" ]; then
+  export GEM_HOME="$HOME/gems"
+  export PATH="$HOME/gems/bin:$PATH"
+fi
+
 eval "$(gh completion -s bash)"
