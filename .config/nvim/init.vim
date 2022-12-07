@@ -1,10 +1,16 @@
 " unmap default keybind
 " :unmap <C-k>
-:map <C-k> <Nop>
-:map <C-j> <Nop>
+if exists('g:vscode')
+  map <C-k> <Nop>
+  map <C-j> <Nop>
+  map <C-d> <Nop>
+endif
 
-"------------------------------------
-"
+" too slow and not work in penguin
+" augroup wayland_clipboard
+"     au!
+"     au TextYankPost * call system("wl-copy", @")
+" augroup END
 "------------------------------------
 set nocompatible  " vi vim を別物 プラグインの誤動作を防止
 set encoding=utf-8
@@ -50,10 +56,12 @@ augroup main
   autocmd!
 augroup END
 
+nnoremap <CR> i<Return><Esc>^k
 "" Insert line break by Enter in normal mode
-autocmd main BufWinEnter *
-  \  if &modifiable
-  \|   nnoremap <buffer> <CR> i<CR><ESC>
-  \| else
-  \|   nunmap <buffer> <CR>
-  \| endif
+" autocmd main BufWinEnter *
+"  \  if &modifiable
+"  \|   nnoremap <buffer> <CR> i<CR><ESC>
+"  \| else
+"  \|   nunmap <buffer> <CR>
+"  \| endif
+
