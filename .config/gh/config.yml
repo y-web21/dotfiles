@@ -19,8 +19,12 @@ aliases:
     gwb: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view -w"
     gist-create: |-
         !FILE=$(find . -maxdepth ${1:-1} -type f | peco | awk '{print $1}')
+        [ -z "$FILE" ] && exit
         DESC="$(read -p 'description: ' DESC && echo $DESC)"
         gh gist create $FILE -f $FILE -d "$DESC"
+        read -p "remove local file? (Y/n): " YN && [ -z $YN ] && YN=y
+        [ $YN = n -o $YN = N ] && exit
+        rm "$FILE"
     gist-delete: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist delete"
     gist-clone: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist clone"
     gist-view: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view"
