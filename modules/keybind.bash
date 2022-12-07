@@ -36,7 +36,7 @@ __pick_path() {
 __interactive_cd() {
   local DIR
   while true; do
-    DIR=$(find ${1:-.} -mindepth 0 -maxdepth 1 -type d | sed '1a ..' | grep -v ^\.$ | fzf)
+    DIR=$(find -L ${1:-.} -mindepth 0 -maxdepth 1 -type d | sed '1a ..' | grep -v ^\.$ | fzf)
     if [ '' = "$DIR" ]; then return; fi
     cd "$DIR"
   done

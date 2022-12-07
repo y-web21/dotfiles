@@ -63,7 +63,7 @@ export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -pat
 # ============= function ==============
 
 dic () {
-  ~/dotfiles/scripts/dict.js ${1} | grep -E "$|${1}" --color
+  ~/dotfiles/scripts/dict.js ${1} | grep -iE "$|${1}" --color
 }
 
 port_listen(){
