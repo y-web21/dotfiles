@@ -40,6 +40,9 @@
 !modules/PS1.sh
 !modules/*.md
 
+# home bin scripts
+!bin/*
+
 # doc and scripts
 !*make_link.bash
 !scripts/*

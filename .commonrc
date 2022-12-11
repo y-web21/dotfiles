@@ -43,6 +43,8 @@ if [[ -f ${shpath} ]]; then
 fi
 unset shpath
 
+export PATH=$PATH:~/bin
+
 # history
 export HISTSIZE=3000
 export HISTFILESIZE=100000

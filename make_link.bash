@@ -29,3 +29,8 @@ for DOT_FOLDER in $(find ./ -maxdepth 1 -type d | cut -c 3- | grep -i '^\.' | $E
     make_link $DOT_CONFIG
   done
 done
+
+[ ! -e ~/bin ] && mkdir ~/bin
+for MY_SCRIPTS in $(find ./bin -maxdepth 1 -type f | cut -c 3- | $EXCEPT | sort); do
+  make_link $MY_SCRIPTS
+done

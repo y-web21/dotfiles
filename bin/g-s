@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+# global stash_files
+
+post_stash() {
+  if [ -n "$stash_files" ]; then
+    git stash -u -m "stash_$(date --iso-8601='seconds')" -- ${stash_files}
+  fi
+}
+
+# trap 'after_stash' {1,2,3,15}
+trap 'post_stash' EXIT
+
+exists_in_stashlist() {
+  local file
+  for file in $stash_files; do
+    if [ $1 = $file ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+git-i-staging() {
+  local file target ret_fzf input file_cnt files
+
+  while true; do
+
+    target=''
+    while read file; do
+      if ! exists_in_stashlist $file; then
+        target+="$file "
+      fi
+    done < <(git status --short | awk '{if (substr($0,2,1) != " ") print $NF}')
+
+    ret_fzf=$(
+      echo $target |
+        sed -e 's/ /\n/g' |
+        fzf-tmux --multi --exit-0 \
+          --preview-window=right:80%,~4 \
+          --reverse \
+          --border \
+          --bind alt-p:preview-up,alt-n:preview-down \
+          --expect=alt-a \
+          --expect=alt-s \
+          --expect=alt-d \
+          --expect=alt-h \
+          --preview 'git diff --color=always {}'
+    )
+
+    input=$(head -1 <<<"$ret_fzf")
+    file_cnt=$(($(wc -l <<<"$ret_fzf") - 1))
+    files=("$(tail -${file_cnt} <<<"$ret_fzf")")
+    [ -z "${files[*]}" ] && return
+
+    clear
+    if [ "$input" = alt-d ]; then
+      git diff --color=always $files | less -R
+    elif [ "$input" = alt-s ]; then
+      stash_files+="$files "
+    elif [ "$input" = alt-h ]; then
+      # hank 単位での add
+      git add -p $files
+    elif [ "$input" = alt-a ]; then
+      git add $files
+    else
+      # enter
+      git add $files
+    fi
+  done
+}
+
+git-i-staging
