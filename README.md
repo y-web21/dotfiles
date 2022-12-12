@@ -121,6 +121,53 @@ lesskey
 - .gitignore
 - .git-credentials
 
+## vim
+
+### vim-plug
+
+`:PlugInstall`でリポジトリからダウンロードしてプラグインを追加してくれる。
+`~/.vim/autoload/plug.vim`ファイルが作成される。
+
+```sh
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+```
+
+インストールされるのは、以下のように`Plug`に記述されたもの。
+
+``` vimrc
+call plug#begin()
+    Plug 'vim-jp/vimdoc-ja'
+call plug#end()
+```
+
+削除は`.vimrc`から当該プラグインをコメントアウトか、削除して`:PlugClean`で行える。
+
+[junegunn/vim-plug: Minimalist Vim Plugin Manager](https://github.com/junegunn/vim-plug)
+
+#### vimdoc-ja
+
+- `E117: Unknown function: fugitive#statusline`となるので、プラグイン追加。
+- `helplang`を記載
+
+```vimrc
+call plug#begin()
+    Plug 'tpope/vim-fugitive'
+    Plug 'vim-jp/vimdoc-ja'
+call plug#end()
+set helplang=ja,en
+```
+
+vimにて以下を実行。`:h`か`:help`で日本語になっていることを確認。
+英語のヘルプが必要になったら`:h@en`で確認できる。
+
+```vim
+:source $MYVIMRC
+:PlugInstall
+```
+
+[vim-jp/vimdoc-ja: A project which translate Vim documents into Japanese.](https://github.com/vim-jp/vimdoc-ja)
+
 ## fzf
 
 [junegunn/fzf: A command-line fuzzy finder](https://github.com/junegunn/fzf)

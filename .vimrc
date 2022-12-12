@@ -65,12 +65,19 @@ syntax enable
 " " set script encoding
 " scriptencoding utf-8
 
+"------------------------------------
+" plugins
+"------------------------------------
+set helplang=ja,en
+call plug#begin()
+    Plug 'tpope/vim-fugitive'
+    Plug 'vim-jp/vimdoc-ja'
+call plug#end()
 
 "------------------------------------
 " finish loading vimrc if tiny or small version.
 "------------------------------------
 if !1 | finish | endif
-
 
 "------------------------------------
 " nomal mode key binding custumize
@@ -108,7 +115,6 @@ cnoremap fuck q!
 " set nobackup
 " set noundofile
 " set viminfo=
-
 
 "  augroup highlightIdegraphicSpace
 "    autocmd!
