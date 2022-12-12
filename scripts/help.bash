@@ -51,7 +51,10 @@ network(){
   cat <<- EOS
 		ss -atn
 		ss -nultp
+		sudo lsof -i :443
 		netstat -anp
+		sudo netstat -anp | grep :8080
+		curl -v http://localhost:8080/
 	EOS
 }
 
