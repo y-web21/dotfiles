@@ -8,6 +8,7 @@ if [ -e "$(which git 2>/dev/null)" ]; then
   # alias gpush='git push origin $(git rev-parse --abbrev-ref HEAD)'
   alias gpush='git push origin HEAD'
   alias gap='git add -p'
+  alias gsg='git status --short'
 
   # git sub
   alias git-emptypush='git commit --allow-empty -m '\''empty commit[skip ci]'\'' && git push origin @'
@@ -44,15 +45,16 @@ if [ -e "$(which git 2>/dev/null)" ]; then
   alias granking-commit='for AUTHOR in Foo Bar Baz; do git log --author=$AUTHOR --numstat --pretty="%H"  | awk '\''NF==3 {add+=$1; del+=$2} END {printf("add: %d\tdelete: %d", add, del)}'\''; echo -e "\\t$AUTHOR"; done | sort -nr -k2'
   alias granking-commit-top10='git log --name-only --pretty='\''format:'\'' | grep -ve '\''^$'\'' | sort | uniq -c | sort -r | head'
   alias granking-6month-commit-top10='git log --name-only --pretty="format:" --since="6 months ago" | grep -ve '\''^$'\'' | sort | uniq -c | sort -r | head'
-
   # shellcheck disable=2142
   alias gl-step-line-all='git log --numstat --pretty='\''%H'\'' | awk '\''NF==3 {plus+=$1; minus+=$2} END {printf("+%d, -%d\n", plus, minus)}'\'''
   # shellcheck disable=2142
   alias gl-step-line-file='git log --numstat --pretty='\''%H'\'' | awk '\''NF==3 {add_sum[$3]+=$1; del_sum[$3]+=$2} END {for (key in add_sum) {printf("%d, %d, %s\n", add_sum[key],del_sum[key],key)}}'\'' | sort -k1,1nr -k2,2nr -t,| head'
 
+  # rev-parse
   alias ghash-full='git rev-parse'
   alias ghash-short='git rev-parse --short'
 
+  # alias list
   alias galias='git config -l | grep ^alias | sed s/^alias\./alias\ /'
 
   # if change the following, must also change git-completion.bash
@@ -143,5 +145,7 @@ if [ -e "$(which git 2>/dev/null)" ]; then
       git push --all --force origin
     fi
   }
+
+  alias git-fzf-sample='git branch | fzf-tmux -d 15'
 
 fi

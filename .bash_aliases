@@ -22,6 +22,7 @@ alias ls='ls --color=auto'
 alias lla='ls --color=auto -AlF --time-style=long-iso'
 # lsd /path/to/dir/*, cwd = lsd $(pwd)/*
 alias lsd='ls --color=auto -dAF --time-style=long-iso'
+alias lst='exa -laRTL'
 alias less='less -X'
 alias sudo='sudo '
 alias ..='\cd ..'
@@ -53,6 +54,7 @@ fi
 
 # use user .vimrc with sudo vim.
 alias sudovim='sudo vim -u ~/.vimrc'
+alias vif='vim $(fzf --height 40% --reverse)'
 
 alias dot='/path/to/dotfiles'
 
@@ -99,6 +101,7 @@ fi
 
 if is_wsl;then
   alias C="sed -z -e '$ s/\n//' | clip.exe"
+  alias CP="powershell.exe –noprofile -command Get-clipboard"
   alias e.='explorer.exe .'
 
   # alias sjisgrep='`echo key | nkf -s` *.txt | nkf -w'

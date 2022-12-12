@@ -18,9 +18,10 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
   alias dsize='docker ps --format "{{.ID}} {{.Names}} {{.Image}} {{.Size}}" | column -t'
   alias drmiall='docker rmi $(docker images -q)'
   alias ddestoroy='docker ps -q | xargs docker stop && docker ps -aq | xargs docker rm && docker images -qa | xargs docker rmi'
-  dmountedvolume (){ docker inspect "$(docker ps -q "${1}")" | grep -i source | tr -d ' '; }
+  dmountedvolume() { docker inspect "$(docker ps -q "${1}")" | grep -i source | tr -d ' '; }
 
-  alias drmByName='docker-remove-by-name'; docker-remove-by-name() { docker ps -a -f 'name='$1 | sed "1d" | cut -d" "  -f1 | xargs docker rm ; }
+  alias drmByName='docker-remove-by-name'
+  docker-remove-by-name() { docker ps -a -f 'name='$1 | sed "1d" | cut -d" " -f1 | xargs docker rm; }
 
   alias container-ip='docker inspect -format='\''{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'\'''
 
@@ -60,11 +61,8 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
   alias dmysql='docker exec -it db bash -c '\''mysql -uroot -p'\'''
   alias dnginxreload='docker exec -it nginx bash -c '\''nginx -s reload'\'''
 
-
   # docker 2nd gen
 
-  # docker exec -it P bash -g は、グローバルエイリアスで zsh の機能らしい
-  # alias -g P='`docker ps | tail -n +2 | peco | cut -d" " -f1`'
 
   # shellcheck disable=SC2142
   alias dget-cid='docker ps -a | tail +2 | peco | awk '\''{print $1}'\'''
@@ -75,41 +73,42 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
   # alias d-bash='docker ps -a | tail +2 | peco | awk '\''{print $NF}'\'' | xargs -i docker exec -it {} bash'
   alias d-bash='docker exec -it $(docker ps -a | tail +2 | peco | awk '\''{print $NF}'\'') bash'
 
-
+  # docker exec -it DC bash -g は、zsh の グローバルエイリアス
+  # alias -g DC='`docker ps | tail -n +2 | peco | cut -d" " -f1`'
   # bash 代替
-  alias P='CURRENT_CONTAINER=$(docker ps | tail -n +2 | peco | cut -d" " -f1)'
+  alias DC='CURRENT_CONTAINER=$(docker ps | tail -n +2 | peco | cut -d" " -f1)'
 
-  dsh (){
-    CONTAINER=${1:-${CONTAINER}}
+  dsh() {
     echo "container 【${CONTAINER}】 shell"
     docker exec -t ${CONTAINER} bash -c "$2"
   }
-  dish (){
-    CONTAINER=${1:-${CONTAINER}}
+  dish() {
+    if peco --version &>/dev/null; then
+      CONTAINER=$(docker container ps -a | tail +2 | peco | awk '{print $NF}')
+    else
+      CONTAINER=${1:-${CONTAINER}}
+    fi
     echo "container 【${CONTAINER}】 intaractive shell"
     docker exec -it ${CONTAINER} bash
   }
 
   dockerhub-tags() {
-  if [[ $# -lt 1 ]]; then
-		cat <<- 'EOL'
+    if [[ $# -lt 1 ]]; then
+      cat <<-'EOL'
 			$1 = image name (ex. node, python, php...)
 			$2 = inquery pages (default 3 pages)
 		EOL
-    return 1
-  fi
-  local MAX_PAGE=${2:-3}
-  local IMAGE=$1
-  local BASE_URL='https://registry.hub.docker.com/v2/repositories/library/'
-  local NEXT_URL=${BASE_URL}${IMAGE}/tags
-  for _ in $(seq 1 $MAX_PAGE); do
-    curl -sS ${NEXT_URL} | jq -r '."results"[]["name"]'
-    NEXT_URL=$(curl -sS ${NEXT_URL} | jq -r '."next"')
-    [ ${NEXT_URL} == "null" ] || [ ${NEXT_URL} == "" ] && break
-  done
-}
-
-
-
+      return 1
+    fi
+    local MAX_PAGE=${2:-3}
+    local IMAGE=$1
+    local BASE_URL='https://registry.hub.docker.com/v2/repositories/library/'
+    local NEXT_URL=${BASE_URL}${IMAGE}/tags
+    for _ in $(seq 1 $MAX_PAGE); do
+      curl -sS ${NEXT_URL} | jq -r '."results"[]["name"]'
+      NEXT_URL=$(curl -sS ${NEXT_URL} | jq -r '."next"')
+      [ ${NEXT_URL} == "null" ] || [ ${NEXT_URL} == "" ] && break
+    done
+  }
 
 fi
