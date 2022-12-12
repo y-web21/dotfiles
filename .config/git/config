@@ -19,20 +19,20 @@
 	acm = !git add . && git commit
 	acmm = !git add . && git commit -m
 	b = branch
-	c = checkout
 	cm = commit
 	cmm = commit -m
 	cma = commit --amend
 	cmam = commit --amend -m
 	cmr = reset --soft HEAD~
+	c = checkout
 	co = checkout
 	conyou = checkout --theirs
 	conme = checkout --ours
 	cp = cherry-pick
 	d = !"f() { a2=''; [ $# -ge 2 ] && a2=\"@~${2}\"; git diff @~${1:-0} $a2; echo @~${1:-0} $a2; }; f"
 	f = log -p
-	fu = !"git commit -m 'fixup' && git stash -u && git rebase -i @~2 && git stash pop"
-	fua = !"git add . && git commit -m 'fixup' && git rebase -i @~2"
+	fu = !"export GIT_EDITOR=vim && git commit -m 'fixup'; git stash -u && git rebase -i @~2 && git stash pop"
+	fua = !"export GIT_EDITOR=vim && git add . && git commit -m 'fixup' && git rebase -i @~2"
 	n = now --all --stat
 	s = status
 	r = !"f() { git reset HEAD~${1:-1}; }; f"
@@ -47,23 +47,25 @@
 	tesh = !git add . && git commit -m \"$(date \"+%Y-%m-%d_%H:%M:%S\")\" && git push origin @
 	hold = update-index --skip-worktree
 	unhold = update-index --no-skip-worktree
+	# 更新頻度が低い場合は assume unchanged でも良い
 	# hold = update-index --assume-unchanged
 	# unhold = update-index --no-assume-unchanged
 	ls-hold = !"bash -cv 'git ls-files -v | grep ^S'"
 	reset-aslo-unstage = "!git reset && git clean -df"
 	ciskip = !git add . && git commit -m 'test [skip ci]' && git push origin @
 	tesh = !git add . && git commit -m \"$(date \"+%Y-%m-%d_%H:%M:%S\")\" && git push origin @
-    rm-from-git = rm --cached
+	rm-from-tracking = rm --cached
 	# .env とかも全部吹っ飛ぶので使用禁止
 	# reset-exhard = "!f() { git reset --hard ${1:-@} && git clean -fdx; }; f"
 	# ls-hold = !"git ls-files -v | grep ^[a-z]"
 	# == secondary ==
-	stash-one = stash push --
+	stash-file = stash push --
+	stash-show = show -p
+	stash-detail = diff stash@{0}
 	stash-co-file = ! git checkout stash@{$1} $2 && :
 	stash-with-name = stash save
 	stash-drop = ! git stash drop stash@{$1} && :
 	sho = !git show $(git hash ${1}):${2} && :
-	show-stash-detail = diff stash@{0}
 	# reset hard & remove untracked file
 	# assume unchanged は、そもそも編集すべきでないファイルを無視リストに登録して高速化を図るもの。よってreset --hard や merge で消える。
 	vibase = !export GIT_EDITOR=vi && git rebase -i @~${1:-10} && :
@@ -74,10 +76,15 @@
 	blam = !git blame $(git hash ${1}) -- ${2} && :
 	hash = !git log --oneline --format="%H" | awk NR==$((${1:-1}+1)) && :
 	hasha = !git log --oneline --all --format="%H" | awk NR==$((${1:-1}+1)) && :
+	# 変更ファイルを表示
+	l = log --name-status
 	logv = log --pretty='format:%C(yellow)%h %C(green)%cd %C(cyan)[%an] %C(reset)%s %C(red)%d' --date=iso
-	logf = log --name-status
-	logfull = log --pretty=fuller
+	log-full = log --pretty=fuller
+	log-author = log --author
+	# file 指定可能 変更履歴の概要
+	log-overview = log --oneline --stat
 	blam = !git blame $(git hash ${1}) -- ${2} && :
+	ref-cp = reflog | grep 'cherry-pick'
 	# == util ==
 	alias="!bash -c '\
 		GA=$(git config -l | grep ^alias | sed s/^alias\\.// | sed s/=.*$// | sort); \
@@ -91,19 +98,18 @@
 		done; \
 		cat $TMP | column -t && rm $TMP;'"
 	recent = !git for-each-ref --sort=-committerdate --count=${1:-10} --format='Date: %(color:red)%(authordate:iso)%(color:reset)\t%(color:green)[%(authorname)]%(color:reset)\nRef: %(color:yellow)%(refname:short)%(color:reset)\nSubject: %(subject)\n' refs/heads refs/remotes
-    # == ls ==
-    ls = ls-files --directory
-    ls-untracked = ls-files --others --exclude-standard
-    ls-ignored = ls-files --others --ignored --exclude-standard --directory
+	# == ls ==
+	ls = ls-files --directory
+	ls-untracked = ls-files --others --exclude-standard
+	ls-ignored = ls-files --others --ignored --exclude-standard --directory
 	# == memo ==
 	unstage = reset HEAD --
 	sts = "!f() { stack=''; if [ $# -gt 0 ];then stack=stash@{$1}; fi;  git stash show -p ${stack}; }; f"
 	ignore-list = "! cd -- \"${GIT_PREFIX:-.}\" && git ls-files -v ${1:-.} | sed -n -e \"s,^[a-z] \\(.*\\)$,${GIT_PREFIX:-./}\\1,p\" && git status --ignored --porcelain ${1:-.} 2>/dev/null | sed -n -e \"s/^\\(\\!\\! \\)\\(.*\\)$/\\2/p\" #"
 	conflicts = !git ls-files -u | cut -f 2 | sort -u
 	last = log -1 HEAD
-	o = checkout
-    # git check-ignore
-    # git check-attr
+	# git check-ignore
+	# git check-attr
 	# stamer = merge "stash@{"
 [include]
 	path = ~/.gitconfig.local
