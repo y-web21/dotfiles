@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+_pick_hash() {
+  local fzf_ret hash input
+
+  # filetr DBD
+  # author alt+a
+
+  while true; do
+
+    unset path
+    unset fzf_ret
+    while read -r ret; do
+      fzf_ret+=("$ret")
+    done < <(
+      git log --all --oneline |
+        fzf \
+          --expect=ctrl-c \
+          --expect=esc \
+          --preview-window=65%,,~6 \
+          --preview 'git show --color=always {1}' |
+        awk '{print $1}'
+    )
+
+    # var check
+    # i=0 && for f in "${fzf_ret[@]}"; do echo $i "$f" ;((i++)); done
+
+    input="${fzf_ret[0]}"
+    [ "$input" = 'ctrl-c' ] && break
+    [ "$input" = 'esc' ] && break
+
+    hash="${fzf_ret[1]}"
+    break
+  done
+  echo $hash
+}
+
+_pick_hash
