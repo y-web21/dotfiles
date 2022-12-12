@@ -18,6 +18,7 @@
 !.lesskey
 !.tigrc
 !.inputrc
+!.tmux.conf
 
 # sample
 !.bash_profile__
