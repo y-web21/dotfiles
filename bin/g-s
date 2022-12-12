@@ -2,7 +2,7 @@
 
 # global stash_files
 
-post_stash() {
+_post_stash() {
   if [ -n "$stash_files" ]; then
     # shellcheck disable=2086
     git stash -u -m "stash_$(date --iso-8601='seconds')" -- ${stash_files}
@@ -10,9 +10,9 @@ post_stash() {
 }
 
 # trap 'after_stash' {1,2,3,15}
-trap 'post_stash' EXIT
+trap '_post_stash' EXIT
 
-exists_in_stashlist() {
+_exists_in_stashlist() {
   local file
   for file in $stash_files; do
     if [ "$1" = "$file" ]; then
@@ -28,7 +28,7 @@ _git_i_reset() {
   while true; do
     target=''
     while read -r file; do
-      if ! exists_in_stashlist "$file"; then
+      if ! _exists_in_stashlist "$file"; then
         target+="$file "
       fi
     done < <(git status --short | awk '{if(substr($0,1,1) !~ /^[ ?]/ )print $NF}')
@@ -63,7 +63,7 @@ git-i-staging() {
 
     target=''
     while read -r file; do
-      if ! exists_in_stashlist "$file"; then
+      if ! _exists_in_stashlist "$file"; then
         target+="$file "
       fi
     done < <(git status --short | awk '{if (substr($0,2,1) != " ") print $NF}')
