@@ -8,27 +8,57 @@ prompt: enabled
 pager:
 # Aliases allow you to create nicknames for gh commands
 aliases:
+    b: browse
     # -- pull request --
     co: pr checkout
     mypr: "!gh pr list -s all -a $(git config user.name)"
+    # -- gh with fzf --
+    fpr: |-
+      !gh pr list | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:80%,+4 --bind alt-p:preview-up,alt-n:preview-down --preview "gh pr view {1} | bat --color=always -l md"
+    fprc: |-
+      !gh pr list -s closed | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:80%,+4 --bind alt-p:preview-up,alt-n:preview-down --preview "gh pr view {1} | bat --color=always -l md"
+    fis: |-
+      !gh issue list | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:80%,+4 --bind alt-p:preview-up,alt-n:preview-down --preview "gh issue view {1} | bat --color=always -l md"
+    fisc: |-
+      !gh issue list -s closed | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:80%,+4 --bind alt-p:preview-up,alt-n:preview-down --preview "gh issue view {1} | bat --color=always -l md"
+    fgist: |-
+        !file=$(gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:80%,+4 --bind alt-p:preview-up,alt-n:preview-down --preview "gh gist view {-1} | bat --color=always -l md" --bind="alt-w:execute(gh gist view {-1} -w)" )
+        [ -z "${file}" ] && return
+        gh gist edit $(echo $file | awk '{print $NF}') -f $(echo $file | awk '{print $2}')
+    gist-create: |-
+        !FILE=$(find . -maxdepth ${1:-1} -type f | fzf --preview 'cat {}' | awk '{print $1}')
+        [ -z "$FILE" ] && exit
+        DESC="$(read -p 'description: ' DESC && echo $DESC)"
+        gh gist create $FILE -f $FILE -d "$DESC"
+        read -p "remove local file? (Y/n): " YN; [ -z $YN ] && YN=y
+        [ $YN = n -o $YN = N ] && exit
+        rm "$FILE"
+    gist-delete-repo: "!gh gist list -L 500 | fzf --preview-window=bottom:65%,+4 --preview 'gh gist view {1} | bat --color=always -l md' | awk '{print $1}' | xargs gh gist delete"
+    gist-view: |-
+        !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:65%,+4 --preview 'gh gist view {-1} -f {2} | bat --color=always -l $(echo {1} | sed 's/Shell/bash/') || gh gist view {-1} -f {1}' | awk '{print $NF,$2}' | xargs -n2 sh -c 'gh gist view "$0" -f "$1"'
+    # -- gist --
+    gist-new: |-
+        !tmpdir=$(mktemp -d)
+        # tmp=$(mktemp -p ${tmpdir})
+        # echo $tmp $tmpdir
+        vim -c start ${tmpdir}/temp
+        [ $(cat ${tmpdir}/temp | wc -c) -eq 0 ] && read -p "empty file. continue? (Y/n): " YN; [ -z $YN ] && YN=y
+        [ $YN = n -o $YN = N ] && exit
+        NAME="$(read -p 'gist-name: ' NAME && echo $NAME)"
+        DESC="$(read -p 'description: ' DESC && echo $DESC)"
+        mv ${tmpdir}/temp ${tmpdir}/${NAME:-no_name}
+        gh gist create ${tmpdir}/${NAME} -f ${NAME} -d "$DESC"
+        rm -rf $tmpdir
+    gist-stdin: |-
+        !cat $1 | gh gist create - -f $1 -d "${2:-}"
     # -- gh with peco --
-    b: browse
     wb: "!gh repo list -L 500 | peco | awk '{print $1}' | xargs gh repo view -w"
     repo-clone: "!gh repo clone $(gh repo list | peco | awk '{print $1}')"
     # -- gist with peco --
     gwb: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view -w"
-    gist-create: |-
-        !FILE=$(find . -maxdepth ${1:-1} -type f | peco | awk '{print $1}')
-        [ -z "$FILE" ] && exit
-        DESC="$(read -p 'description: ' DESC && echo $DESC)"
-        gh gist create $FILE -f $FILE -d "$DESC"
-        read -p "remove local file? (Y/n): " YN && [ -z $YN ] && YN=y
-        [ $YN = n -o $YN = N ] && exit
-        rm "$FILE"
-    gist-delete: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist delete"
     gist-clone: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist clone"
-    gist-view: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view"
-    gist-hash: "!gh gist list -L 500 | peco | awk '{print $1}'"
+    # gist-view: "!gh gist list -L 500 | peco | awk '{print $1}' | xargs gh gist view"
+    # gist-hash: "!gh gist list -L 500 | peco | awk '{print $1}'"
     gist-add-file: |-
         !gh gist list -L 500 | peco | awk '{print $1}' | xargs -i gh gist edit {} -a "${1}"
     gist-edit-desc: |-
@@ -44,11 +74,11 @@ aliases:
         gh gist edit $HASH -d "$DESC" >/dev/null
     gist-web: |-
         !gh gist list -L 500 | peco | awk '{print $1}' | xargs -i gh gist view {} -w
-    gist-file-hash: |-
+    gist-hash: |-
         !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF}'
-    gist-file-edit: |-
+    gist-edit: |-
         !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n 2 sh -c 'gh gist edit "$0" -f "$1"'
-    gist-file-view: |-
+    gist-view: |-
         !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n2 sh -c 'gh gist view "$0" -f "$1"'
     gist-all-files: "!gh api https://api.github.com/gists --paginate | jq -r '..|.raw_url?|select(.!=null)'"
     # ++ config ++
