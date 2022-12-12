@@ -21,6 +21,10 @@ elif type /home/"$(whoami)"/.linuxbrew/bin/brew >/dev/null 2>&1; then
   eval "$(/home/"$(whoami)"/.linuxbrew/bin/brew shellenv)"
 fi
 
+if type fzf &>/dev/null; then
+  export FZF_DEFAULT_OPTS='--reverse --bind=enter:accept,alt-p:preview-up,alt-n:preview-down'
+fi
+
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/bin" ]; then
   PATH="$HOME/bin:$PATH"

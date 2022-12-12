@@ -121,6 +121,20 @@ lesskey
 - .gitignore
 - .git-credentials
 
+## fzf
+
+[junegunn/fzf: A command-line fuzzy finder](https://github.com/junegunn/fzf)
+
+### Environment variables
+
+- `FZF_DEFAULT_COMMAND`
+- `FZF_DEFAULT_OPTS`
+  - e.g. `FZF_DEFAULT_OPTS='--border --reverse --height 60%'`
+
+### --bind
+
+- [fzf command man page | ManKier](https://www.mankier.com/1/fzf#Key/Event_Bindings-Available_Actions)
+
 ## なぐり書き
 
 ### 初期化
