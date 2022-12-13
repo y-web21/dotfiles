@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+
+describe() {
+  cat <<-EOS
+以下を利用してgitリモートリポジトリから指定したファイルだけを取得します。
+- sparse-checkout
+	- .git/info/sparse-checkout に従い一部をチェックアウト
+- clone --depth 1
+	- 過去の履歴の深さ1としてシャロークローンする
+
+	arg1 = optional: repository url
+	arg2 = optional: clone target file
+EOS
+}
+
+SPARSE_SETTING=".git/info/sparse-checkout"
+is_inside_git() { git rev-parse --git-dir &>/dev/null; }
+repo_name() { echo "$repo" | rev | cut -d '/' -f 1 | rev | sed -E 's/\.git$//'; }
+
+set_repo() {
+  if ! type gh &>/dev/null; then
+    # TODO search and pick remote repo by fzf (git api)
+    echo DBD
+    # repo=$(gh api | fzf | awk)
+  else
+    read -r -p 'repo URL or SSH : ' repo
+  fi
+  echo ''
+}
+
+set_dir() {
+  cat <<-EOS
+		Select directory.
+		The repository will be cloned as follows
+		<your select dir>/<repo name>
+	EOS
+  if type rg &>/dev/null; then
+    dir=$(rg --maxdepth 2 --hidden --files --null | xargs -0 dirname | sort -u | uniq | fzf --height 60%)
+  else
+    dir=$(find . --maxdepth 2 -type d | fzf --height 60%)
+  fi
+  echo ''
+}
+
+shake_your_body() {
+  local yn
+  cd "$dir" || exit
+  if ! mkdir "$(repo_name)" 2>/dev/null; then
+    echo "${dir}/$(repo_name) is already exists!"
+    read -e -p 'O foolish man, do thy wish to destroy and create? (Y/n): ' -i y yn
+    [[ $yn =~ n|N ]] && exit
+    rm -rf "$(repo_name)"
+    mkdir "$(repo_name)"
+  fi
+
+  cd "$(repo_name)" || exit
+
+  echo ''
+
+  git init .
+  git config --local core.sparsecheckout true
+}
+
+make_sparse-checkout_file() {
+  [ -n "$1" ] && echo "$1" > $SPARSE_SETTING
+  if ! type gh &>/dev/null; then
+    # TODO pick repo resources by fzf (git api)
+    echo DBD
+    # echo "$pick" > $SPARSE_SETTING
+  else
+    read -r -p 'Write pickup rules by like .gitignore. (hit enter)'
+    vim -c ":$ s/$/\r/g" -c w -c :nohl +1 -c start $SPARSE_SETTING
+  fi
+  echo ''
+}
+
+pull_depth1() {
+  local branch
+  read -r -p 'hit the pull branch name (defulat main,master): ' branch
+
+  git remote add origin "${repo}"
+
+  if ! git pull --depth 1 origin "${branch:-main}" 2>/dev/null; then
+    git pull --depth 1 origin master
+  fi
+
+  # shellcheck disable=2181
+  [ $? -ne 0 ] && exit
+}
+
+repo=${1}
+files=${2}
+is_inside_git && echo 'Fatal error! Please rerun at outside git worktree.' && exit
+[ -z "$repo" ] && set_repo
+set_dir
+shake_your_body
+echo $files
+make_sparse-checkout_file "$files"
+pull_depth1
+
+echo "cloning completed ${dir}/$(repo_name)"
+# source
+# cd "$(repo_name)" || exit
