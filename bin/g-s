@@ -85,6 +85,8 @@ git-i-staging() {
           --expect=alt-s \
           --expect=alt-d \
           --expect=alt-h \
+          --expect=alt-c \
+          --expect=ctrl-s \
           --preview 'if [ $(git log -n 1 -p {} | wc -l) -eq 0 ]; then echo -e '\''new file\n'\'' && bat {} --color always ; else git diff --color=always {}; fi'
     )
 
@@ -112,6 +114,12 @@ git-i-staging() {
       # hank 単位での add
       # shellcheck disable=2086
       git add -p $selects
+    elif [ "$input" = alt-c ]; then
+      [ -z "$GIT_EDITOR" ] && export GIT_EDITOR=vim
+      git commit
+    elif [ "$input" = ctrl-s ]; then
+      export GIT_PAGER='less -XRS'
+      git status
     else
       # shellcheck disable=2086
       git add $selects
