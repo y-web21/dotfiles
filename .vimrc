@@ -28,6 +28,22 @@ set fileformats=unix,dos,mac
 set shell=/bin/bash
 
 "------------------------------------
+" appearance settings
+"------------------------------------
+" cursor type
+if has('vim_starting')
+    let &t_EI .= "\e[2 q"   " normal mode
+    let &t_SI .= "\e[6 q"   " insert mode
+    let &t_SR .= "\e[4 q"   " replace mode
+endif
+
+" hilight line
+" カーソル行を強調表示しない
+set nocursorline
+" 挿入モードの時のみ、カーソル行をハイライトする
+autocmd InsertEnter,InsertLeave * set cursorline!
+
+"------------------------------------
 " editor settings
 "------------------------------------
 set tabstop=4
@@ -46,6 +62,11 @@ set statusline=%F%m%r%h%w%=\ %{fugitive#statusline()}\ [%{&ff}:%{&fileencoding}]
 "------------------------------------
 " set ignorecase " with smartcase
 set smartcase  " lower upperのみのときはignorecaseしない
+
+"------------------------------------
+" command line mode settings
+"------------------------------------
+set wildmenu    " tab 補完 C-l,C-i より直感的
 
 "------------------------------------
 " re-examination
@@ -80,7 +101,7 @@ call plug#end()
 if !1 | finish | endif
 
 "------------------------------------
-" nomal mode key binding custumize
+" nomal(command) mode key binding custumize
 "------------------------------------
 "(nmapは再帰的であるためループになる可能性があるのでnnoremap
 " ソフトラップされた仮想的な行を含めて下にスクロール
@@ -104,11 +125,39 @@ autocmd main BufWinEnter *
   \|   nunmap <buffer> <CR>
   \| endif
 
+" move lines up, down  e.g 2[e = 2 lines up
+nnoremap [e  :<c-u>execute 'move -1-'. v:count1<cr>
+nnoremap ]e  :<c-u>execute 'move +'. v:count1<cr>
+" add blank line
+nnoremap [<space>  :<c-u>put! =repeat(nr2char(10), v:count1)<cr>'[
+nnoremap ]<space>  :<c-u>put =repeat(nr2char(10), v:count1)<cr>
+
+" 保存して終了
+nnoremap <C-s><C-s><C-s> :<C-u>wq<cr>
 
 "------------------------------------
-" command line key binding
+" insert mode key binding custumize
+"------------------------------------
+" normal への移行を楽に
+inoremap <silent> jk <ESC>
+" 保存して終了
+inoremap <C-s><C-s> <ESC>:<C-u>wq<cr>
+
+"------------------------------------
+" command line mode key binding
 "------------------------------------
 cnoremap fuck q!
+
+" emacs like
+cnoremap <C-a> <Home>
+cnoremap <C-b> <Left>
+cnoremap <C-d> <Del>
+cnoremap <C-e> <End>
+cnoremap <C-f> <Right>
+cnoremap <C-n> <Down>
+cnoremap <C-p> <Up>
+cnoremap <M-b> <S-Left>
+cnoremap <M-f> <S-Right>
 
 " no create temp files
 " set noswapfile
