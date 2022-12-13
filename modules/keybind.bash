@@ -28,6 +28,11 @@ __history_with_peco() {
   READLINE_POINT=${#RET}
 }
 
+__pick_env() {
+  READLINE_LINE="$READLINE_LINE$(cat <(set -o posix;set) <(env)  | fzf | cut -d '=' -f 2-)"
+  READLINE_POINT=${#READLINE_LINE}
+}
+
 __pick_path() {
   local RET
   RET=$(find . | fzf)
@@ -233,6 +238,7 @@ bind -x '"\ed": __interactive_cd'
 bind -x '"\e\ed": __interacrive_cd_b'
 bind -x '"\ee": __open_with_editor'
 bind -r "\ep"
+bind -x '"\ep\ee": __pick_env'
 bind -x '"\ep\ep": __pick_path'
 bind -x '"\ep\ed": __pick_docker_container'
 bind -x '"\eg\eg": __rg'
