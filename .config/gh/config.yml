@@ -36,6 +36,17 @@ aliases:
     gist-delete-repo: "!gh gist list -L 500 | fzf --preview-window=bottom:65%,+4 --preview 'gh gist view {1} | bat --color=always -l md' | awk '{print $1}' | xargs gh gist delete"
     gist-view: |-
         !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:65%,+4 --preview 'gh gist view {-1} -f {2} | bat --color=always -l $(echo {1} | sed 's/Shell/bash/') || gh gist view {-1} -f {1}' | awk '{print $NF,$2}' | xargs -n2 sh -c 'gh gist view "$0" -f "$1"'
+    frepo-web: |-
+        !read -p 'query: ' input
+        query=$(echo "$input" | sed -E 's/^https.*com\///; s/ /%20/g; s/\//%2F/g; s/:/%3A/g')
+        gh search repos --limit 50 --sort=stars "$query" | column -t -s "$(printf '\t')" | fzf --query "$query" | awk '{print $1}' | xargs -i gh repo view -w {}
+    # search: |-
+    #     !input_query() { echo $(read -r input && echo "$input" | sed -E 's/^https.*com\///; s/ /%20/g; s/\//%2F/g; s/:/%3A/g'); }
+    #     json=$(gh api -H "Accept: application/vnd.github+json" \
+    #       /search/repositories?per_page=50\&sort=stars\&order=desc\&q="$(input_query)")
+    #     line=$(echo "$json" | jq -r '.items[] | [.name, .owner.login, .default_branch, .stargazers_count, .html_url] | @tsv' | column -t | fzf)
+    #     repo=$(echo "$line" | awk '{print $NF}')
+    #     gh repo view -w $repo
     # -- gist --
     gist-new: |-
         !tmpdir=$(mktemp -d)
@@ -78,7 +89,7 @@ aliases:
         !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF}'
     gist-edit: |-
         !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n 2 sh -c 'gh gist edit "$0" -f "$1"'
-    gist-view: |-
+    gist-view_: |-
         !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | peco | awk '{print $NF,$2}' | xargs -n2 sh -c 'gh gist view "$0" -f "$1"'
     gist-all-files: "!gh api https://api.github.com/gists --paginate | jq -r '..|.raw_url?|select(.!=null)'"
     # ++ config ++
