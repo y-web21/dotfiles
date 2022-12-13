@@ -191,6 +191,10 @@ if which youtube-dl >/dev/null 2>&1; then
   alias ydl-sub-ja='youtube-dl --no-cache-dir --write-auto-sub --sub-lang ja'
 fi
 
+if type rg &>/dev/null; then
+  alias rgd='rg --hidden --files --null | xargs -0 dirname | sort -u | uniq'
+fi
+
 # -- include dedicated files -- #
 # shellcheck source=/dev/null # [sample] Avoid warning SC1090
 SRC=$HOME/dotfiles/aliases
