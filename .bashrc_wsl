@@ -17,6 +17,12 @@ alias qfind='find / \( -path /mnt* -o -path /proc* -o -path /var* \) -prune -o -
 # alias qfind='sudo find / -not -path "/mnt*" -and -not -path "/lib*" -and -not -path "/proc*"'
 alias file-cnt='sudo find / -mindepth 1 -maxdepth 1 -not -path "/mnt*" 2>/dev/null | xargs -i bash -c '\''echo -n '\''{}/ '\'' && sudo find {}/ -type f | wc -l'\'' | sort'
 alias subntu='$(wslpath -u C:\\Windows\\System32\\wsl.exe) -d Ubuntu-20.04-experimental -u $(whoami)'
+alias cmd='cmd.exe'
+alias pwsh='pwsh.exe'
+alias _pwshdotnet='powershell.exe'
+# 非インタラクティブシェルでのコマンド実行
+alias cmdc='cmd.exe /c'
+alias pwshc='pwsh.exe -noprofile -command'
 
 # =============== env, var ===============
 export WINHOME="/mnt/c/Users/${USER}"
