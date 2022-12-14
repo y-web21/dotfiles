@@ -35,7 +35,9 @@ aliases:
         rm "$FILE"
     gist-delete-repo: "!gh gist list -L 500 | fzf --preview-window=bottom:65%,+4 --preview 'gh gist view {1} | bat --color=always -l md' | awk '{print $1}' | xargs gh gist delete"
     gist-view: |-
-        !gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:65%,+4 --preview 'gh gist view {-1} -f {2} | bat --color=always -l $(echo {1} | sed 's/Shell/bash/') || gh gist view {-1} -f {1}' | awk '{print $NF,$2}' | xargs -n2 sh -c 'gh gist view "$0" -f "$1"'
+        !JSON=$gh api https://api.github.com/gists --paginate | jq -r ' .[] | .files[] as $files | [ $files.language, $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')")
+        TARGET=$(echo $JSON | fzf --preview-window=bottom:65%,+4 --preview 'gh gist view {-1} -f {2} | bat --color=always -l $(echo {1} | sed 's/Shell/bash/') || gh gist view {-1} -f {1}')
+        awk '{print $NF,$2}' | xargs -n2 sh -c 'gh gist view "$0" -f "$1"'
     frepo-web: |-
         !read -p 'query: ' input
         query=$(echo "$input" | sed -E 's/^https.*com\///; s/ /%20/g; s/\//%2F/g; s/:/%3A/g')
