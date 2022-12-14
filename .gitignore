@@ -45,6 +45,7 @@
 !bin/*
 
 # doc and scripts
-!*make_link.bash
+!make_link.bash
+!clone_lib.bash
 !scripts/*
 !/README.md
