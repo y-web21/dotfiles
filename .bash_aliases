@@ -36,6 +36,8 @@ alias k9='kill -9 $$'
 alias filesize='wc -c < '
 alias type='type'
 alias ag='alias | grep -E'
+alias igrep='grep -in'
+alias crontab='crontab -i'
 
 # handy short cuts #
 alias h='history'
@@ -73,9 +75,6 @@ alias datetime="date +%Y-%m-%d_%H:%M:%S"
 alias now='date +"%T"'
 alias nowtime=now
 alias nowdate='date +"%d-%m-%Y"'
-
-alias G='grep -in'
-alias GR='grep -irn'
 
 # clipboard base
 alias C="sed -z -e '$ s/\n//' |xclip -selection c"
