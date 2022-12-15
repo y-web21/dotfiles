@@ -58,12 +58,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 #   fi
 # fi
 
-if [ -f "$HOME/.bashrc_user" ]; then
-  . "$HOME/.bashrc_user"
-fi
-
-
-test -f ~/dotfiles/private_settings/pre.bash && source ~/dotfiles/private_settings/pre.bash
+test -f ~/dotfiles/private_ettings/pre.bash && source ~/dotfiles/private_settings/pre.bash
 
 if [ -e "$COMMON_RC" ]; then
   source "$COMMON_RC"
