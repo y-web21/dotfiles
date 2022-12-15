@@ -29,7 +29,7 @@ __history_with_peco() {
 }
 
 __pick_env() {
-  READLINE_LINE="$READLINE_LINE$(cat <(set -o posix;set) <(env)  | fzf | cut -d '=' -f 2-)"
+  READLINE_LINE="$READLINE_LINE$(cat <(set -o posix;set) <(echo '')  | fzf | cut -d '=' -f 2-)"
   READLINE_POINT=${#READLINE_LINE}
 }
 
@@ -121,7 +121,11 @@ __open_with_editor() {
 }
 
 __rg() {
-  rg -Hn --color=always "$READLINE_LINE" | less -R
+  rg -Hn -u --color=always "$READLINE_LINE" | less -R
+}
+
+__rg_uu() {
+  rg -Hn -uu --color=always "$READLINE_LINE" | less -R
 }
 
 __rg_edit_uu() {
@@ -192,15 +196,16 @@ __z() {
 
 __ls_al_readline() {
   if type exa &>/dev/null; then
-    exa -la  --time-style=long-iso "${READLINE_LINE:-.}"
+    exa -la --time-style=long-iso "${READLINE_LINE:-.}"
   else
-    ls -la  --time-style=long-iso "${READLINE_LINE:-.}"
+    ls -la --time-style=long-iso "${READLINE_LINE:-.}"
   fi
   echo ''
 }
 
 __jump_to_readline() {
   cd "${READLINE_LINE}" || return
+  READLINE_LINE=''
   pwd
 }
 
@@ -216,7 +221,7 @@ __reset_screen() {
   exec $SHELL -l
 }
 
-__list_user_binds() { bind -X | column -t | sort -k 2; }
+__list_user_binds() { bind -X | column -t | sort -k 2 | less; }
 
 __test_bind() { echo valid; }
 
@@ -241,7 +246,8 @@ bind -r "\ep"
 bind -x '"\ep\ee": __pick_env'
 bind -x '"\ep\ep": __pick_path'
 bind -x '"\ep\ed": __pick_docker_container'
-bind -x '"\eg\eg": __rg'
+bind -x '"\eg\eg": __rg_uu'
+bind -x '"\eG\eG": __rg'
 bind -x '"\eg\ee": __rg_edit_uu'
 bind -x '"\eG\eE": __rg_edit'
 bind -x '"\eg\ef": __rg_file_uu'
