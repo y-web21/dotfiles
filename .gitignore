@@ -5,7 +5,6 @@
 !.gitignore
 !.profile
 !.bash_aliases
-!.bashrc_user
 !.bashrc_wsl
 !.bashrc_linux
 !.sshrc
@@ -19,6 +18,7 @@
 !.tigrc
 !.inputrc
 !.tmux.conf
+!.bashrc
 
 # sample
 !.bash_profile__
