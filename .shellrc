@@ -1,5 +1,7 @@
-# export PATH=$HOME/.bin:$PATH
-# export CDPATH=$HOME:$CDPATH
+# shellcheck disable=SC2148
+#
+# ShellCheck ignore list:
+#  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
 
 # export EDITOR=vim
 # export EDITOR=nano
@@ -19,7 +21,7 @@ is_redhat_based() { [ -f /etc/redhat-release ]; }
 is_slackware_based() { :; }
 # window
 is_wayland() { [ -v WAYLAND_DISPLAY ]; }
-is_xorg() { [ flase ]; } # X11, TBDevelopment
+is_xorg() { echo 1 ; } # X11, TBDevelopment
 # os
 is_centos() { [ "$(cat /etc/redhat-release | cut -d' ' -f1 2>/dev/null)" == 'CentOS' ]; }
 is_linux() { [ "$(expr substr $(uname -s) 1 5)" == 'Linux' ]; }
@@ -44,15 +46,6 @@ fi
 unset shpath
 
 export PATH=$PATH:~/bin
-
-# history
-export HISTSIZE=3000
-export HISTFILESIZE=100000
-export HISTTIMEFORMAT='%F %T '
-export HISTIGNORE='history:pwd:ls:ls *:ll:lla:cd:..:gl:glo'
-export HISTCONTROL=ignorespace:ignoredups:erasedups
-
-# sudoedit default editor is nano on wls2. if you use vim, set EDITOR=vim
 
 # prevent garbled Japanese characters such as tig.
 export LC_ALL=en_US.UTF-8

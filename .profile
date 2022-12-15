@@ -21,6 +21,9 @@ elif type /home/"$(whoami)"/.linuxbrew/bin/brew >/dev/null 2>&1; then
   eval "$(/home/"$(whoami)"/.linuxbrew/bin/brew shellenv)"
 fi
 
+# /bin/sh unsupported
+export COMMON_RC="$HOME/.shellrc"
+
 if type fzf &>/dev/null; then
   export FZF_DEFAULT_OPTS='--reverse --bind=enter:accept,alt-p:preview-up,alt-n:preview-down'
 fi
@@ -45,4 +48,6 @@ if [ -d "$HOME/gems" ]; then
   export PATH="$HOME/gems/bin:$PATH"
 fi
 
-eval "$(gh completion -s bash)"
+if type apt >/dev/null 2>&1 ;then
+  apt moo
+fi

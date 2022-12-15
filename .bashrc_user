@@ -6,11 +6,25 @@
 
 test -f ~/dotfiles/private_settings/pre.bash && source ~/dotfiles/private_settings/pre.bash
 
-COMMON_RC=$HOME/.commonrc
-
-if [ -e $COMMON_RC ]
-then source $COMMON_RC
+if [ -e "$COMMON_RC" ]; then
+  source "$COMMON_RC"
 fi
+
+# load homebrew bash-completion file by apt bash-completion.
+load_brew_completion() {
+  local brew_completion
+  brew_completion="${HOMEBREW_PREFIX}/etc/bash_completion.d"
+
+  type brew >/dev/null 2>&1 || return
+  test ! -d "${brew_completion}" && return
+  while read -r comp_file; do
+    if ! [[ "${comp_file}" =~ /(gh)$ ]]; then
+      . "${comp_file}"
+    fi
+  done < <(find "${brew_completion}" -type f -or -type l)
+}
+load_brew_completion
+unset -f load_brew_completion
 
 # ============== .bashrc =================
 # /etc/skel/.bashrc
@@ -33,7 +47,4 @@ test -r ~/.bashrc.local && . ~/.bashrc.local
 
 test -f ~/dotfiles/private_settings/post.bash && source ~/dotfiles/private_settings/post.bash
 
-if is_debian_based;then
-  apt moo
-fi
-
+eval "$(gh completion -s bash)"

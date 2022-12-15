@@ -1,6 +1,7 @@
-# shellcheck disable=SC2148
+# shellcheck disable=SC1091,SC2148
 #
 # ShellCheck ignore list:
+#  - SC1091: Not following: (error message here)
 #  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
 
 # ~/.profile: executed by the command interpreter for login shells.
@@ -17,6 +18,33 @@ if [ -e "$HOME/.profile" ]; then
   . "$HOME/.profile"
 fi
 
+HISTSIZE=300000 # current process
+HISTFILESIZE=300000 # .bash_history
+HISTTIMEFORMAT='%F %T '
+HISTIGNORE='history:pwd:ls:ls *:ll:lla:cd:..:gl:glo'
+HISTCONTROL=ignorespace:ignoredups:erasedups
+export HISTSIZE HISTCONTROL HISTTIMEFORMAT HISTIGNORE HISTCONTROL
+# do not append .bash_history when the end of session (append by PROMPT_COMMAND)
+shopt -u histappend
+export PROMPT_COMMAND="__bash_history_append;${PROMPT_COMMAND#__bash_history_append;}"
+__bash_history_append() {
+  # history 共有できるように書き出す
+  builtin history -a
+}
+
+__bash_history_append_and_reload() {
+  # コマンド毎に.bash_historyにシェルの履歴を追記ダンプしてから全て読み込み直す
+  # 用途別の窓でも即共有するのが難点。実行コストが比較的高め
+  builtin history -a
+  builtin history -c
+  builtin history -r
+}
+
+history() {
+  __bash_history_append_and_reload
+  builtin history "$@"
+}
+
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
   # include .bashrc if it exists
@@ -26,18 +54,5 @@ if [ -n "$BASH_VERSION" ]; then
   if [ -f "$HOME/.bashrc_user" ]; then
     . "$HOME/.bashrc_user"
   fi
+  :
 fi
-
-# load homebrew bash-completion file by apt bash-completion.
-if type brew >/dev/null 2>&1; then
-  if [ -z "$(brew list -1 | grep ^bash-completion$)" ]; then
-    echo 'load bash completions in brew... '
-    while read comp_file; do
-      if ! [[ "${comp_file}" =~ /(gh)$ ]]; then
-        # shellcheck disable=SC1090
-        . "${comp_file}"
-      fi
-    done < <(find ${HOMEBREW_PREFIX}/etc/bash_completion.d -type f -or -type l)
-  fi
-fi
-

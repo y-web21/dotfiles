@@ -23,6 +23,7 @@ alias _pwshdotnet='powershell.exe'
 # 非インタラクティブシェルでのコマンド実行
 alias cmdc='cmd.exe /c'
 alias pwshc='pwsh.exe -noprofile -command'
+alias cdd='cd $WINHOME'
 
 # =============== env, var ===============
 export WINHOME="/mnt/c/Users/${USER}"
@@ -131,11 +132,8 @@ if [[ "$(which vagrant)" = '' ]]; then
 
 fi
 
-if [ $(cat /proc/meminfo | grep MemTotal | awk '{print $2}') -gt 4000000 ]; then
-  # exit 時に history 共有できるように設定
-  export PROMPT_COMMAND="history -a"
-  # リアルタイム共有、用途別の窓でも即共有してしまうので扱いづらい。負荷も高い。
-  # export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+if [ "$(grep MemTotal </proc/meminfo | awk '{print $2}')" -gt 4000000 ]; then
+  :
 fi
 
 if [ 0 -ne 0 ]; then
