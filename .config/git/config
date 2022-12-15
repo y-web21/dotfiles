@@ -30,6 +30,7 @@
 	conme = checkout --ours
 	cp = cherry-pick
 	d = !"f() { a2=''; [ $# -ge 2 ] && a2=\"@~${2}\"; git diff @~${1:-0} $a2; echo @~${1:-0} $a2; }; f"
+	dc = diff --cached
 	f = log -p
 	fu = !"export GIT_EDITOR=vim && git commit -m 'fixup'; git stash -u && git rebase -i @~2 && git stash pop"
 	fua = !"export GIT_EDITOR=vim && git add . && git commit -m 'fixup' && git rebase -i @~2"
@@ -99,7 +100,8 @@
 		done; \
 		cat $TMP | column -t && rm $TMP;'"
 	recent = !git for-each-ref --sort=-committerdate --count=${1:-10} --format='Date: %(color:red)%(authordate:iso)%(color:reset)\t%(color:green)[%(authorname)]%(color:reset)\nRef: %(color:yellow)%(refname:short)%(color:reset)\nSubject: %(subject)\n' refs/heads refs/remotes
-	conf-local = "!f(){ git rev-parse --is-inside-work-tree 2>/dev/null 1>&2 && ${1:-${EDITO:-vim}} "$(git rev-parse --git-dir)/config"; }; f $*"
+	conf-l = "!f(){ git rev-parse --is-inside-work-tree 2>/dev/null 1>&2 && ${1:-${EDITOR:-vim}} "$(git rev-parse --git-dir)/config"; }; f $*"
+	conf-g = "git config --global --edit"
 	# == ls ==
 	ls = ls-files --directory
 	ls-untracked = ls-files --others --exclude-standard

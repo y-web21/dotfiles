@@ -58,5 +58,6 @@ done
 # ./bin/* files
 [ ! -e ~/bin ] && mkdir ~/bin
 for MY_SCRIPTS in $(find ./bin -maxdepth 1 -type f | cut -c 3- | $EXCEPT | sort); do
+  sudo chmod u+x "$MY_SCRIPTS"
   make_link "$MY_SCRIPTS"
 done
