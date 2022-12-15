@@ -89,9 +89,9 @@ unset -f load_brew_completion
 # /etc/skel/.bashrc
 
 if is_wsl; then
-  test -r ~/.bashrc_wsl && . ~/.bashrc_wsl
+  test -r ~/dotfiles/bash.d/.bashrc_wsl && . ~/dotfiles/bash.d/.bashrc_wsl
 elif is_linux; then
-  test -r ~/.bashrc_linux && . ~/.bashrc_linux
+  test -r ~/dotfiles/bash.d/.bashrc_linux && . ~/dotfiles/bash.d/.bashrc_linux
 elif is_mac; then
   :
 else

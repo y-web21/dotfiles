@@ -5,8 +5,6 @@
 !.gitignore
 !.profile
 !.bash_aliases
-!.bashrc_wsl
-!.bashrc_linux
 !.sshrc
 !.vimrc
 !.dircolors
@@ -19,6 +17,9 @@
 !.inputrc
 !.tmux.conf
 !.bashrc
+
+# bash
+!bash.d/*
 
 # sample
 !.bash_profile__
