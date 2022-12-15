@@ -101,6 +101,23 @@ call plug#end()
 if !1 | finish | endif
 
 "------------------------------------
+" key binding memo
+"------------------------------------
+" " key bind list
+" :help index.txt
+" " user key bind
+" :map
+" :imap
+" :nmap
+" :vmap
+" :verbose nmap
+"------------------------------------
+" Normal, Visual, Select, Operator-pendin mode key binding
+"------------------------------------
+noremap <c-a> <ESC>ggvGV
+noremap <Space>h ^
+noremap <Space>l $
+"------------------------------------
 " nomal(command) mode key binding custumize
 "------------------------------------
 "(nmapは再帰的であるためループになる可能性があるのでnnoremap
@@ -112,6 +129,8 @@ nnoremap gk k
 nnoremap ; :
 nnoremap : ;
 nnoremap <ESC><ESC> :nohl<CR>
+nnoremap ZQ <Nop>
+nnoremap <Space>/ *
 
 augroup main
   autocmd!
