@@ -6,13 +6,22 @@
         ]
     },
     "Keymap": {
+        "C-x,C-c": "peco.Cancel",
+        "C-s,C-a": "selectAllAndFinish",
+        "C-f": "peco.ForwardChar",
+        "C-b": "peco.BackwardChar",
+        "M-f": "peco.ForwardWord",
+        "M-b": "peco.BackwardWord",
+        "C-a": "peco.BeginningOfLine",
+        "C-e": "peco.EndOfLine",
+        "C-u": "peco.KillBeginningOfLine",
+        "C-k": "peco.KillEndOfLine",
+        "C-w": "peco.DeleteBackwardWord",
         "M-v": "peco.ScrollPageUp",
         "C-v": "peco.ScrollPageDown",
-        "C-u": "peco.ScrollPageUp",
-        "C-d": "peco.ScrollPageDown",
-        "C-x,C-c": "peco.Cancel",
-        "C-b": "peco.ScrollLeft",
-        "C-f": "peco.ScrollRight",
-        "C-a,C-c": "selectAllAndFinish"
+        "M-u": "peco.ScrollPageUp",
+        "M-d": "peco.ScrollPageDown",
+        "M-l": "peco.ScrollLeft",
+        "M-h": "peco.ScrollRight"
     }
 }
