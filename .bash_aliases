@@ -38,6 +38,8 @@ alias type='type'
 alias ag='alias | grep -E'
 alias igrep='grep -in'
 alias crontab='crontab -i'
+# sudo current shell
+alias su-='sudo -H -s'
 
 # handy short cuts #
 alias h='history'
