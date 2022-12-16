@@ -18,7 +18,7 @@ augroup source-vimrc
 augroup END
 
 "------------------------------------
-"
+" general
 "------------------------------------
 set nocompatible  " vi vim を別物 プラグインの誤動作を防止
 set encoding=utf-8
@@ -46,9 +46,11 @@ autocmd InsertEnter,InsertLeave * set cursorline!
 "------------------------------------
 " editor settings
 "------------------------------------
-set tabstop=4
-set shiftwidth=4
-set expandtab  " tab 2 space
+set autoindent
+set expandtab  " tab to space
+set tabstop=4   " num of char to convert tab to spaces when open
+set softtabstop=4   " when keyboard input
+set shiftwidth=4    " autoindent spaces
 set showmatch  " 対応カッコをハイライト
 set ruler
 set title
@@ -57,6 +59,32 @@ set listchars=tab:>-,trail:.  " タブを >--- 半スペを . で表示する
 set number
 set statusline=%F%m%r%h%w%=\ %{fugitive#statusline()}\ [%{&ff}:%{&fileencoding}]\ [%Y]\ [%04l,%04v]\ [%l/%L]\ %{strftime(\"%Y/%m/%d\ %H:%M:%S\")}
 
+
+if has("autocmd")
+  augroup tab_setting
+    autocmd!
+    "ファイルタイプの検索を有効にする
+    filetype plugin on
+    "ファイルタイプに合わせたインデントを利用
+    filetype indent on
+    "sw=shiftwidth, sts=softtabstop, ts=tabstop, et=expandtabの略
+    autocmd FileType c           setlocal sw=4 sts=4 ts=4 et
+    autocmd FileType sh          setlocal sw=2 sts=2 ts=2 et
+    autocmd FileType bash        setlocal sw=2 sts=2 ts=2 et
+    autocmd FileType zsh         setlocal sw=2 sts=2 ts=2 et
+    autocmd FileType python      setlocal sw=4 sts=4 ts=4 et
+    autocmd FileType json        setlocal sw=2 sts=2 ts=2 et
+    autocmd FileType html        setlocal sw=2 sts=2 ts=2 et
+    autocmd FileType css         setlocal sw=4 sts=4 ts=4 et
+    autocmd FileType scss        setlocal sw=4 sts=4 ts=4 et
+    autocmd FileType sass        setlocal sw=4 sts=4 ts=4 et
+    autocmd FileType javascript  setlocal sw=2 sts=2 ts=2 et
+  augroup END
+endif
+
+if filereadable(expand("~/.vimrc.local"))
+  source ~/.vimrc.local
+endif
 "------------------------------------
 " normal mode settings
 "------------------------------------
