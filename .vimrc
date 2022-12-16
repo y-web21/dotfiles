@@ -44,6 +44,15 @@ set nocursorline
 autocmd InsertEnter,InsertLeave * set cursorline!
 
 "------------------------------------
+" clipboard settings
+"------------------------------------
+" ビジュアルモードで選択したテキストが、クリップボードに入るようにする。
+" set guioptions+=a " GUI
+set clipboard+=autoselect
+" 無名レジスタに入るデータを、*レジスタにも入れる。
+set clipboard+=unnamed
+
+"------------------------------------
 " editor settings
 "------------------------------------
 set autoindent
@@ -117,11 +126,13 @@ syntax enable
 "------------------------------------
 " plugins
 "------------------------------------
-set helplang=ja,en
-call plug#begin()
+if filereadable(expand("~/.vim/plugged"))
+  call plug#begin()
+    set helplang=ja,en
     Plug 'tpope/vim-fugitive'
     Plug 'vim-jp/vimdoc-ja'
-call plug#end()
+  call plug#end()
+endif
 
 "------------------------------------
 " finish loading vimrc if tiny or small version.
