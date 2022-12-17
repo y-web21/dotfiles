@@ -217,6 +217,11 @@ cnoremap <C-p> <Up>
 cnoremap <M-b> <S-Left>
 cnoremap <M-f> <S-Right>
 
+"------------------------------------
+" visual and select mode key binding
+"------------------------------------
+vnoremap <C-c> :w !wl-copy<cr>  " wayland
+
 " no create temp files
 " set noswapfile
 " set nobackup
