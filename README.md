@@ -182,6 +182,12 @@ vimにて以下を実行。`:h`か`:help`で日本語になっていることを
 
 - [fzf command man page | ManKier](https://www.mankier.com/1/fzf#Key/Event_Bindings-Available_Actions)
 
+## shellcheck
+
+インライン単位とドキュメント単位のディレクティブ及び`.shellcheckrc`で全体への設定が可能。
+
+[Directive · koalaman/shellcheck Wiki](https://github.com/koalaman/shellcheck/wiki/directive)
+
 ## なぐり書き
 
 ### 初期化

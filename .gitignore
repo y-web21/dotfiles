@@ -18,6 +18,7 @@
 !.inputrc
 !.tmux.conf
 !.bashrc
+!.shellcheckrc
 
 # bash
 !bash.d/*
