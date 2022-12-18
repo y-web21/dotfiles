@@ -58,7 +58,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 #   fi
 # fi
 
-test -f ~/dotfiles/private_ettings/pre.bash && source ~/dotfiles/private_settings/pre.bash
+test -f ~/dotfiles/private_ettings/pre.bash && . ~/dotfiles/private_settings/pre.bash
 
 test -r ~/.shellrc && . ~/.shellrc
 
@@ -102,17 +102,17 @@ else
   echo 'nomatch'
 fi
 
-test -r ~/.bash_aliases && . ~/.bash_aliases
+# test -r ~/.bash_aliases && . ~/.bash_aliases
 test -r ~/.bashrc.local && . ~/.bashrc.local
+test -r ~/dotfiles/modules/keybinds_bash && . ~/dotfiles/modules/keybinds_bash
+test -r ~/dotfiles/functions/primary.bash && . ~/dotfiles/functions/primary.bash
+test -f ~/dotfiles/private_settings/post.bash && . ~/dotfiles/private_settings/post.bash
 
-. ~/dotfiles/modules/keybind.bash
-. ~/dotfiles/functions/primary.bash
 # load homebrew bash-completion file by apt bash-completion.
 load_brew_completion() {
   local brew_completion
   brew_completion="${HOMEBREW_PREFIX}/etc/bash_completion.d"
 
-test -f ~/dotfiles/private_settings/post.bash && source ~/dotfiles/private_settings/post.bash
   type brew >/dev/null 2>&1 || return
   test ! -d "${brew_completion}" && return
   while read -r comp_file; do

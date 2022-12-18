@@ -40,6 +40,7 @@ alias igrep='grep -in'
 alias crontab='crontab -i'
 # sudo current shell
 alias su-='sudo -H -s'
+alias valid_login_shells='cat /etc/shells'
 
 # handy short cuts #
 alias h='history'
