@@ -68,6 +68,9 @@ fi
 load_brew_completion() {
   local brew_completion
   brew_completion="${HOMEBREW_PREFIX}/etc/bash_completion.d"
+# シェルの切り替えで上書きされる
+HISTFILE=~/.bash_history
+export HISTFILE
 
   type brew >/dev/null 2>&1 || return
   test ! -d "${brew_completion}" && return
@@ -76,6 +79,27 @@ load_brew_completion() {
       . "${comp_file}"
     fi
   done < <(find "${brew_completion}" -type f -or -type l)
+__bash_history_append() {
+  # history 共有できるように書き出す
+  local prev_status=$?
+  builtin history -a
+  return $prev_status
+}
+
+__bash_history_append_and_reload() {
+  # コマンド毎に.bash_historyにシェルの履歴を追記ダンプしてから全て読み込み直す
+  # 用途別の窓でも即共有するのが難点。実行コストが比較的高め
+  local prev_status=$?
+  builtin history -a
+  builtin history -c
+  builtin history -r
+  return $prev_status
+}
+
+history() {
+  # wrapper
+  __bash_history_append_and_reload
+  builtin history "$@"
 }
 load_brew_completion
 unset -f load_brew_completion

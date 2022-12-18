@@ -26,24 +26,7 @@ HISTCONTROL=ignorespace:ignoredups:erasedups
 export HISTSIZE HISTCONTROL HISTTIMEFORMAT HISTIGNORE HISTCONTROL
 # do not append .bash_history when the end of session (append by PROMPT_COMMAND)
 shopt -u histappend
-export PROMPT_COMMAND="__bash_history_append;${PROMPT_COMMAND#__bash_history_append;}"
-__bash_history_append() {
-  # history 共有できるように書き出す
-  builtin history -a
-}
-
-__bash_history_append_and_reload() {
-  # コマンド毎に.bash_historyにシェルの履歴を追記ダンプしてから全て読み込み直す
-  # 用途別の窓でも即共有するのが難点。実行コストが比較的高め
-  builtin history -a
-  builtin history -c
-  builtin history -r
-}
-
-history() {
-  __bash_history_append_and_reload
-  builtin history "$@"
-}
+export PROMPT_COMMAND="__bash_history_append;${PROMPT_COMMAND//__bash_history_append;/}"
 
 if [ -n "$BASH_VERSION" ]; then
   if [ -f "$HOME/.bashrc" ]; then
