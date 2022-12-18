@@ -64,21 +64,10 @@ if [ -e "$COMMON_RC" ]; then
   source "$COMMON_RC"
 fi
 
-# load homebrew bash-completion file by apt bash-completion.
-load_brew_completion() {
-  local brew_completion
-  brew_completion="${HOMEBREW_PREFIX}/etc/bash_completion.d"
 # シェルの切り替えで上書きされる
 HISTFILE=~/.bash_history
 export HISTFILE
 
-  type brew >/dev/null 2>&1 || return
-  test ! -d "${brew_completion}" && return
-  while read -r comp_file; do
-    if ! [[ "${comp_file}" =~ /(gh)$ ]]; then
-      . "${comp_file}"
-    fi
-  done < <(find "${brew_completion}" -type f -or -type l)
 __bash_history_append() {
   # history 共有できるように書き出す
   local prev_status=$?
@@ -101,8 +90,6 @@ history() {
   __bash_history_append_and_reload
   builtin history "$@"
 }
-load_brew_completion
-unset -f load_brew_completion
 
 # ============== .bashrc =================
 # /etc/skel/.bashrc
@@ -122,8 +109,22 @@ test -r ~/.bashrc.local && . ~/.bashrc.local
 
 . ~/dotfiles/modules/keybind.bash
 . ~/dotfiles/functions/primary.bash
+# load homebrew bash-completion file by apt bash-completion.
+load_brew_completion() {
+  local brew_completion
+  brew_completion="${HOMEBREW_PREFIX}/etc/bash_completion.d"
 
 test -f ~/dotfiles/private_settings/post.bash && source ~/dotfiles/private_settings/post.bash
+  type brew >/dev/null 2>&1 || return
+  test ! -d "${brew_completion}" && return
+  while read -r comp_file; do
+    if ! [[ "${comp_file}" =~ /(gh)$ ]]; then
+      . "${comp_file}"
+    fi
+  done < <(find "${brew_completion}" -type f -or -type l)
+}
+load_brew_completion
+unset -f load_brew_completion
 
 eval "$(gh completion -s bash)"
 eval "$(zoxide init bash)"
