@@ -124,5 +124,6 @@ test -f ~/dotfiles/private_settings/post.bash && source ~/dotfiles/private_setti
 load_brew_completion
 unset -f load_brew_completion
 
+complete -C '/usr/local/bin/aws_completer' aws
 eval "$(gh completion -s bash)"
 eval "$(zoxide init bash)"
