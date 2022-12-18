@@ -113,6 +113,7 @@ git-i-staging() {
     elif [ "$input" = alt-h ]; then
       # hank 単位での add
       # shellcheck disable=2086
+      [ -z "$GIT_EDITOR" ] && export GIT_EDITOR=vim
       git add -p $selects
     elif [ "$input" = alt-c ]; then
       [ -z "$GIT_EDITOR" ] && export GIT_EDITOR=vim
