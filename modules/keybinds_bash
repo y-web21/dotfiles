@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 # keybind functions
 
+__history_with_fzf() {
+  local RET
+  # add current session history to ~/.bash_history
+  history -a
+  RET=$(
+    HISTTIMEFORMAT=''
+    tac ~/.bash_history | grep -v '^#' | uniq | fzf --query "$READLINE_LINE"
+  )
+  if [ '' = "$RET" ]; then return; fi
+  # put text in the bash command line buffer
+  READLINE_LINE="$RET"
+  READLINE_POINT=${#RET}
 __get_buffer(){
   if [ -n "$ZSH_VERSION" ]; then
     echo "${BUFFER}"
@@ -8,6 +20,8 @@ __get_buffer(){
   echo "${READLINE_LINE}"
 }
 
+__history_with_peco() {
+  local RET
 __set_buffer(){
   if [ -n "$ZSH_VERSION" ]; then
     BUFFER="${BUFFER}${1}"
@@ -18,15 +32,13 @@ __set_buffer(){
   READLINE_POINT=${#READLINE_LINE}
 }
 
-__history_with_fzf() {
-  local ret
   # add current session history to ~/.bash_history
   history -a
-  ret=$(
+  RET=$(
     HISTTIMEFORMAT=''
-    tac ~/.bash_history | grep -v '^#' | uniq | fzf-tmux -p 90% --height 80% --layout=reverse-list --query "$READLINE_LINE"
+    tac ~/.bash_history | grep -v '^#' | uniq | peco --layout=bottom-up --query "$READLINE_LINE"
   )
-  if [ '' = "$ret" ]; then return; fi
+  if [ '' = "$RET" ]; then return; fi
   # put text in the bash command line buffer
   READLINE_LINE="$ret"
   READLINE_POINT=${#ret}
@@ -94,7 +106,7 @@ __open_with_editor() {
               then echo -e '\''\n'\'' && du -hs {1} && exa -al --time-style=long-iso {1} ; \
               else bat -n --color=always --style=header,grid,numbers {} 2>/dev/null; fi' |
         awk '{print $1}'
-      # then echo -e '\''\n'\'' && tree {1} -L 2; \
+              # then echo -e '\''\n'\'' && tree {1} -L 2; \
     )
 
     # var check
@@ -104,10 +116,10 @@ __open_with_editor() {
     [ "$input" = 'ctrl-c' ] && break
     [ "$input" = 'esc' ] && break
 
-    path=$(pwd)/$(echo "${fzf_ret[1]}" | sed 's/.\///')
+    path=$(pwd)/$(echo "${fzf_ret[1]}" | sed 's/.\///' )
 
     if [ "$input" = 'alt-o' ]; then
-      file=$(read -r -p 'filename: ')
+      file=$(read -p 'filename: ')
       echo $file
       echo newfile WIP
     fi

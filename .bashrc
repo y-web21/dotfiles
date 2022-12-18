@@ -60,9 +60,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 
 test -f ~/dotfiles/private_ettings/pre.bash && source ~/dotfiles/private_settings/pre.bash
 
-if [ -e "$COMMON_RC" ]; then
-  source "$COMMON_RC"
-fi
+test -r ~/.shellrc && . ~/.shellrc
 
 # シェルの切り替えで上書きされる
 HISTFILE=~/.bash_history

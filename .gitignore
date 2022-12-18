@@ -11,6 +11,7 @@
 !.nanorc
 !.gitconfig
 !.zshrc
+!.zprofile
 !.commonrc
 !.lesskey
 !.tigrc
@@ -38,8 +39,9 @@
 
 # submodules
 !functions/*.bash
-!modules/keybind.bash
-!modules/PS1.sh
+!modules/keybinds*
+!modules/keybinds*
+!modules/PS1
 !modules/*.md
 
 # home bin scripts

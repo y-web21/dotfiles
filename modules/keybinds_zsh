@@ -1,0 +1,129 @@
+#!/usr/bin/env zsh
+# shellcheck disable=SC1071
+#
+# ShellCheck ignore list:
+#  - SC1071: ShellCheck only supports sh/bash/dash/ksh scripts. Sorry!
+
+# Home キーなどの有効化
+# [Zsh - ArchWiki](https://wiki.archlinux.org/title/Zsh#Key_bindings)
+# create a zkbd compatible hash;
+# to add other keys to this hash, see: man 5 terminfo
+typeset -g -A key
+
+key[Home]="${terminfo[khome]}"
+key[End]="${terminfo[kend]}"
+key[Insert]="${terminfo[kich1]}"
+key[Backspace]="${terminfo[kbs]}"
+key[Delete]="${terminfo[kdch1]}"
+key[Up]="${terminfo[kcuu1]}"
+key[Down]="${terminfo[kcud1]}"
+key[Left]="${terminfo[kcub1]}"
+key[Right]="${terminfo[kcuf1]}"
+key[PageUp]="${terminfo[kpp]}"
+key[PageDown]="${terminfo[knp]}"
+key[Shift-Tab]="${terminfo[kcbt]}"
+
+# setup key accordingly
+[[ -n "${key[Home]}"      ]] && bindkey -- "${key[Home]}"       beginning-of-line
+[[ -n "${key[End]}"       ]] && bindkey -- "${key[End]}"        end-of-line
+[[ -n "${key[Insert]}"    ]] && bindkey -- "${key[Insert]}"     overwrite-mode
+[[ -n "${key[Backspace]}" ]] && bindkey -- "${key[Backspace]}"  backward-delete-char
+[[ -n "${key[Delete]}"    ]] && bindkey -- "${key[Delete]}"     delete-char
+[[ -n "${key[Up]}"        ]] && bindkey -- "${key[Up]}"         up-line-or-history
+[[ -n "${key[Down]}"      ]] && bindkey -- "${key[Down]}"       down-line-or-history
+[[ -n "${key[Left]}"      ]] && bindkey -- "${key[Left]}"       backward-char
+[[ -n "${key[Right]}"     ]] && bindkey -- "${key[Right]}"      forward-char
+[[ -n "${key[PageUp]}"    ]] && bindkey -- "${key[PageUp]}"     beginning-of-buffer-or-history
+[[ -n "${key[PageDown]}"  ]] && bindkey -- "${key[PageDown]}"   end-of-buffer-or-history
+[[ -n "${key[Shift-Tab]}" ]] && bindkey -- "${key[Shift-Tab]}"  reverse-menu-complete
+
+# Finally, make sure the terminal is in application mode, when zle is
+# active. Only then are the values from $terminfo valid.
+if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
+	autoload -Uz add-zle-hook-widget
+	function zle_application_mode_start { echoti smkx }
+	function zle_application_mode_stop { echoti rmkx }
+	add-zle-hook-widget -Uz zle-line-init zle_application_mode_start
+	add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
+fi
+
+# memo
+# zsh は readline を使わない。代わりに ZLE を使う。
+# BUFFER = READLINE_LINE
+# CURSOR = READLINE_POINT
+# LBUFFER = CURSOR の 左側
+# RBUFFER = CURSOR の 右側
+
+# include bash keybinds function and override some.
+. "$(dirname $0)/bash_keybinds"
+
+__history_with_fzf() {
+  local ret
+  # add current session history to ~/.bash_history
+  history -a
+  ret=$(
+    tac ~/.zsh_history | cut -d ';' -f 2- | uniq | fzf-tmux -p 90% --layout=default --query "$BUFFER"
+  )
+  if [ '' = "$ret" ]; then return; fi
+  # put text in the bash command line buffer
+  READLINE_LINE="$ret"
+  READLINE_POINT=${#ret}
+}
+
+__pick_env() {
+  BUFFER="$BUFFER$(set | grep '=' | fzf | cut -d '=' -f 2-)"
+  CURSOR=${#BUFFER}
+}
+
+__list_user_binds() { bindkey; }
+
+# =============== keybind zsh =================
+# = list of keybind             -> bindkey
+# = remove bind                 -> bindkey -r "^G"
+# = reset all user bind         -> bindkey -d
+# = check current settings      -> stty -a
+# = declare function use inbind -> zle -N <function>
+if [ -n "$ZSH_VERSION" ]; then
+  zle -N __relogin
+  zle -N __history_with_fzf
+  zle -N __interactive_cd
+  zle -N __interacrive_cd_b
+  zle -N __open_with_editor
+  zle -N __pick_env
+  zle -N __pick_path
+  zle -N __pick_docker_container
+  zle -N __rg_uu
+  zle -N __rg
+  zle -N __rg_edit_uu
+  zle -N __rg_edit
+  zle -N __rg_file_uu
+  zle -N __rg_file
+  zle -N __z
+  zle -N __cd_z
+  zle -N __ls_al_readline
+  zle -N __jump_to_readline
+  zle -N __list_user_binds
+  zle -N __reset_screen
+  bindkey '^[^-l' __relogin
+  bindkey '^[h' __history_with_fzf
+  bindkey '^[d' __interactive_cd
+  bindkey '^[^[d' __interacrive_cd_b
+  bindkey '^[e' __open_with_editor
+  bindkey '^[p^[e' __pick_env
+  bindkey '^[p^[p' __pick_path
+  bindkey '^[p^[d' __pick_docker_container
+  bindkey '^[g^[g' __rg_uu
+  bindkey '^[G^[G' __rg
+  bindkey '^[g^[e' __rg_edit_uu
+  bindkey '^[G^[E' __rg_edit
+  bindkey '^[g^[f' __rg_file_uu
+  bindkey '^[G^[F' __rg_file
+  bindkey '^[jj' __z
+  bindkey '^[j^[j' __cd_z
+  bindkey '^[l' __ls_al_readline
+  bindkey '^[;' __jump_to_readline
+  bindkey '^[?' __list_user_binds
+  bindkey '^[^-rr' __reset_screen
+fi
+
+bindkey -s '^[A' "| awk '{print $}'|^B^B^B"
