@@ -4,7 +4,7 @@
 #  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
 #  - SC1090: Can't follow non-constant source. Use a directive to specify location.
 
-is_debian_based && . ~/dotfiles/modules/PS1.sh 'debian'
+is_debian_based && . ~/dotfiles/modules/PS1 'debian'
 is_crostini && export EDITOR='vim'
 
 if is_ubuntu && ! is_ubuntu; then

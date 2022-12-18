@@ -45,8 +45,11 @@ if [[ -f ${shpath} ]]; then
 fi
 unset shpath
 
-export PATH=$PATH:~/bin
+# for prompt (test)
+type aws >/dev/null 2>&1 && _AWS_CURRENT_REGION=$(aws configure get region)
+export _AWS_CURRENT_REGION
 
+export PATH=$PATH:~/bin
 # prevent garbled Japanese characters such as tig.
 export LC_ALL=en_US.UTF-8
 
