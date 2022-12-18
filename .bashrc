@@ -126,3 +126,4 @@ test -r ~/.bashrc.local && . ~/.bashrc.local
 test -f ~/dotfiles/private_settings/post.bash && source ~/dotfiles/private_settings/post.bash
 
 eval "$(gh completion -s bash)"
+eval "$(zoxide init bash)"

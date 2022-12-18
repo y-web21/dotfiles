@@ -1,31 +1,35 @@
+#!/usr/bin/env bash
 # keybind functions
 
-__history_with_fzf() {
-  local RET
-  # add current session history to ~/.bash_history
-  history -a
-  RET=$(
-    HISTTIMEFORMAT=''
-    tac ~/.bash_history | grep -v '^#' | uniq | fzf --query "$READLINE_LINE"
-  )
-  if [ '' = "$RET" ]; then return; fi
-  # put text in the bash command line buffer
-  READLINE_LINE="$RET"
-  READLINE_POINT=${#RET}
+__get_buffer(){
+  if [ -n "$ZSH_VERSION" ]; then
+    echo "${BUFFER}"
+  fi
+  echo "${READLINE_LINE}"
 }
 
-__history_with_peco() {
-  local RET
+__set_buffer(){
+  if [ -n "$ZSH_VERSION" ]; then
+    BUFFER="${BUFFER}${1}"
+    # shellcheck disable=2034
+    CURSOR=${#BUFFER}
+  fi
+  READLINE_LINE="${READLINE_LINE}${1}"
+  READLINE_POINT=${#READLINE_LINE}
+}
+
+__history_with_fzf() {
+  local ret
   # add current session history to ~/.bash_history
   history -a
-  RET=$(
+  ret=$(
     HISTTIMEFORMAT=''
-    tac ~/.bash_history | grep -v '^#' | uniq | peco --layout=bottom-up --query "$READLINE_LINE"
+    tac ~/.bash_history | grep -v '^#' | uniq | fzf-tmux -p 90% --height 80% --layout=reverse-list --query "$READLINE_LINE"
   )
-  if [ '' = "$RET" ]; then return; fi
+  if [ '' = "$ret" ]; then return; fi
   # put text in the bash command line buffer
-  READLINE_LINE="$RET"
-  READLINE_POINT=${#RET}
+  READLINE_LINE="$ret"
+  READLINE_POINT=${#ret}
 }
 
 __pick_env() {
@@ -39,8 +43,7 @@ __pick_path() {
   # RET=$(find . -mindepth 1 -maxdepth 5 -perm /u=x,g=x,o=x -type f | fzf)
   if [ '' = "$RET" ]; then return; fi
   # put text in the bash command line buffer
-  READLINE_LINE="$READLINE_LINE $RET"
-  READLINE_POINT=${#READLINE_LINE}
+  __set_buffer " $RET"
 }
 
 __pick_docker_container() {
@@ -48,8 +51,7 @@ __pick_docker_container() {
   RET=$(docker ps -a | tail +2 | fzf --reverse | awk '{print $1}')
   if [ '' = "$RET" ]; then return; fi
   RET=$(docker ps -a | grep "$RET" | sed -e 's/  \+/\n/g' | fzf --reverse)
-  READLINE_LINE="${READLINE_LINE}${RET}"
-  READLINE_POINT=${#READLINE_LINE}
+  __set_buffer " $RET"
 }
 
 __interactive_cd() {
@@ -92,7 +94,7 @@ __open_with_editor() {
               then echo -e '\''\n'\'' && du -hs {1} && exa -al --time-style=long-iso {1} ; \
               else bat -n --color=always --style=header,grid,numbers {} 2>/dev/null; fi' |
         awk '{print $1}'
-              # then echo -e '\''\n'\'' && tree {1} -L 2; \
+      # then echo -e '\''\n'\'' && tree {1} -L 2; \
     )
 
     # var check
@@ -102,10 +104,10 @@ __open_with_editor() {
     [ "$input" = 'ctrl-c' ] && break
     [ "$input" = 'esc' ] && break
 
-    path=$(pwd)/$(echo "${fzf_ret[1]}" | sed 's/.\///' )
+    path=$(pwd)/$(echo "${fzf_ret[1]}" | sed 's/.\///')
 
     if [ "$input" = 'alt-o' ]; then
-      file=$(read -p 'filename: ')
+      file=$(read -r -p 'filename: ')
       echo $file
       echo newfile WIP
     fi
@@ -121,11 +123,11 @@ __open_with_editor() {
 }
 
 __rg() {
-  rg -Hn -u --color=always "$READLINE_LINE" | less -R
+  rg -Hn -u --color=always "$(__get_buffer)" | less -R
 }
 
 __rg_uu() {
-  rg -Hn -uu --color=always "$READLINE_LINE" | less -R
+  rg -Hn -uu --color=always "$(__get_buffer)" | less -R
 }
 
 __rg_edit_uu() {
@@ -148,9 +150,9 @@ __rg_edit() {
     fi
     ((i++))
   done < <(
-    rg --color=never $rgopt "$READLINE_LINE" |
+    rg --color=never $rgopt "$(__get_buffer)"  |
       fzf \
-        --query "$READLINE_LINE" \
+        --query "$(__get_buffer)"  \
         --delimiter=':' \
         --reverse \
         --expect=alt-l \
@@ -175,36 +177,41 @@ __rg_file() {
   local rgopt
   rgopt=${1:-"-u -e"}
   # shellcheck disable=2086
-  rg --files | rg --color=always $rgopt "$READLINE_LINE" | bat --style plain
+  rg --files | rg --color=always $rgopt "$(__get_buffer)"  | bat --style plain
 }
 
 __cd_z() {
-  local DIR
-  DIR=$(z | peco | awk '{print $NF}')
-  if [ '' = "$DIR" ]; then return; fi
-  cd "$DIR" || return
+  local fol jumper
+  jumper=z
+  type zoxide >/dev/null 2>&1 && jumper='zoxide query --score --list'
+  fol=$($jumper | fzf-tmux -p -w70% -h90% -x10 --height 40% --reverse --preview='ls -lCF {2} --color' --preview-window='top:30%'  | awk '{print $NF}')
+  if [ '' = "$fol" ]; then return; fi
+  cd "$fol" || return
+  pwd
 }
 
 __z() {
-  local DIR
-  DIR=$(z | fzf --height 40% --reverse | awk '{print $NF}')
-  if [ '' = "$DIR" ]; then return; fi
-  # カーソルポジションは考慮しない
-  READLINE_LINE="$READLINE_LINE $DIR"
-  READLINE_POINT=${#READLINE_LINE}
+  local fol jumper
+  jumper=z
+  type zoxide >/dev/null 2>&1 && jumper='zoxide query --score --list'
+  fol=$($jumper | fzf-tmux -p -w70% -h90% -x10 --height 40% --reverse --preview='ls -lCF {2} --color' --preview-window='top:30%'  | awk '{print $NF}')
+  if [ '' = "$fol" ]; then return; fi
+  __set_buffer "$fol"
 }
 
 __ls_al_readline() {
+  local buf
+  buf="$(__get_buffer)"
   if type exa &>/dev/null; then
-    exa -la --time-style=long-iso "${READLINE_LINE:-.}"
+    exa -lah --git --time-style=long-iso "${buf:-.}"
   else
-    ls -la --time-style=long-iso "${READLINE_LINE:-.}"
+    ls -la --time-style=long-iso "${buf:-.}"
   fi
   echo ''
 }
 
 __jump_to_readline() {
-  cd "${READLINE_LINE}" || return
+  cd "$(__get_buffer)"  || return
   READLINE_LINE=''
   pwd
 }
@@ -226,35 +233,37 @@ __list_user_binds() { bind -X | column -t | sort -k 2 | less; }
 __test_bind() { echo valid; }
 
 # =============== keybind =================
-# = /etc/inputrc ~/.inputrc
+# = Readline commands are assigned with /etc/inputrc or ~/.inputrc
+# = list of readline commands -> bind -l
 # = list of keybind           -> bind -p
 # = list of keybind(bind -x)  -> bind -X
-# = list of funcions          -> bind --function-names
 # = remove bind               -> bind -r "\C-y"
 # = reset all                 -> `set -o emacs` or `set -o vi`
-# = disable tty readline      -> stty stop undef
 # = check current settings    -> stty -a
+# = terminal line setting off -> stty stop undef
 
-# user defined function
-bind -x '"\e\C-l": __relogin'
-bind -x '"\eh": __history_with_peco'
-bind -x '"\e\C-h": __history_with_fzf'
-bind -x '"\ed": __interactive_cd'
-bind -x '"\e\ed": __interacrive_cd_b'
-bind -x '"\ee": __open_with_editor'
-bind -r "\ep"
-bind -x '"\ep\ee": __pick_env'
-bind -x '"\ep\ep": __pick_path'
-bind -x '"\ep\ed": __pick_docker_container'
-bind -x '"\eg\eg": __rg_uu'
-bind -x '"\eG\eG": __rg'
-bind -x '"\eg\ee": __rg_edit_uu'
-bind -x '"\eG\eE": __rg_edit'
-bind -x '"\eg\ef": __rg_file_uu'
-bind -x '"\eG\eF": __rg_file'
-bind -x '"\ejj": __z'
-bind -x '"\ej\ej": __cd_z'
-bind -x '"\el": __ls_al_readline'
-bind -x '"\e;": __jump_to_readline'
-bind -x '"\e?": __list_user_binds'
-bind -x '"\e\C-rr": __reset_screen'
+# zsh include guard
+if [ -n "$BASH_VERSION" ]; then
+  # user defined function
+  bind -x '"\e\C-l": __relogin'
+  bind -x '"\eh": __history_with_fzf'
+  bind -x '"\ed": __interactive_cd'
+  bind -x '"\e\ed": __interacrive_cd_b'
+  bind -x '"\ee": __open_with_editor'
+  bind -r "\ep"
+  bind -x '"\ep\ee": __pick_env'
+  bind -x '"\ep\ep": __pick_path'
+  bind -x '"\ep\ed": __pick_docker_container'
+  bind -x '"\eg\eg": __rg_uu'
+  bind -x '"\eG\eG": __rg'
+  bind -x '"\eg\ee": __rg_edit_uu'
+  bind -x '"\eG\eE": __rg_edit'
+  bind -x '"\eg\ef": __rg_file_uu'
+  bind -x '"\eG\eF": __rg_file'
+  bind -x '"\ejj": __z'
+  bind -x '"\ej\ej": __cd_z'
+  bind -x '"\el": __ls_al_readline'
+  bind -x '"\e;": __jump_to_readline'
+  bind -x '"\e?": __list_user_binds'
+  bind -x '"\e\C-rr": __reset_screen'
+fi
