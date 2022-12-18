@@ -1,8 +1,10 @@
-# PS1
+# README
+
+## PS1
 
 [Bash Shell: Take Control of PS1, PS2, PS3, PS4 and PROMPT_COMMAND](https://www.thegeekstuff.com/2008/09/bash-shell-take-control-of-ps1-ps2-ps3-ps4-and-prompt_command/)
 
-## ターミナルのコマンド受付状態の表示変更
+### ターミナルのコマンド受付状態の表示変更
 
 - `\u` ユーザ名
 - `\h` ホスト名
@@ -25,11 +27,11 @@
 - `\v` Bashのバーション
 - `\V` Bashのリリース
 
-## ANSI escape codes
+### ANSI escape codes
 
 https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
 
-## 装飾 attributes
+### 装飾 attributes
 
 sample こういう感じのフォーマットです
 
@@ -62,3 +64,8 @@ sample こういう感じのフォーマットです
   - `[34]6` #00ffff シ
   - `[34]7` #ffffff 白
   - `39,49m`で文字と背景の色リセット。
+
+## zsh key bind
+
+- [Re: key codes table.](https://www.zsh.org/mla/users/2014/msg00266.html)
+- [ZshでHomeやEndキーが機能しない - Akionux-wiki](https://wiki.akionux.net/index.php/Zsh%E3%81%A7Home%E3%82%84End%E3%82%AD%E3%83%BC%E3%81%8C%E6%A9%9F%E8%83%BD%E3%81%97%E3%81%AA%E3%81%84)
