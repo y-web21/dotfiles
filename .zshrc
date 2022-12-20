@@ -1,5 +1,8 @@
 #!/usr/bin/env zsh
 
+shwo_zsh_execution_time=0
+test $shwo_zsh_execution_time -ne 0 && zmodload zsh/zprof && zprof
+
 # EDITOR=vim でターミナルも bindkey -v 相当にされてしまうため明示的に emacs の設定をする
 bindkey -e
 
@@ -90,3 +93,9 @@ test -r ~/dotfiles/modules/keybinds_zsh && . ~/dotfiles/modules/keybinds_zsh
 
 complete -C '/usr/local/bin/aws_completer' aws
 eval "$(zoxide init zsh)"
+
+if [ $shwo_zsh_execution_time -ne 0 ];then
+  if (which zprof > /dev/null 2>&1) ;then
+    zprof
+  fi
+fi
