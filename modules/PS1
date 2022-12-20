@@ -56,7 +56,7 @@ _AWS_SYMBOL='☁ '
 __prompt_suffix() {
   local prev_status=$?
   local clr docker_p aws_p
-  aws_p="${_AWS_SYMBOL:-az:}${CHR_Y}${_AWS_CURRENT_REGION}"
+  aws_p=''; type aws >/dev/null 2>&1 && aws_p="${_AWS_SYMBOL:-az:}${CHR_Y}${_AWS_CURRENT_REGION}"
   docker_p=''; type docker >/dev/null 2>&1 && docker_p="${_DOCKER_SYMBOL:-container:}$(docker ps | tail +2 | wc -l)"
   clr=${CHR_G};test $prev_status -ne 0 && clr=${CHR_R}
   PS1="${PS1_BASE}${clr}status:${prev_status} ${CHR_M}shlvl:${SHLVL} jobs:$(jobs -l | wc -l) ${CHR_C}${docker_p} ${CHR_W}${aws_p}${CLR_RESET} \n${_PROMPT_SYMBOL:-\$} "

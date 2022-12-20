@@ -23,3 +23,6 @@ version(){
   nginx -v 2>/dev/null
 }
 
+job-watch() {
+  while true; do /bin/clear_console; sleep 0.5; jobs; sleep 3; done
+}

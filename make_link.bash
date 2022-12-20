@@ -5,8 +5,8 @@
 
 # set -eou pipefail
 
-cd $(dirname $0)
-EXCEPT='grep -v -e ^\.gitignore -e README -e \.git$ -e ^\.vscode -e \.bak$'
+cd "$(dirname "$0")" || exit
+EXCEPT='grep -v -e ^\.gitignore -e README -e \.git$ -e ^\.vscode -e \.bak$ -e \.shellcheckrc'
 FORCE=0
 test -n "$1" && test "$1" = '-f' && FORCE=1
 
