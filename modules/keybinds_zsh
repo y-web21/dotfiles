@@ -59,16 +59,12 @@ fi
 
 __history_with_fzf() {
   local ret
-  # add current session history to ~/.zsh_history
-  setopt share_history
   ret=$(
-    tac ~/.zsh_history | cut -d ';' -f 2- | uniq | fzf-tmux -p 90% --layout=default --query "$BUFFER"
+    tac < <(history -n 1) | uniq | fzf-tmux -p 90% --layout=default --query -- "$BUFFER"
   )
   if [ '' = "$ret" ]; then return; fi
   # put text in the bash command line buffer
   __set_buffer $ret
-  # disable immediately history sync
-  unsetopt share_history
 }
 
 __pick_env() {
