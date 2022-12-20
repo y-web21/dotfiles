@@ -65,7 +65,7 @@ __prompt_suffix() {
 
 if [ "$1" = 'wsl' ]; then
   if  __git_ps1 >/dev/null 2>&1; then
-    PS1_BASE="$CHR_B_BG_W \t $CHR_W_BG_B \W $CHR_B_BG_W\$(__git_ps1 '(%s)')$CLR_RESET <$(git config user.name)> $SYTLE_NONE"
+    PS1_BASE="$CHR_B_BG_W \t $CHR_W_BG_B \W $CHR_B_BG_W\$(__git_ps1 '(%s)')$CLR_RESET <\$(git config user.name)> $SYTLE_NONE"
     PS1="${PS1_BASE} \n\$ "
   else
     # shellcheck disable=2154

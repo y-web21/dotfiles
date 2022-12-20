@@ -65,8 +65,12 @@ source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/highlighters
 
-print_prompt_color(){
-  for c in {000..255}; do echo -n "\e[38;5;${c}m $c" ; [ $(($c%16)) -eq 15 ] && echo;done;echo
+print_prompt_color() {
+  for c in {000..255}; do
+    echo -n "\e[38;5;${c}m $c"
+    [ $(($c % 16)) -eq 15 ] && echo
+  done
+  echo
 }
 
 # プロンプトのオプション表示設定
@@ -83,20 +87,49 @@ zstyle ':vcs_info:git:*' stagedstr "%F{magenta}!"
 zstyle ':vcs_info:git:*' unstagedstr "%F{yellow}+"
 zstyle ':vcs_info:*' formats "%F{cyan}%c%u[%b]%f"
 zstyle ':vcs_info:*' actionformats '[%b|%a]'
-precmd () { vcs_info }
+precmd() { vcs_info; }
+
+_DOCKER_SYMBOL='🐳 '
+_AWS_SYMBOL='☁ '
+
+__prompt_1st() {
+  inner_prompt_arch() {
+    echo -n "%F{036}($(arch))"
+  }
+  echo -n "%F{224}$(date +"%T %z ")"
+  echo -n "$(inner_prompt_arch) "
+  echo -n "%F{007}\$(type git >/dev/null 2>&1 && printf '<%s>%s' \"\$(git config user.name)\" \"\$(__git_ps1)\")"
+  # echo -n "%{${reset_color}%}[%x@%m] "
+}
+__prompt_2nd() {
+  inner_prompt_docker() {
+    type docker >/dev/null 2>&1 && echo -n "%F{044}${_DOCKER_SYMBOL:-container:}$(docker ps | tail +2 | wc -l)"
+  }
+  inner_prompt_aws() {
+    type aws >/dev/null 2>&1 && echo -n "%F{007}${_AWS_SYMBOL:-az:} %F{215}${_AWS_CURRENT_REGION}"
+  }
+  inner_prompt_status() {
+    echo -n "%(?.%B%F{085}.%B%F{160})status:%?"
+  }
+  inner_prompt_others() {
+    echo -n "%F{140}shlvl:${SHLVL} %F{168}jobs:$(jobs -l | wc -l) "
+  }
+  echo -n "%F{007}%S %2c %s $(inner_prompt_status) $(inner_prompt_docker) $(inner_prompt_aws) $(inner_prompt_others)"
+}
 
 # PS1
 RPROMPT='%B%F{green}${vcs_info_msg_0_}'
-PROMPT='%F{225}$(date +"%T %z ")%{${fg[yellow]}%}%2c%{${reset_color}%} [%n@%md]%F{036}($(arch))$(__git_ps1)
-%(?.%B%F{green}.%B%F{red})%(?!> !< )%f%b'
+PROMPT="$(__prompt_1st)
+$(__prompt_2nd)
+%(?.%B%F{green}.%B%F{red})%(?!> !< )%f%b"
 
 test -r ~/dotfiles/modules/keybinds_zsh && . ~/dotfiles/modules/keybinds_zsh
 
 complete -C '/usr/local/bin/aws_completer' aws
 eval "$(zoxide init zsh)"
 
-if [ $shwo_zsh_execution_time -ne 0 ];then
-  if (which zprof > /dev/null 2>&1) ;then
+if [ $shwo_zsh_execution_time -ne 0 ]; then
+  if (which zprof >/dev/null 2>&1); then
     zprof
   fi
 fi
