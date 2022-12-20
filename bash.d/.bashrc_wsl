@@ -33,6 +33,7 @@ export CONFIG_DIR_WIN="/mnt/c/Users/${USER}/user/dotfiles"
 export CONFIG_DIR_WIN_PRI="/mnt/c/Users/${USER}/user/dotfiles_private"
 
 export EDITOR="code"
+export GIT_EDITOR="vim"
 export GH_EDITOR="code --wait"
 export PLAYER="nircmd.exe mediaplay 1400 "
 

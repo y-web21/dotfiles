@@ -26,7 +26,7 @@ aliases:
           jq -r ' .[] | .files[] as $files | [ ( $files.language // "unknown" ) , $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" |
           fzf-tmux -p 90% --query="${1:-'Markdown }" \
             --preview-window=bottom:80%,+4 \
-            --preview "gh gist view {-1} | bat --color=always -l md" \
+            --preview "gh gist view {-1} -f {2} | bat --color=always -l md" \
             --bind alt-p:preview-up,alt-n:preview-down \
             --expect=alt-r,alt-a,alt-d,alt-h,alt-N \
             --bind="alt-w:execute(gh gist view {-1} -w)" \
