@@ -150,8 +150,11 @@ __ssh-show-known-hosts-with-filename() {
 
 test -r ~/.bash_aliases && . ~/.bash_aliases
 
-if which brew >/dev/null 2>&1; then
+if type brew >/dev/null 2>&1; then
   if brew ls z &>/dev/null; then
     . "$HOMEBREW_PREFIX"/etc/profile.d/z.sh
   fi
 fi
+
+type aws >/dev/null 2>&1 && complete -C '/usr/local/bin/aws_completer' aws
+
