@@ -72,7 +72,7 @@ if [ "$1" = 'wsl' ]; then
     PS1_BASE='${debian_chroot:+($debian_chroot)}\u@\h:\w '
     PS1="${PS1_BASE}\n\$ "
   fi
-  PROMPT_COMMAND="__prompt_suffix;${PROMPT_COMMAND//__prompt_suffix;/}"
+  export PROMPT_COMMAND="__prompt_suffix;${PROMPT_COMMAND//__prompt_suffix;/}"
   return
 fi
 
@@ -83,6 +83,7 @@ if [ "$1" = 'debian' ]; then
   fi
   PS1_BASE+=' '
   PS1="${PS1_BASE}\n\$ "
+  export PROMPT_COMMAND="__prompt_suffix;${PROMPT_COMMAND//__prompt_suffix;/}"
   return
 fi
 
@@ -105,3 +106,4 @@ if [ "$(getent passwd vagrant)" != "" ] && [ -f /etc/bash_completion.d/git-promp
 
   PS1="${BEGIN}\u@${HOST_NAME}${BEGIN_TRIANGLE} ${MIDDLE} \W ${MIDDLE_TRIANGLE}${GIT_CLR}\$(__git_ps1 '(%s)')${END} \! \\$ "
 fi
+
