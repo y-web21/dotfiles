@@ -126,7 +126,7 @@ $(__prompt_2nd)
 test -r ~/dotfiles/modules/keybinds_zsh && . ~/dotfiles/modules/keybinds_zsh
 
 complete -C '/usr/local/bin/aws_completer' aws
-eval "$(zoxide init zsh)"
+type zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 
 if [ $shwo_zsh_execution_time -ne 0 ]; then
   if (which zprof >/dev/null 2>&1); then
