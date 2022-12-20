@@ -153,7 +153,7 @@ if !1 | finish | endif
 "------------------------------------
 " Normal, Visual, Select, Operator-pendin mode key binding
 "------------------------------------
-noremap <c-a> <ESC>ggvGV
+noremap g<c-a> <ESC>ggvGV
 noremap <Space>h ^
 noremap <Space>l $
 "------------------------------------
