@@ -13,8 +13,12 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
-# linuxbrew default install path is
-# /home/<username>/.linuxbrew/bin/brew or /home/linuxbrew/.linuxbrew/bin/brew
+# XDG Base Directory Specification
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CACHE_HOME=$HOME/.cache
+export XDG_DATA_HOME=$HOME/.local/share
+
+# linuxbrew
 if type /home/linuxbrew/.linuxbrew/bin/brew >/dev/null 2>&1; then
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 elif type /home/"$(whoami)"/.linuxbrew/bin/brew >/dev/null 2>&1; then
