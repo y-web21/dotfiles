@@ -1,8 +1,9 @@
-# shellcheck disable=SC2148,SC1090
+# shellcheck disable=SC2148,SC1090,SC1091
 #
 # ShellCheck ignore list:
 #  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
 #  - SC1090: Can't follow non-constant source. Use a directive to specify location.
+#  - SC1091: Not following. (ShellCheck is unable to follow dynamic paths)
 
 # export EDITOR=vim
 # export EDITOR=nano
@@ -24,12 +25,13 @@ is_slackware_based() { :; }
 is_wayland() { [ -v WAYLAND_DISPLAY ]; }
 is_xorg() { echo 1; } # X11, TBDevelopment
 # os
-is_centos() { [ "$(cat /etc/redhat-release | cut -d' ' -f1 2>/dev/null)" = 'CentOS' ]; }
-is_linux() { [ "$(expr substr $(uname -s) 1 5)" = 'Linux' ]; }
+is_centos() { [ "$(< /etc/redhat-release head -1 | cut -d' ' -f1 2>/dev/null)" = 'CentOS' ]; }
+is_linux() { [ "$(printf '%s' "$(uname -s)" | cut -c 1-5)" = 'Linux' ]; }
 is_mac() { [ "$(uname)" = 'Darwin' ]; }
 is_ubuntu() { grep '^ID=ubuntu' /etc/os-release >/dev/null 2>&1; }
 is_debian() { grep '^ID=debian' /etc/os-release >/dev/null 2>&1; }
-is_wsl() { [ -n "$(which wslpath 2>/dev/null)" ]; } # type2
+# shellcheck disable=SC2317
+is_wsl() { type wslpath >/dev/null 2>&1 ; } # type2
 is_wsl() { [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; }
 # vm
 is_lxc_container() { sudo grep -qa container=lxc /proc/1/environ; }
@@ -65,16 +67,16 @@ export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -pat
 # ============= function ==============
 
 dic() {
-  ~/dotfiles/scripts/dict.js ${1} | grep -iE "$|${1}" --color
+  ~/dotfiles/scripts/dict.js "${1}" | grep -iE "$|${1}" --color
 
   # -v operator bash => 4.2
-  [ -v $2 ] && return
+  [ -v "$2" ] && return
   if [ -v PLAYER ]; then
-    SOUND_URL=$(~/dotfiles/scripts/dict.js ${1} | grep -E 'https.*mp3' | head -1)
+    SOUND_URL=$(~/dotfiles/scripts/dict.js "${1}" | grep -E 'https.*mp3' | head -1)
     if [ -n "$SOUND_URL" ]; then
       TEMP_SOUND=$(mktemp) && {
-        curl $SOUND_URL -o $TEMP_SOUND >/dev/null 2>&1
-        $PLAYER $TEMP_SOUND
+        curl "$SOUND_URL" -o "$TEMP_SOUND" >/dev/null 2>&1
+        $PLAYER "$TEMP_SOUND"
         # rm -v $TEMP_SOUND
       }
     fi
@@ -91,7 +93,7 @@ __ssh-list-config-files() {
 
   local SSH_DIR=$HOME/.ssh/
 
-  if test -d $SSH_DIR; then
+  if test -d "$SSH_DIR"; then
     for file in $(find "$SSH_DIR" -type f | grep '/config'); do
       echo "$file"
     done
@@ -102,7 +104,7 @@ __ssh-list-known-hosts() {
 
   local SSH_DIR=$HOME/.ssh/
 
-  if test -d $SSH_DIR; then
+  if test -d "$SSH_DIR"; then
     for file in $(find "$SSH_DIR" -type f | grep '/config'); do
       grep ^Host "$file" | sed 's/^Host //'
     done
@@ -113,7 +115,7 @@ __ssh-list-known-keys() {
 
   local SSH_DIR=$HOME/.ssh/
 
-  if test -d $SSH_DIR; then
+  if test -d "$SSH_DIR"; then
     for file in $(find "$SSH_DIR" -type f | grep '/config'); do
       grep IdentityFile "$file" | sed -E 's/^[ \t]{0,}IdentityFile //'
     done
@@ -124,7 +126,7 @@ __ssh-list-all-keys() {
 
   local SSH_DIR=$HOME/.ssh/
 
-  if test -d $SSH_DIR; then
+  if test -d "$SSH_DIR"; then
     find "$SSH_DIR" | grep -E '(pem|pub)$' | sed 's/\.pub$//'
   fi
 }
@@ -134,7 +136,7 @@ __ssh-show-known-hosts() {
   local SSH_DIR=$HOME/.ssh/
   local displayFileName=${1:-false}
 
-  if test -d $SSH_DIR; then
+  if test -d "$SSH_DIR"; then
     for file in $(find "$SSH_DIR" -type f | grep '/config'); do
       if ${displayFileName}; then echo -e "\n$file"; fi
       cat "$file"
