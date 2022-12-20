@@ -28,7 +28,7 @@ aliases:
             --preview-window=bottom:80%,+4 \
             --preview "gh gist view {-1} | bat --color=always -l md" \
             --bind alt-p:preview-up,alt-n:preview-down \
-            --expect=alt-r,alt-a,alt-d,alt-h \
+            --expect=alt-r,alt-a,alt-d,alt-h,alt-N \
             --bind="alt-w:execute(gh gist view {-1} -w)" \
             --bind="alt-c:execute(gh gist clone {-1} {2})" )"
         [ -z "${select}" ] && return
@@ -64,6 +64,13 @@ aliases:
           alt-h)
             # $READLINE_LINE, $BUFFER
             echo $id
+          ;;
+          alt-N)
+            echo "type new filename to be added to ${desc}"; read name
+            tmpdir=$(mktemp -d)
+            file=${tmpdir}/${name}
+            vim -c start "$file"
+            gh gist edit $id -a "$file"
           ;;
           *) gh gist edit $id -f $file
           ;;
