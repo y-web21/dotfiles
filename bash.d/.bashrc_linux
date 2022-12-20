@@ -22,6 +22,7 @@ fi
 
 if is_crostini; then
   chk_external_mount_health(){
+    local prev_status=$?
     local mode
     mode=$(mount | grep /mnt/external/0 | awk '{print $NF}' | tr '(' ',' | awk -F ',' '{print $2}')
     if [ $mode = 'rw' ]; then
@@ -34,9 +35,11 @@ if is_crostini; then
       echo 'crosh> vmc stop termina'
       echo 'crosh> vmc start --extra-disk "/path/to/ext4/.img" termina'
       echo 'lxc config device add penguin extra_disk_0 disk source=/mnt/external/0 path=/mnt/external/0'
+      echo 'lxc config device remove penguin extra_disk_0'
     fi
+    return $prev_status
   }
-export PROMPT_COMMAND="chk_external_mount_health;${ROMPT_COMMAND#chk_external_mount_health;}"
+  export PROMPT_COMMAND="chk_external_mount_health;${PROMPT_COMMAND//chk_external_mount_health;/}"
 fi
 # chk_exteranal_mount_health
 # unset -f chk_exteranal_mount_health
