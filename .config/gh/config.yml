@@ -56,6 +56,7 @@ aliases:
               done
           ;;
           alt-d)
+            echo "now_description: ${desc}"
             new_desc=$(read -p "new_description: " new_desc && echo $new_desc)
             if [ -z "$new_desc" ]; then read -p "delete description? (y/N): " YN && [ $YN != y -a $YN != Y ] && exit; fi
             GH_EDITOR=cat && EDITOR=cat
@@ -115,7 +116,7 @@ aliases:
         DESC="$(read -p 'description: ' DESC && echo $DESC)"
         newfile="${tmpdir}/${NAME:-no_name}"
         mv "$tmpfile" "$newfile"
-        gh gist create "$newfile" -f "${NAME:-no_name}"" -d "$DESC"
+        gh gist create "$newfile" -f "${NAME:-no_name}" -d "$DESC"
         rm -rf "$tmpdir"
     gist-all-files: "!gh api https://api.github.com/gists --paginate | jq -r '..|.raw_url?|select(.!=null)'"
     gist-stdin: |-
