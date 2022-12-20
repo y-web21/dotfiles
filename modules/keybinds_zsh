@@ -55,27 +55,30 @@ fi
 # RBUFFER = CURSOR の 右側
 
 # include bash keybinds function and override some.
-. "$(dirname $0)/bash_keybinds"
+. "$(dirname $0)/keybinds_bash"
 
 __history_with_fzf() {
   local ret
-  # add current session history to ~/.bash_history
-  history -a
+  # add current session history to ~/.zsh_history
+  setopt share_history
   ret=$(
     tac ~/.zsh_history | cut -d ';' -f 2- | uniq | fzf-tmux -p 90% --layout=default --query "$BUFFER"
   )
   if [ '' = "$ret" ]; then return; fi
   # put text in the bash command line buffer
-  READLINE_LINE="$ret"
-  READLINE_POINT=${#ret}
+  __set_buffer $ret
+  # disable immediately history sync
+  unsetopt share_history
 }
 
 __pick_env() {
-  BUFFER="$BUFFER$(set | grep '=' | fzf | cut -d '=' -f 2-)"
+  BUFFER="$BUFFER$(set | grep -a '=' | fzf | cut -d '=' -f 2-)"
   CURSOR=${#BUFFER}
 }
 
-__list_user_binds() { bindkey; }
+__relogin() {
+  exec $0 -l
+}
 
 # =============== keybind zsh =================
 # = list of keybind             -> bindkey
@@ -101,10 +104,8 @@ if [ -n "$ZSH_VERSION" ]; then
   zle -N __z
   zle -N __cd_z
   zle -N __ls_al_readline
-  zle -N __jump_to_readline
-  zle -N __list_user_binds
   zle -N __reset_screen
-  bindkey '^[^-l' __relogin
+  bindkey '^[^l' __relogin
   bindkey '^[h' __history_with_fzf
   bindkey '^[d' __interactive_cd
   bindkey '^[^[d' __interacrive_cd_b
@@ -120,10 +121,10 @@ if [ -n "$ZSH_VERSION" ]; then
   bindkey '^[G^[F' __rg_file
   bindkey '^[jj' __z
   bindkey '^[j^[j' __cd_z
-  bindkey '^[l' __ls_al_readline
-  bindkey '^[;' __jump_to_readline
-  bindkey '^[?' __list_user_binds
-  bindkey '^[^-rr' __reset_screen
+  bindkey '^[;' __ls_al_readline
+  bindkey -s '^[?' "bindkey | grep __ ^M"
+  bindkey '^[^rr' __reset_screen
 fi
 
-bindkey -s '^[A' "| awk '{print $}'|^B^B^B"
+bindkey -s '^[A' "| awk '{print $}'|^B^B^B^M"
+bindkey -r '^j'

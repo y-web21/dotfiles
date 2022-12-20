@@ -23,6 +23,7 @@ setopt hist_ignore_space
 # stty stop undef and stty start undef
 setopt no_flow_control
 
+setopt hist_ignore_all_dups
 ## share .zsh_history immediately
 # setopt inc_append_history
 # setopt share_history
