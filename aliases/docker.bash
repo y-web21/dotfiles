@@ -61,35 +61,29 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
   alias dmysql='docker exec -it db bash -c '\''mysql -uroot -p'\'''
   alias dnginxreload='docker exec -it nginx bash -c '\''nginx -s reload'\'''
 
-  # docker 2nd gen
-
-
   # shellcheck disable=SC2142
   alias dget-cid='docker ps -a | tail +2 | peco | awk '\''{print $1}'\'''
   # shellcheck disable=SC2142
   alias dget-image='docker ps -a | tail +2 | peco | awk '\''{print $2}'\'''
   alias dget-name='docker ps -a | tail +2 | peco | awk '\''{print $NF}'\'''
-  # なぜかエラー
-  # alias d-bash='docker ps -a | tail +2 | peco | awk '\''{print $NF}'\'' | xargs -i docker exec -it {} bash'
   alias d-bash='docker exec -it $(docker ps -a | tail +2 | peco | awk '\''{print $NF}'\'') bash'
 
-  # docker exec -it DC bash -g は、zsh の グローバルエイリアス
-  # alias -g DC='`docker ps | tail -n +2 | peco | cut -d" " -f1`'
-  # bash 代替
   alias DC='CURRENT_CONTAINER=$(docker ps | tail -n +2 | peco | cut -d" " -f1)'
+  if [ -n "$ZSH_VERSION" ];then
+    alias -g DC='`docker ps | tail -n +2 | peco | cut -d" " -f1`'
+  fi
 
-  dsh() {
-    echo "container 【${CONTAINER}】 shell"
-    docker exec -t ${CONTAINER} bash -c "$2"
-  }
+  # bash 代替
+
   dish() {
+    local container
     if peco --version &>/dev/null; then
-      CONTAINER=$(docker container ps -a | tail +2 | peco | awk '{print $NF}')
+      container=$(docker container ps -a | tail +2 | peco | awk '{print $NF}')
     else
-      CONTAINER=${1:-${CONTAINER}}
+      container=${1:-${CONTAINER}}
     fi
-    echo "container 【${CONTAINER}】 intaractive shell"
-    docker exec -it ${CONTAINER} bash
+    echo "container 【${container}】 intaractive shell"
+    docker exec -it "${container}" bash
   }
 
   dockerhub-tags() {
@@ -104,10 +98,10 @@ if [ -e "$(which docker 2>/dev/null)" ]; then
     local IMAGE=$1
     local BASE_URL='https://registry.hub.docker.com/v2/repositories/library/'
     local NEXT_URL=${BASE_URL}${IMAGE}/tags
-    for _ in $(seq 1 $MAX_PAGE); do
-      curl -sS ${NEXT_URL} | jq -r '."results"[]["name"]'
-      NEXT_URL=$(curl -sS ${NEXT_URL} | jq -r '."next"')
-      [ ${NEXT_URL} == "null" ] || [ ${NEXT_URL} == "" ] && break
+    for _ in $(seq 1 "$MAX_PAGE"); do
+      curl -sS "${NEXT_URL}" | jq -r '."results"[]["name"]'
+      NEXT_URL=$(curl -sS "${NEXT_URL}" | jq -r '."next"')
+      [ "${NEXT_URL}" == "null" ] || [ "${NEXT_URL}" == "" ] && break
     done
   }
 
