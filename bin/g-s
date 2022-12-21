@@ -7,6 +7,7 @@ describe() {
 		alt-h: add -p <files> # hunk
 		alt-c: commit staged files
 		alt-d: diff <files>
+		alt-D: diff --cached
 		alt-o: vim <files>
 		alt-r: show staged files and reset files
 		alt-s: show current status
@@ -99,6 +100,7 @@ git-i-staging() {
           --expect=alt-a \
           --expect=alt-s \
           --expect=alt-d \
+          --expect=alt-D \
           --expect=alt-h \
           --expect=alt-c \
           --expect=ctrl-s \
@@ -125,6 +127,8 @@ git-i-staging() {
     elif [ "$input" = alt-d ]; then
       # shellcheck disable=2086
       git diff --color=always $selects | less -R
+    elif [ "$input" = alt-D ]; then
+      git diff --color=always --cached
     elif [ "$input" = alt-h ]; then
       # hank 単位での add
       # shellcheck disable=2086
