@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+describe() {
+  cat <<-EOS
+		alt-a: add branch
+		alt-r: remove branch
+		enter: checkout
+	EOS
+}
+
+git-i-branch() {
+  request_cmd='git branch -a -v --color'
+  select="$(eval "$request_cmd" |
+    tr '*' ' ' |
+    sed -E 's/^ *//' |
+    grep --color=never -v -E 'remotes\/.*\/(main|dev|develop|prod)' |
+    column -t -s "$(printf '\t')" |
+    fzf-tmux -p 90% \
+      --query="${1:-}" \
+      --ansi \
+      --multi \
+      --expect=alt-r,alt-a)"
+  [ -z "${select}" ] && return
+
+  input=$(printf '%s' "$select" | cut -d $'\n' -f 1)
+  lines=$(printf '%s' "$select" | cut -d $'\n' -f 2-)
+  branch=$(echo $lines | awk '{print $1}')
+
+  case "${input}" in
+  alt-r)
+    printf '%s' "$lines" | cut -d $'\n' -f 1- | while read -r var; do
+      _delete-branch "$(echo "$var" | cut -d ' ' -f 1)"
+    done
+    ;;
+  alt-a)
+    _make_new_branch
+    ;;
+  *)
+    git checkout "$branch"
+    ;;
+  esac
+}
+
+_delete-branch() {
+  local branch
+  branch=${1}
+  if [[ $branch = remotes/* ]]; then
+    _delete_remote_branch "$branch"
+    return
+  fi
+  _delete_local_branch "$branch"
+}
+
+_delete_remote_branch() {
+  local remote branch
+  remote=$(echo "${1}" | cut -d '/' -f 2)
+  branch=$(echo "${1}" | cut -d '/' -f 3-)
+  git push --delete "${remote}" "${branch}"
+}
+
+_delete_local_branch() {
+  local branch
+  branch=${1}
+  if ! git branch -d "$branch"; then
+    read -r -e -p "remove $branch failed. try to force deletion? (yN): " -i "" yn
+    [[ ! $yn =~ y|Y ]] && return
+    git branch -D "$branch"
+  fi
+}
+
+_make_new_branch() {
+  local new_branch
+  new_branch="$(read -r -p 'new branch name: ' && echo "$REPLY")"
+  git branch "$new_branch"
+  read -r -e -p 'add to remote branch now? (yN): ' -i "" yn
+  [[ $yn =~ y|Y ]] && git push --set-upstream origin "$new_branch"
+  return 0
+}
+
+if [[ "$1" = '--help' || "$1" = '-h' ]]; then
+  describe
+else
+  git-i-branch "$1"
+fi
