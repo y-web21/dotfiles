@@ -1,3 +1,5 @@
+# shellcheck disable=SC2148,SC1090
+#
 # ShellCheck ignore list:
 #  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
 #  - SC1090: Can't follow non-constant source. Use a directive to specify location.
