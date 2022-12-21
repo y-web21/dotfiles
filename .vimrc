@@ -126,7 +126,7 @@ syntax enable
 "------------------------------------
 " plugins
 "------------------------------------
-if filereadable(expand("~/.vim/plugged"))
+if isdirectory(expand("~/.vim/plugged"))
   call plug#begin()
     set helplang=ja,en
     Plug 'tpope/vim-fugitive'
