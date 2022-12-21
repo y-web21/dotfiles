@@ -78,7 +78,7 @@ __interacrive_cd_b() {
 }
 
 __open_with_editor() {
-  local prev_dir depth fzf_ret file_path input
+  local prev_dir depth fzf_ret file_path input line
   # array base 1 to 0
   [ -n "$ZSH_VERSION" ] && setopt localoptions ksharrays
 
@@ -90,35 +90,24 @@ __open_with_editor() {
     unset file_path
     unset fzf_ret
 
-    find -L . -mindepth 1 -maxdepth "$depth" 2>/dev/null | sed '1i ..' | xargs -n1 bash -c 'echo $0 $( [ -d $0 ] && echo "📦directory🙄" )' |
-      fzf \
-        --expect=alt-o \
+    fzf_ret="$(find -L . -maxdepth "$depth" 2>/dev/null | sed 's/^\.$/../' |
+      xargs -n1 bash -c 'echo $0 $( [ -d $0 ] && echo "📦directory🙄" )' |
+      fzf-tmux -p 90% \
         --expect=ctrl-c \
         --expect=esc \
         --bind="ctrl-e:execute(pwd)" \
         --preview-window=65%,+3/3,~3 \
         --preview 'if [ -d {1} ]; \
-              then echo -e '\''\n'\'' && du -hs {1} && exa -al --time-style=long-iso {1} ; \
-              else bat -n --color=always --style=header,grid,numbers {} 2>/dev/null; fi' |
-      awk '{print $1}' |
-      while read -r ret; do
-        fzf_ret+=("$ret")
-      done
+            then echo -e '\''\n'\'' && du -hs {1} && exa -al --time-style=long-iso {1} ; \
+            else bat -n --color=always --style=header,grid,numbers {} 2>/dev/null; fi')"
 
-    # var check
-    # i=0 && for f in "${fzf_ret[@]}"; do echo $i "$f" ;((i++)); done
+    input=$(echo -e "$fzf_ret" | cut -d $'\n' -f 1)
+    line=$(echo -e "$fzf_ret" | cut -d $'\n' -f 2)
 
-    input="${fzf_ret[0]}"
     [ "$input" = 'ctrl-c' ] && break
     [ "$input" = 'esc' ] && break
 
-    file_path=$(pwd)/$(echo "${fzf_ret[1]}" | sed 's/.\///')
-
-    if [ "$input" = 'alt-o' ]; then
-      file=$(read -r -p 'filename: ')
-      echo $file
-      echo newfile WIP
-    fi
+    file_path=$(pwd)/$(echo "${line}" | awk '{print $1}' | sed 's/.\///')
 
     [ '' = "${file_path}" ] && break
     [ -f "${file_path}" ] && break
