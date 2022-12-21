@@ -33,7 +33,7 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # my settings
-test -f ~/dotfiles/shell.d/private_ettings/pre.bash && . ~/dotfiles/shell.d/private_settings/pre.bash
+test -f ~/dotfiles/shell.d/private_ettings/pre.bash && . ~/dotfiles/private/shell.d/pre.bash
 
 # common settings
 test -r ~/.shellrc && . ~/.shellrc
@@ -79,7 +79,7 @@ fi
 test -r ~/.bashrc.local && . ~/.bashrc.local
 test -r ~/dotfiles/shell.d/modules/keybinds_bash && . ~/dotfiles/shell.d/modules/keybinds_bash
 test -r ~/dotfiles/shell.d/funcs/tools.bash && . ~/dotfiles/shell.d/funcs/tools.bash
-test -f ~/dotfiles/shell.d/private_settings/post.bash && . ~/dotfiles/shell.d/private_settings/post.bash
+test -f ~/dotfiles/private/shell.d/post.bash && . ~/dotfiles/private/shell.d/post.bash
 
 # load homebrew bash-completion file by apt bash-completion.
 load_brew_completion() {
