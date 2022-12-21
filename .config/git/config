@@ -25,7 +25,7 @@
 	cmam = commit --amend -m
 	cmr = reset --soft HEAD~
 	c = checkout
-	cat = !"f(){git cat-file \"${1}\":\"${2}\";} f"
+	cat = !"f() { git cat-file -p \"${1}\":\"${2}\"; }; f"
 	co = checkout
 	conyou = checkout --theirs
 	conme = checkout --ours
