@@ -113,7 +113,7 @@ __prompt_2nd() {
     echo -n "%(?.%B%F{085}.%B%F{160})status:%?"
   }
   inner_prompt_others() {
-    echo -n "%F{140}shlvl:${SHLVL} %F{168}jobs:$(jobs -l | wc -l) "
+    echo -n "%F{140}shlvl:${SHLVL} %F{168}jobs:%j"
   }
   echo -n "%F{007}%S %2c %s $(inner_prompt_status) $(inner_prompt_docker) $(inner_prompt_aws) $(inner_prompt_others)"
 }
