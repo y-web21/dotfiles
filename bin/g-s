@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+describe() {
+  cat <<-EOS
+		Staging Support Script
+		alt-a: add <files>
+		alt-h: add -p <files> # hunk
+		alt-c: commit staged files
+		alt-d: diff <files>
+		alt-o: vim <files>
+		alt-r: show staged files and reset files
+		alt-s: show current status
+		ctrl-s: stash <files>
+		enter: checkout
+	EOS
+}
+
 # global stash_files
 
 _post_stash() {
@@ -105,7 +120,7 @@ git-i-staging() {
     elif [ "$input" = alt-a ]; then
       # shellcheck disable=2086
       git add $selects
-    elif [ "$input" = alt-s ]; then
+    elif [ "$input" = ctrl-s ]; then
       stash_files+="$selects "
     elif [ "$input" = alt-d ]; then
       # shellcheck disable=2086
@@ -118,7 +133,7 @@ git-i-staging() {
     elif [ "$input" = alt-c ]; then
       [ -z "$GIT_EDITOR" ] && export GIT_EDITOR=vim
       git commit
-    elif [ "$input" = ctrl-s ]; then
+    elif [ "$input" = alt-s ]; then
       export GIT_PAGER='less -XRS'
       git status
     else
@@ -128,4 +143,8 @@ git-i-staging() {
   done
 }
 
-git-i-staging
+if [[ "$1" = '--help' || "$1" = '-h' ]]; then
+  describe
+else
+  git-i-staging "$1"
+fi
