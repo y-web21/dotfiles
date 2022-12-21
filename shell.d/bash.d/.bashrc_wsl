@@ -1,0 +1,450 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC1090,SC2034
+#
+# ShellCheck ignore list:
+#  - SC1090: Can't follow non-constant source. Use a directive to specify location.
+#  - SC2034: foo appears unused. Verify it or export it.
+#
+# You can find more details for each warning at the following page:
+#    https://github.com/koalaman/shellcheck/wiki/<SCXXXX>
+#    https://www.shellcheck.net/wiki/<SCXXXX>
+#
+# __shellcheck source=/dev/null # [sample] Avoid warning SC1090
+
+# ================ alias =================
+alias qfind='find / \( -path /mnt* -o -path /proc* -o -path /var* \) -prune -o -print'
+# alias qfind='sudo find / -path /mnt* -prune -o -path /proc* -prune -o -print'
+# alias qfind='sudo find / -not -path "/mnt*" -and -not -path "/lib*" -and -not -path "/proc*"'
+alias file-cnt='sudo find / -mindepth 1 -maxdepth 1 -not -path "/mnt*" 2>/dev/null | xargs -i bash -c '\''echo -n '\''{}/ '\'' && sudo find {}/ -type f | wc -l'\'' | sort'
+alias subntu='$(wslpath -u C:\\Windows\\System32\\wsl.exe) -d Ubuntu-20.04-experimental -u $(whoami)'
+alias cmd='cmd.exe'
+alias pwsh='pwsh.exe'
+alias _pwshdotnet='powershell.exe'
+# 非インタラクティブシェルでのコマンド実行
+alias cmdc='cmd.exe /c'
+alias pwshc='pwsh.exe -noprofile -command'
+alias cdd='cd $WINHOME'
+
+# =============== env, var ===============
+export WINHOME="/mnt/c/Users/${USER}"
+# WINHOMEの出力に wslvar を使うとスクロールバッファをクリアされる？のでこの方法は保留
+# export WINHOME="$(wslpath "$(wslvar USERPROFILE)")"
+export CONFIG_DIR_WIN="/mnt/c/Users/${USER}/user/dotfiles"
+export CONFIG_DIR_WIN_PRI="/mnt/c/Users/${USER}/user/dotfiles_private"
+
+export EDITOR="code"
+export GIT_EDITOR="vim"
+export GH_EDITOR="code --wait"
+export PLAYER="nircmd.exe mediaplay 1400 "
+
+if which scoop; then
+  SCOOP_HOME=$(dirname "$(dirname "$(which scoop)")")
+fi
+
+. ~/dotfiles/shell.d/modules/PS1 'wsl'
+
+# =============== host michine ===============
+# zsh
+# alias chrome='(){/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe $(wslpath -w $(realpath $1))'
+
+chrome(){
+  /mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe "$(wslpath -w "$(realpath "${1}")")"
+}
+# ========================================
+
+fix_wsl2_interop() {
+  # C:\Windows\System32\wsl.exe code などから実行されると $WSL_INTEROP 変数がセットされていない状態になることがあるその回避のため
+  # e.g. $ echo a | clip.exe
+  #      <3>init: (15155) ERROR: UtilConnectToInteropServer:307: connect failed 2
+  # [[WSL2] [Interop] Keep a single shared /run/WSL/* socket · Issue #5065 · microsoft/WSL](https://github.com/microsoft/WSL/issues/5065)
+  for i in $(pstree -np -s $$ | grep -o -E '[0-9]+'); do
+      if [[ -e "/run/WSL/${i}_interop" ]]; then
+          export WSL_INTEROP=/run/WSL/${i}_interop
+      fi
+  done
+}
+fix_wsl2_interop
+
+# ========================================
+# test -r ${CONFIG_DIR_WIN_PRI}/.bashrc.local && . ${CONFIG_DIR_WIN_PRI}/.bashrc.local
+# test -r ${CONFIG_DIR_WIN_PRI}/.gitconfig.local && . ${CONFIG_DIR_WIN_PRI}/.gitconfig.local
+
+test -e ~/.bashrc.local || ln -s ${CONFIG_DIR_WIN_PRI}/.bashrc.local ~/.bashrc.local
+test -e ~/.gitconfig.local || ln -s ${CONFIG_DIR_WIN_PRI}/.gitconfig.local ~/.gitconfig.local
+
+if [[ "$(which vagrant)" = '' ]]; then
+  # . /opt/vagrant/embedded/gems/2.2.19/gems/vagrant-2.2.19/contrib/bash/completion.sh
+
+  echo 'export vagrant env var'
+  # WSL2 の Vagrant が Windows の VirtualBox を使えるようにする
+  # hostと同じバージョンのvagrantをインストール
+  # require vagrant plugin
+  # vagrant plugin install virtualbox_WSL2
+  export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS=1
+  export VAGRANT_WSL_WINDOWS_ACCESS_USER=${USER}
+  export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
+  # export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/home/${USER}/imo"
+
+  cp-to-vagrant() {
+    echo 'ex.scp -r -P 2222 -F ssh.config ./src vagrant@localhost:/home/vagrant/'
+    local src=$1
+    local dst=$2
+    local config=${3:-ssh.config}
+    local port=${3:-2222}
+    local hostname=${5:-localhost}
+    local username=${6:-vagrant}
+    if (($# < 3)); then
+      cat <<-EOF
+			2 args required
+			\$1 = filepath(host)
+			\$2 = destination(guest)
+			\$3 = config default=./${config}
+			\$4 = port default=${port}
+			\$5 = hostname default=${hostname}
+			\$6 = username default=${username}
+			EOF
+    else
+      scp -r -P ${port} -F ${config} ${src} ${username}@${hostname}:${dst}
+    fi
+  }
+
+  cp-from-vagrant() {
+    echo 'ex.scp -r -P 2222 -F ssh.config vagrant@localhost:/home/vagrant/src ./'
+    local src=$1
+    local dst=$2
+    local config=${3:-ssh.config}
+    local port=${3:-2222}
+    local hostname=${5:-localhost}
+    local username=${6:-vagrant}
+    if (($# < 3)); then
+      cat <<-EOF
+			2 args required
+			\$1 = filepath(guest)
+			\$2 = destination(host)
+			\$3 = config default=./${config}
+			\$4 = port default=${port}
+			\$5 = hostname default=${hostname}
+			\$6 = username default=${username}
+			EOF
+    else
+      scp -r -P ${port} -F ${config} ${username}@${hostname}:${src} ${dst}
+    fi
+  }
+
+fi
+
+if [ "$(grep MemTotal </proc/meminfo | awk '{print $2}')" -gt 4000000 ]; then
+  :
+fi
+
+if [ 0 -ne 0 ]; then
+  # M/B,cpu,memory,gpu,networkcard
+  sudo dmidecode -t baseboard
+  cat /proc/cpuinfo
+  cat /proc/meminfo
+  lspci | grep VGA
+  lspci | grep Ethernet
+  wichi nvidia-smi
+  # disc
+  df                       # simple disc info
+  sudo parted -l           # model
+  lsblk                    # hierarchy construction
+  ls -la /dev/disk/by-uuid # uuid
+  # read -p "Hit enter: "
+fi
+
+list-ms-settings-URI() {
+  cat <<-EOL
+	ms-settings:～	設定画面
+	ms-settings:	Windowsの設定
+システム
+	ms-settings:display	ディスプレイ
+	ms-settings:sound	サウンド
+	ms-settings:notifications	通知とアクション
+	ms-settings:quiethours	集中モード
+	ms-settings:powersleep	電源とスリープ
+	ms-settings:storagesense	ストレージ
+	ms-settings:tabletmode	タブレットモード
+	ms-settings:multitasking	マルチタスク
+	ms-settings:project	このPCへのプロジェクション
+	ms-settings:crossdevice	共有エクスペリエンス
+	ms-settings:remotedesktop	リモートデスクトップ
+	ms-settings:about	バージョン情報
+デバイス
+	ms-settings:bluetooth	Bluetoothとその他のデバイス
+	ms-settings:printers	プリンターとスキャナー
+	ms-settings:mousetouchpad	マウス
+	ms-settings:typing	入力
+	ms-settings:pen	ペンとWindows Ink
+	ms-settings:autoplay	自動再生
+	ms-settings:usb	USB
+電話
+	ms-settings:mobile-devices	電話
+ネットワークとインターネット
+	ms-settings:network-status	状態
+	ms-settings:network-ethernet	イーサネット
+	ms-settings:network-dialup	ダイヤルアップ
+	ms-settings:network-vpn	VPN
+	ms-settings:datausage	データ使用状況
+	ms-settings:network-proxy	プロキシ
+個人用設定
+	ms-settings:personalization-background	背景
+	ms-settings:colors	色
+	ms-settings:lockscreen	ロック画面
+	ms-settings:themes	テーマ
+	ms-settings:fonts	フォント
+	ms-settings:personalization-start	スタート
+	ms-settings:taskbar	タスクバー
+アプリ
+	ms-settings:appsfeatures	アプリと機能
+	ms-settings:defaultapps	既定のアプリ
+	ms-settings:maps	オフラインマップ
+	ms-settings:appsforwebsites	Webサイト用のアプリ
+	ms-settings:videoplayback	ビデオの再生
+	ms-settings:startupapps	スタートアップ
+アカウント
+	ms-settings:yourinfo	ユーザーの情報
+	ms-settings:emailandaccounts	メール＆アプリのアカウント
+	ms-settings:signinoptions	サインインオプション
+	ms-settings:workplace	職場または学校にアクセスする
+	ms-settings:otherusers	家族とその他のユーザー
+	ms-settings:sync	設定の同期
+時刻と言語
+	ms-settings:dateandtime	日付と時刻
+	ms-settings:regionformatting	地域
+	ms-settings:regionlanguage	言語
+	ms-settings:speech	音声認識
+ゲーム
+	ms-settings:gaming-gamebar	ゲームバー
+	ms-settings:gaming-gamedvr	ゲームDVR
+	ms-settings:gaming-broadcasting	ブロードキャスト
+	ms-settings:gaming-gamemode	ゲームモード
+	ms-settings:gaming-trueplay	TruePlay
+	ms-settings:gaming-xboxnetworking	Xboxネットワーク
+簡単操作
+	ms-settings:easeofaccess-display	ディスプレイ
+	ms-settings:easeofaccess-cursorandpointersize	カーソルとポインターのサイズ
+	ms-settings:easeofaccess-magnifier	拡大鏡
+	ms-settings:easeofaccess-colorfilter	カラーフィルター
+	ms-settings:easeofaccess-highcontrast	ハイコントラスト
+	ms-settings:easeofaccess-narrator	ナレーター
+	ms-settings:easeofaccess-audio	オーディオ
+	ms-settings:easeofaccess-closedcaptioning	字幕
+	ms-settings:easeofaccess-speechrecognition	音声認識
+	ms-settings:easeofaccess-keyboard	キーボード
+	ms-settings:easeofaccess-mouse	マウス
+	ms-settings:easeofaccess-eyecontrol	視線制御（ベータ）
+Cortana
+	ms-settings:cortana	Cortanaに話しかける
+	ms-settings:cortana-permissions	アクセス許可と履歴
+	ms-settings:cortana-notifications	デバイス間でのCortana
+	ms-settings:cortana-moredetails	詳細情報
+プライバシー
+	ms-settings:privacy	全般
+	ms-settings:privacy-speechtyping	音声認識、手書き入力、入力の設定
+	ms-settings:privacy-feedback	診断＆フィードバック
+	ms-settings:privacy-activityhistory	アクティビティの履歴
+	ms-settings:privacy-location	位置情報
+	ms-settings:privacy-webcam	カメラ
+	ms-settings:privacy-microphone	マイク
+	ms-settings:privacy-notifications	通知
+	ms-settings:privacy-accountinfo	アカウント情報
+	ms-settings:privacy-contacts	連絡先
+	ms-settings:privacy-calendar	カレンダー
+	ms-settings:privacy-callhistory	通話履歴
+	ms-settings:privacy-email	メール
+	ms-settings:privacy-tasks	タスク
+	ms-settings:privacy-messaging	メッセージング
+	ms-settings:privacy-radios	無線
+	ms-settings:privacy-customdevices	他のデバイス
+	ms-settings:privacy-backgroundapps	バックグランドアプリ
+	ms-settings:privacy-appdiagnostics	アプリの診断
+	ms-settings:privacy-automaticfiledownloads	ファイルの自動ダウンロード
+	ms-settings:privacy-documents	ドキュメント
+	ms-settings:privacy-pictures	ピクチャ
+	ms-settings:privacy-videos	ビデオ
+	ms-settings:privacy-broadfilesystemaccess	ファイルシステム
+更新とセキュリティ
+	ms-settings:windowsupdate	Windows Update
+	ms-settings:windowsdefender	Windowsセキュリティ
+	ms-settings:backup	バックアップ
+	ms-settings:troubleshoot	トラブルシューティング
+	ms-settings:recovery	回復
+	ms-settings:activation	ライセンス認証
+	ms-settings:findmydevice	デバイスの検索
+	ms-settings:developers	開発者向け
+	ms-settings:windowsinsider	Windows Insider Program
+コマンド	プログラム
+calc	電卓
+charmap	文字コード表
+chrome	Google Chrome
+cmd	コマンドプロンプト
+drwatson	ワトソン博士
+dxdiag	DirectX診断ツール
+eudcedit	外部エディター
+excel	Excel (Microsoft Office)
+explorer	エクスプローラー
+firewall.cpl	Windows Firewall
+ftp	ftpクライアント
+fxscover	FAX送付状エディター
+iexplorer	Internet Explorer
+joy.cpl	ゲームコントローラー
+magnify	拡大鏡
+mrt	悪意のあるソフトウェアの削除ツール
+mspaint	ペイント
+narrator	ナレーター
+notepad	メモ帳
+osk	スクリーンキーボード
+outlook	Outlook (Microsoft Office)
+packager	オブジェクトパッケジャー
+pbrush	ペイント
+powerpnt	Powerpoint (Microsoft Office)
+powershell	Powershell
+sndrec32	サウンドレコーダー
+winchat	チャット
+winword	Word (Microsoft Office)
+wmimgmt.msc	WMIコントロール
+wmplayer	Windows Media Player
+wordpad	ワードパッド
+write	ワードパッド
+システム関連機能を起動（開く）
+コマンド	システム機能
+accwiz	ユーザー補助の設定ウィザード
+appwiz.cpl	プログラムの追加と削除
+certmgr.msc	証明書
+ciadv.msc	インデックスサービス
+cleanmgr	ディスククリーンアップ
+compmgmt.msc	コンピューターの管理
+control admintools	管理ツール
+control	コントロールパネル
+control folders	フォルダーオプション
+control fonts	フォント
+control keyboad	キーボードのプロパティ
+control mouse	マウスのプロパティ
+control printers	プリンターとFAX
+dcomcnfg	分散COMの構成のプロパティ
+ddeshare	DDE共有
+desk.cpl	ディスプレイのカスタマイズ
+devmgmt.msc	デバイスマネージャー
+dfrgui	ドライブのデフラグと最適化
+diskmgmt.msc	ドライブの管理（ディスクの管理）
+eventvwr	イベントビューア
+fonts	フォントフォルダー
+fsmgmt.msc	共有フォルダー
+gpedit.msc	グループポリシーエディター
+hdwwiz.cpl	デバイスマネージャー
+iexpress	自己解凍書庫作成
+inetcpl.cpl	インターネットオプション
+intl.cpl	地域と言語のオプション
+logoff	ログオフしてサインイン画面
+lusrmgr.msc	ローカルユーザーとグループ
+main.cpl	マウスのプロパティ
+migwiz	ファイルと設定の転送ウィザード
+mmc	マイクロソフト管理コンソール
+mmsys.cpl	サウンドとオーディオデバイスのプロパティ
+msaccess	アクセス
+msconfig	システム構成ユーティリティ
+msinfo32	システム情報
+mstsc	リモートデスクトップ接続
+ncpa.cpl	ネットワーク接続
+netsetup.cpl	ネットワークセットアップウィザード
+netstat	ネットワーク接続の有効状態を表示
+nslookup	ドメインのIPアドレスを取得
+ntmsmgr.msc	リムーバブル記憶域
+ntmsoprq.msc	リムーバブル記憶域の操作要求
+nusrmgr.cpl	ユーザーアカウント
+odbcad32	ODBCデータソースアドミニストレーター
+odbccp32.cpl	ODBCデータソースアドミニストレーター
+perfmon.msc	パフォーマンスモニター
+powercfg.cpl	電源オプション
+regedit	レジストリエディター
+regedit32	レジストリエディター
+rsop.msc	ポリシーの結果セット
+secpol.msc	ローカルセキュリティポリシー
+services.msc	サービス
+shrpubw	共有フォルダーの作成
+shutdown /r /t 0	パソコンのシャットダウン
+sigverif	ファイルの署名と確認
+sndvol32	ボリュームコントロール
+sysdm.cpl	システムのプロパティ
+sysedit	システム構成エディター
+syskey	SAMロックツール
+taskmgr	タスクマネージャー
+telephon.cpl	電話とモデムのオプション
+telnet	Telnet接続
+timedate.cpl	日付と時刻
+utilman	ユーティリティマネージャー
+verifier	ドライバの検証ツールマネージャー
+visio32	Visio
+winmsd	システム情報
+winver	Windowsのバージョン情報
+wscript	Windows Script Host
+wscui.msc	セキュリティセンター
+wuaucpl.cpl	自動更新
+wupdmgr	Microsoft Update
+特定のフォルダーを起動（開く）
+shell:AddNewProgramsFolder	プログラムの取得
+shell:Administrative Tools	Windows管理ツール
+shell:AppData	C:\Users\ユーザー名\AppData\Roaming
+shell:AppUpdatesFolder	インストールされた更新プログラム
+shell:Cache	インターネット一時ファイル
+shell:CD Burning	一時書き込みフォルダー
+shell:ChangeRemoveProgramsFolder	プログラムと機能
+shell:Common AppData	C:\ProgramData
+shell:Common Templates	C:\ProgramData\Microsoft\Windows\Templates
+shell:ConflictFolder	競合
+shell:ConnectionsFolde	ネットワーク接続
+shell:Contacts	アドレス帳
+shell:ControlPanelFolder	すべてのコントロールパネル項目
+shell:Cookies	Cookie
+shell:Default Gadgets	Gadgets
+shell:Desktop	デスクトップ
+shell:DocumentsLibrary	ライブラリのドキュメント
+shell:Downloads	ダウンロード
+shell:Favorites	お気に入り
+shell:Fonts	フォントフォルダー
+shell:Gadgets	ユーザーのガジェット
+shell:Games	ゲーム
+shell:History	履歴
+shell:HomeGroupFolder	ホームグループ
+shell:Libraries	ライブラリ
+shell:Links	リンク
+shell:Local AppData	C:\Users\ユーザー名\AppData\Local
+shell:MusicLibrary	ライブラリのミュージック
+shell:My Music	マイミュージック
+shell:My Pictures	マイピクチャー
+shell:My Video	マイビデオ
+shell:MyComputerFolder	PC
+shell:NetHood	Network Shortcuts
+shell:NetworkPlacesFolder	ネットワーク
+shell:Personal	マイドキュメント
+shell:PicturesLibrary	ライブラリのピクチャー
+shell:PrintersFolder	プリンター
+shell:PrintHood	Printer Shortcuts
+shell:Profile	ユーザーフォルダー
+shell:ProgramFiles	プログラムのインストールフォルダー
+shell:ProgramFilesCommon	Common Files
+shell:Programs	Programs
+shell:Quick Launch	Quick Launch
+shell:Recent	Recent
+shell:RecycleBinFolder	ごみ箱
+shell:ResourceDir	リソースフォルダー
+shell:SavedGames	保存したゲーム
+shell:Searches	ユーザーの検索
+shell:SearchHomeFolder	検索結果
+shell:SendTo	SendTo
+shell:Start Menu	Start Menu
+shell:Startup	Startup
+shell:SyncCenterFolder	同期センター
+shell:SyncResultsFolder	同期結果
+shell:SyncSetupFolder	同期のセットアップ
+shell:System	system32
+shell:Templates	Templates
+shell:User Pinned	User Pinned
+shell:UserProfiles	ユーザーフォルダー
+shell:UsersFilesFolder	ユーザーフォルダー
+shell:UsersLibrariesFolder	ライブラリ
+shell:VideosLibrary	ライブラリのビデオ
+shell:Windows	システムフォルダー
+EOL
+}

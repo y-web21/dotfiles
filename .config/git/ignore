@@ -1,0 +1,11 @@
+# always ignore
+*.bak
+*.tmpq
+
+.DS_Store
+
+Desktop.ini
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+*.lnk

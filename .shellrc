@@ -1,0 +1,159 @@
+# shellcheck disable=SC2148,SC1090,SC1091
+#
+# ShellCheck ignore list:
+#  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
+#  - SC1090: Can't follow non-constant source. Use a directive to specify location.
+#  - SC1091: Not following. (ShellCheck is unable to follow dynamic paths)
+
+# export EDITOR=vim
+# export EDITOR=nano
+# export EDITOR=code --wait
+
+alias ls="ls -F"
+
+# enable i-search. (disable terminal stop)
+if [[ -t 0 ]]; then
+  stty stop undef
+# stty start undef
+fi
+
+# base type
+is_debian_based() { [ -f /etc/debian_version ]; } # /etc/os-release ID_LIKE=debian || ID=debian
+is_redhat_based() { [ -f /etc/redhat-release ]; }
+is_slackware_based() { :; }
+# window
+is_wayland() { [ -v WAYLAND_DISPLAY ]; }
+is_xorg() { echo 1; } # X11, TBDevelopment
+# os
+is_centos() { [ "$(< /etc/redhat-release head -1 | cut -d' ' -f1 2>/dev/null)" = 'CentOS' ]; }
+is_linux() { [ "$(printf '%s' "$(uname -s)" | cut -c 1-5)" = 'Linux' ]; }
+is_mac() { [ "$(uname)" = 'Darwin' ]; }
+is_ubuntu() { grep '^ID=ubuntu' /etc/os-release >/dev/null 2>&1; }
+is_debian() { grep '^ID=debian' /etc/os-release >/dev/null 2>&1; }
+# shellcheck disable=SC2317
+is_wsl() { type wslpath >/dev/null 2>&1 ; } # type2
+is_wsl() { [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; }
+# vm
+is_lxc_container() { sudo grep -qa container=lxc /proc/1/environ; }
+is_crostini() { is_debian && is_lxc_container; }
+
+# =========== ENV, VAR ===========
+export LESSCHARSET=utf-8
+# color syntax less, sidescroll step 5, search line pos 7
+export LESS='-iRXS -# 5 --jump-target 7'
+# sudo apt install source-highlight
+shpath="/usr/share/source-highlight/src-hilite-lesspipe.sh"
+if [[ -f ${shpath} ]]; then
+  export LESSOPEN="| ${shpath} %s"
+fi
+unset shpath
+
+# for prompt (test)
+type aws >/dev/null 2>&1 && _AWS_CURRENT_REGION=$(aws configure get region)
+export _AWS_CURRENT_REGION
+
+export PATH=$PATH:~/bin
+# prevent garbled Japanese characters such as tig.
+export LC_ALL=en_US.UTF-8
+
+# brew install fzf
+export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -path '*/.node_modules' -prune -o -type f -print"
+
+[ -f /usr/local/bin/git-prompt.sh ] && . /usr/local/bin/git-prompt.sh
+[ -f "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh" ] && . "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh"
+[ -f "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.sh" ] && . "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.sh"
+
+# ============= function ==============
+
+dic() {
+  ~/dotfiles/scripts/dict.js "${1}" | grep -iE "$|${1}" --color
+
+  # -v operator bash => 4.2
+  [ -v "$2" ] && return
+  if [ -v PLAYER ]; then
+    SOUND_URL=$(~/dotfiles/scripts/dict.js "${1}" | grep -E 'https.*mp3' | head -1)
+    if [ -n "$SOUND_URL" ]; then
+      TEMP_SOUND=$(mktemp) && {
+        curl "$SOUND_URL" -o "$TEMP_SOUND" >/dev/null 2>&1
+        $PLAYER "$TEMP_SOUND"
+        # rm -v $TEMP_SOUND
+      }
+    fi
+  fi
+  # trap '[ -v TEMP_SOUND ] && rm -v "$TEMP_SOUND"' EXIT
+  trap '[ -v TEMP_SOUND ] && rm "$TEMP_SOUND"' EXIT
+}
+
+port_listen() {
+  sudo lsof -i -P -n
+}
+
+__ssh-list-config-files() {
+
+  local SSH_DIR=$HOME/.ssh/
+
+  if test -d "$SSH_DIR"; then
+    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
+      echo "$file"
+    done
+  fi
+}
+
+__ssh-list-known-hosts() {
+
+  local SSH_DIR=$HOME/.ssh/
+
+  if test -d "$SSH_DIR"; then
+    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
+      grep ^Host "$file" | sed 's/^Host //'
+    done
+  fi
+}
+
+__ssh-list-known-keys() {
+
+  local SSH_DIR=$HOME/.ssh/
+
+  if test -d "$SSH_DIR"; then
+    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
+      grep IdentityFile "$file" | sed -E 's/^[ \t]{0,}IdentityFile //'
+    done
+  fi
+}
+
+__ssh-list-all-keys() {
+
+  local SSH_DIR=$HOME/.ssh/
+
+  if test -d "$SSH_DIR"; then
+    find "$SSH_DIR" | grep -E '(pem|pub)$' | sed 's/\.pub$//'
+  fi
+}
+
+__ssh-show-known-hosts() {
+
+  local SSH_DIR=$HOME/.ssh/
+  local displayFileName=${1:-false}
+
+  if test -d "$SSH_DIR"; then
+    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
+      if ${displayFileName}; then echo -e "\n$file"; fi
+      cat "$file"
+    done
+  fi
+}
+
+__ssh-show-known-hosts-with-filename() {
+  ssh-show-known-hosts true
+}
+
+test -r ~/dotfiles/shell.d/.bash_aliases && . ~/dotfiles/shell.d/.bash_aliases
+
+if type brew >/dev/null 2>&1; then
+  if brew ls z &>/dev/null; then
+    . "$HOMEBREW_PREFIX"/etc/profile.d/z.sh
+  fi
+fi
+
+type aws >/dev/null 2>&1 && complete -C '/usr/local/bin/aws_completer' aws
+

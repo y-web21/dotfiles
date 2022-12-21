@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+
+cwd=$(pwd)
+
+describe() {
+  cat <<-EOS
+以下を利用してgitリモートリポジトリから指定したファイルだけを取得します。
+- sparse-checkout
+	- .git/info/sparse-checkout に従い一部をチェックアウト
+- clone --depth 1
+	- 過去の履歴の深さ1としてシャロークローンする
+
+	arg1 = optional: repository url
+	arg2 = optional: clone target file
+EOS
+}
+
+SPARSE_SETTING=".git/info/sparse-checkout"
+# shellcheck disable=2091
+is_inside_git() { $(cd "${1:-.}" && git rev-parse --git-dir &>/dev/null); }
+repo_owner() {
+  if [[ "$repo" == git@* ]]; then
+    echo -n "$repo" | rev | cut -d '/' -f 2 | cut -d ':' -f 1 | rev
+    return
+  fi
+  echo -n "$repo" | rev | cut -d '/' -f 2 | rev
+}
+repo_name() { echo -n "$repo" | rev | cut -d '/' -f 1 | rev | sed -E 's/\.git$//'; }
+dir_rel_path() { echo -n "$(repo_owner)/$(repo_name)"; }
+# shellcheck disable=2005,2046
+input_query() { echo $(read -r input && echo "$input" | sed -E 's/^https.*com\///; s/ /%20/g; s/\//%2F/g; s/:/%3A/g'); }
+
+set_repo() {
+  local category json line
+  categories=(repositories)
+  if type gh &>/dev/null; then
+    echo 'input github api search query (result max 50)'
+    while [[ -z "$repo" ]]; do
+      # IDEA search by user
+      # shellcheck disable=2216
+      # category=$(printf "%s\n" "${categories[@]}" | fzf)
+      # shellcheck disable=2128
+      json=$(gh api -H "Accept: application/vnd.github+json" \
+        /search/"${category:-$categories}"?per_page=50\&sort=stars\&order=desc\&q="$(input_query)")
+      line=$(echo "$json" | jq -r '.items[] | [.name, .owner.login, .default_branch, .stargazers_count, .html_url] | @tsv' | column -t | fzf)
+      repo=$(echo "$line" | awk '{print $NF}')
+    done
+  else
+    read -r -p 'repo URL or SSH : ' repo
+  fi
+  echo
+}
+
+set_dir() {
+  temp_dir=$(mktemp -d) || exit
+}
+
+make_sparse-checkout_file() {
+  cd "$temp_dir" || exit
+  git init . &>/dev/null
+  git config --local core.sparsecheckout true
+
+  [ -n "$2" ] && echo "$2" >$SPARSE_SETTING && [ -n "$1" ] && [ "$1" = false ] && return
+  if ! type gh &>/dev/null; then
+    # TODO pick repo resources by fzf (git api)
+    echo DBD
+    # echo "$pick" > $SPARSE_SETTING
+  else
+    read -r -p 'Write pickup rules by like .gitignore. (hit enter)'
+    vim -c ":$ s/$/\r/g" -c w -c :nohl +1 -c start $SPARSE_SETTING
+  fi
+  echo
+}
+
+pull_depth_x() {
+  local branch
+  [ "${1:-}" != false ] && read -r -p 'hit the pull branch name (defulat main,master): ' branch
+
+  git remote add origin "${repo}"
+
+  if ! git pull --depth 1 origin "${branch:-main}" 2>/dev/null; then
+    git pull --depth "${2:-1}" origin master
+  fi
+
+  # shellcheck disable=2181
+  [ $? -ne 0 ] && exit
+  echo
+}
+
+mv_dir() {
+  local yn dist_root
+  cd "$cwd" || exit
+  dist=$cwd
+
+  [ "${2:-}" = y ] && rm -rf "$temp_dir/.git"
+
+  # download path が指定されて入れば処理を飛ばす
+  if [ -z "${3}" ]; then
+    [ "${1:-}" != false ] && read -r -p 'copy to current directory? (Y/n): ' -i y yn
+    if [[ ! $yn =~ n|N ]]; then
+      mv "$temp_dir/"* "$dist"
+      return
+    fi
+  fi
+
+  # インタラクティブモードか否かで判定
+  if [ "${1:-}" != false ]; then
+    cat <<-EOS
+
+			Select destination.
+			<your_select_dir>/<owner>/<repo_name>
+		EOS
+
+    while true; do
+      dist_root=$(rg --maxdepth 2 --hidden --files --null | xargs -0 dirname | sort -u | uniq | fzf --height 60% | xargs realpath)
+      [ -z "$dist_root" ] && exit
+      [ ! -d "$temp_dir/.git" ] && break
+      is_inside_git "$dist_root" || break
+      echo 'Please select a directory where outside git worktree.'
+      continue
+    done
+  else
+    dist_root=$(realpath "$3")
+  fi
+
+  dist="$dist_root/$(dir_rel_path)"
+  _check_overwrite "$dist"
+  mv "$temp_dir/"* "$dist"
+
+  echo
+}
+
+_check_overwrite() {
+  local yn
+
+  if ! mkdir -p "${1}" 2>/dev/null; then
+    echo "${1} is already exists!"
+    read -e -p 'O foolish man, do thy wish to destroy and create? (Y/n): ' -i y yn
+    [[ $yn =~ n|N ]] && exit
+    rm -rf "${1}"
+    mkdir -p "${1}"
+  fi
+}
+
+# TODO postional args to option
+# all optional
+repo=${1}
+depth=${2}
+files=${3}
+intaracive=${4}    # false or other
+remove_dotgit=${5} # yn
+destination=${6}   # path
+
+[ -z "$repo" ] && set_repo
+set_dir
+make_sparse-checkout_file "$intaracive" "$files"
+pull_depth_x "$intaracive" "$depth"
+mv_dir "$intaracive" "$remove_dotgit" "$destination"
+[ -e "$temp_dir" ] && rm -rf "$temp_dir"
+
+echo "cloning completed ${dist}"

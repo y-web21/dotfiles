@@ -1,0 +1,161 @@
+# What protocol to use when performing git operations. Supported values: ssh, https
+git_protocol: https
+# What editor gh should run when creating issues, pull requests, etc. If blank, will refer to environment.
+editor:
+# When to interactively prompt. This is a global config that cannot be overridden by hostname. Supported values: enabled, disabled
+prompt: enabled
+# A pager program to send command output to, e.g. "less". Set the value to "cat" to disable the pager.
+pager:
+# Aliases allow you to create nicknames for gh commands
+aliases:
+    b: browse
+    # -- pull request --
+    co: pr checkout
+    mypr: "!gh pr list -s all -a $(git config user.name)"
+    # -- gh with fzf --
+    fpr: |-
+      !gh pr list | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:80%,+4 --bind alt-p:preview-up,alt-n:preview-down --preview "gh pr view {1} | bat --color=always -l md"
+    fprc: |-
+      !gh pr list -s closed | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:80%,+4 --bind alt-p:preview-up,alt-n:preview-down --preview "gh pr view {1} | bat --color=always -l md"
+    fis: |-
+      !gh issue list | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:80%,+4 --bind alt-p:preview-up,alt-n:preview-down --preview "gh issue view {1} | bat --color=always -l md"
+    fisc: |-
+      !gh issue list -s closed | column -t -s "$(printf '\t')" | fzf --preview-window=bottom:80%,+4 --bind alt-p:preview-up,alt-n:preview-down --preview "gh issue view {1} | bat --color=always -l md"
+    fgist: |-
+        !select="$(gh api https://api.github.com/gists --paginate |
+          jq -r ' .[] | .files[] as $files | [ ( $files.language // "unknown" ) , $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" |
+          fzf-tmux -p 90% --query="${1:-'Markdown }" \
+            --preview-window=bottom:80%,+4 \
+            --preview "gh gist view {-1} -f {2} | bat --color=always -l md" \
+            --bind alt-p:preview-up,alt-n:preview-down \
+            --expect=alt-r,alt-a,alt-d,alt-h,alt-N \
+            --bind="alt-w:execute(gh gist view {-1} -w)" \
+            --bind="alt-c:execute(gh gist clone {-1} {2})" )"
+        [ -z "${select}" ] && return
+        key=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 1)
+        line=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 2)
+        id=$(echo $line | awk '{print $NF}')
+        file=$(echo $line | awk '{print $2}')
+        desc=$(echo $line | awk '{for(i=3;i<=NF-1;i++) printf $i" "; print ""}' )
+        case "${key}" in
+          alt-r)
+            echo "$desc"
+            echo -n 'delete gist repo? (y|N)'; read yn
+            test $yn = y && gh gist delete $id
+          ;;
+          alt-a)
+            echo -n select the file to be added to "${desc}" && read _
+            find . -maxdepth 3 -type f |
+              fzf-tmux -p 90% \
+                --multi \
+                --preview-window=right:80%,+4 \
+                --preview "bat --color=always {}" |
+              while read -r f; do
+                echo gh gist edit $id -a $f
+                gh gist edit $id -a $f
+              done
+          ;;
+          alt-d)
+            echo "now_description: ${desc}"
+            new_desc=$(read -p "new_description: " new_desc && echo $new_desc)
+            if [ -z "$new_desc" ]; then read -p "delete description? (y/N): " YN && [ $YN != y -a $YN != Y ] && exit; fi
+            GH_EDITOR=cat && EDITOR=cat
+            gh gist edit $id -d "$new_desc" >/dev/null
+          ;;
+          alt-h)
+            # $READLINE_LINE, $BUFFER
+            echo $id
+          ;;
+          alt-N)
+            echo "type new filename to be added to ${desc}"; read name
+            tmpdir=$(mktemp -d)
+            file=${tmpdir}/${name}
+            vim -c start "$file"
+            gh gist edit $id -a "$file"
+          ;;
+          *) gh gist edit $id -f $file
+          ;;
+        esac
+    gist-create: |-
+        !FILE=$(find . -maxdepth ${1:-1} -type f | fzf --preview 'cat {}' | awk '{print $1}')
+        [ -z "$FILE" ] && exit
+        DESC="$(read -p 'description: ' DESC && echo $DESC)"
+        gh gist create $FILE -f $FILE -d "$DESC"
+        read -p "remove local file? (Y/n): " YN; [ -z $YN ] && YN=y
+        [ $YN = n -o $YN = N ] && exit
+        rm "$FILE"
+    gist-view: |-
+        !line=$(gh api https://api.github.com/gists --paginate |
+          jq -r ' .[] | .files[] as $files | [ ( $files.language // "txt" ) , $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" |
+          fzf --preview-window=bottom:65%,+4 --preview 'gh gist view {-1} -f {2} | bat --color=always -l $(echo {1} | sed 's/Shell/bash/') || gh gist view {-1} -f {1}')
+        id=$(echo $line | awk '{print $NF}')
+        file=$(echo $line | awk '{print $2}')
+        lang=$(echo $line | awk '{print $1}' | sed 's/Shell/bash/; s/Batchfile/bat/')
+        gh gist view "$id" -f "$file" | bat --color=always -l $lang
+    frepo-web: |-
+        !read -p 'query: ' input
+        query=$(echo "$input" | sed -E 's/^https.*com\///; s/ /%20/g; s/\//%2F/g; s/:/%3A/g')
+        gh search repos --limit 50 --sort=stars "$query" | column -t -s "$(printf '\t')" | fzf --query "$query" | awk '{print $1}' | xargs -i gh repo view -w {}
+    # search: |-
+    #     !input_query() { echo $(read -r input && echo "$input" | sed -E 's/^https.*com\///; s/ /%20/g; s/\//%2F/g; s/:/%3A/g'); }
+    #     json=$(gh api -H "Accept: application/vnd.github+json" \
+    #       /search/repositories?per_page=50\&sort=stars\&order=desc\&q="$(input_query)")
+    #     line=$(echo "$json" | jq -r '.items[] | [.name, .owner.login, .default_branch, .stargazers_count, .html_url] | @tsv' | column -t | fzf)
+    #     repo=$(echo "$line" | awk '{print $NF}')
+    #     gh repo view -w $repo
+    # -- gist --
+    gist-new: |-
+        !tmpdir=$(mktemp -d)
+        tmpfile=${tmpdir}/temp
+        vim -c start $tmpfile
+        [ $(cat $tmpfile | wc -c) -eq 0 ] \
+          && echo 'void' > $tmpfile \
+          && read -p "empty file. continue? (Y/n): " YN; [ -z $YN ] && YN=y
+        [ $YN = n -o $YN = N ] && exit
+        NAME="$(read -p 'gist-name: ' NAME && echo $NAME)"
+        DESC="$(read -p 'description: ' DESC && echo $DESC)"
+        newfile="${tmpdir}/${NAME:-no_name}"
+        mv "$tmpfile" "$newfile"
+        gh gist create "$newfile" -f "${NAME:-no_name}" -d "$DESC"
+        rm -rf "$tmpdir"
+    gist-all-files: "!gh api https://api.github.com/gists --paginate | jq -r '..|.raw_url?|select(.!=null)'"
+    gist-stdin: |-
+        !cat $1 | gh gist create - -f $1 -d "${2:-}"
+    # -- gh with peco --
+    wb: "!gh repo list -L 500 | peco | awk '{print $1}' | xargs gh repo view -w"
+    repo-clone: "!gh repo clone $(gh repo list | peco | awk '{print $1}')"
+    # ++ config ++
+    # use env var GH_EDITOR
+    # editor-nano: config set editor "nano"
+    # editor-vim: config set editor "vim"
+    # editor-vscode: config set editor "code --wait"
+    # -- repos --
+    watches: "!gh api /users/${1:-$(git config user.name)}/subscriptions --paginate --jq .[].full_name"
+    unwatch: "!gh api -X DELETE /repos/${1:-$(git config user.name)}/subscription"
+    shell: "!echo $0" # Bourne Shell!!!
+    # == git api test ==
+    wf-id: '!gh api repos/$(git config user.name)/$(basename $(git config remote.origin.url) | sed s/\.git//)/actions/runs --paginate -q ".workflow_runs[] | select(.head_branch == \"main\") | (.id)"'
+    action-del: '!xargs -i gh api  -X DELETE repos/$(git config user.name)/$(basename $(git config remote.origin.url) | sed s/\.git//)/actions/runs/{}'
+    aa: '!gh api -H "Accept: application/vnd.github.v3+json" /repos/github/gitignore/contents/LICENSE'
+    ls-gist: '!gh api -H Accept:application/vnd.github+json gists | jq ".[] | .id, ([.files?[].filename] | join(\",\")), (.description | gsub(\" \"; \"__　__\"))" | xargs -n3 echo | grep ${1:-".*"} | column -t | sed -e "s/__　__/ /g"'
+    sync-fork-main: |-
+        !
+        echo "Syncing origin/main with upstream/main"
+        git fetch upstream
+        git checkout main
+        git merge upstream/main
+        git push
+    # -- foo's --
+    ignore: "!gh api /gitignore/templates/$1 --jq .source"
+    ignore-ls: '!gh api /gitignore/templates --jq .[] | grep -i "$1"'
+    sr: |-
+        !gh api -X GET search/repositories -f q="$1" --template "{{range.items}}{{.full_name}} ⭐ {{.stargazers_count | color \"yellow\"}} ({{.description}}){{\"\\n\"}}{{end}}"
+    # -- sample --
+    igrep: '!gh issue list --label="$1" | grep "$2"'
+    bugs: issue list --label=bugs
+    homework: issue list --assignee @me
+    pv: pr view
+# The path to a unix socket through which send HTTP connections. If blank, HTTP traffic will be handled by net/http.DefaultTransport.
+http_unix_socket:
+# What web browser gh should use when opening URLs. If blank, will refer to environment.
+browser:

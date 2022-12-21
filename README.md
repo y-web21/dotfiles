@@ -1,6 +1,13 @@
 # dotfiles
 
+## install
+
 ```bash
-# 予定
-curl -L https://github.com/y-web21/dotfiles/main/init/install.bash | bash
+./make_link.bash
+# 確認なし
+./make_link.bash -f
 ```
+
+## memo
+
+- `zsh`のセッティングは`bash`のファイル(エイリアスなど)を流用している(依存関係にある)

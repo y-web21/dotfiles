@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+prepare() {
+  if [ -p /dev/stdin ]; then
+    if [ "$*" = "" ]; then
+      fzfp "$(cat -)"
+    else
+      fzfp "$(cat -)" "$@"
+    fi
+  else
+    echo 'I'\''m pipe man.'
+  fi
+}
+
+fzfp() {
+  echo "$1" | tr ' ' '\n' |
+    fzf-tmux -p 80% \
+      --preview-window=right:75%,~4 \
+      --reverse \
+      --border \
+      --preview "if [ ! -d {${2:-1}} ]; then bat {} --color always ; else exa -al; fi" |
+    awk -v col="${2:-1}" '{print $col}'
+}
+
+prepare "$@"

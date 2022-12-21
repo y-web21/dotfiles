@@ -1,0 +1,46 @@
+# shellcheck disable=SC2148,SC1090
+#
+# ShellCheck ignore list:
+#  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
+#  - SC1090: Can't follow non-constant source. Use a directive to specify location.
+
+is_debian_based && . ~/dotfiles/shell.d/modules/PS1 'debian'
+is_crostini && export EDITOR='vim'
+
+if is_ubuntu && ! is_ubuntu; then
+  # Jekyll on Ubuntu
+  # https://jekyllrb.com/docs/installation/ubuntu/
+  sudo apt-get install ruby-full build-essential zlib1g-dev
+
+  echo '# Install Ruby Gems to ~/gems' >>~/.bashrc
+  echo 'export GEM_HOME="$HOME/gems"' >>~/.bashrc
+  echo 'export PATH="$HOME/gems/bin:$PATH"' >>~/.bashrc
+  source ~/.bashrc
+
+  gem install jekyll bundler
+fi
+
+if is_crostini; then
+  chk_external_mount_health(){
+    local prev_status=$?
+    local mode
+    mode=$(mount | grep /mnt/external/0 | awk '{print $NF}' | tr '(' ',' | awk -F ',' '{print $2}')
+    if [ $mode = 'rw' ]; then
+      echo /mnt/external/0 mode rw >/dev/null
+    else
+      ESC=$(printf '\033')
+      RED=$(printf '[31m')
+      RESET=$(printf '[m')
+      printf "${ESC}${RED}%s${ESC}${RESET}\n" '/mnt/external/0 mode ro'
+      echo 'crosh> vmc stop termina'
+      echo 'crosh> vmc start --extra-disk "/path/to/ext4/.img" termina'
+      echo 'lxc config device add penguin extra_disk_0 disk source=/mnt/external/0 path=/mnt/external/0'
+      echo 'lxc config device remove penguin extra_disk_0'
+    fi
+    return $prev_status
+  }
+  export PROMPT_COMMAND="chk_external_mount_health;${PROMPT_COMMAND//chk_external_mount_health;/}"
+fi
+# chk_exteranal_mount_health
+# unset -f chk_exteranal_mount_health
+

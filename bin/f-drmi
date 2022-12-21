@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+fzf-docker-rmi() {
+  local iid
+  iid=$(docker image ls -a | tail +2 | fzf -m | awk '{print $3}')
+  [ -n "$iid" ] && echo "$iid" | xargs docker rmi -f
+}
+
+fzf-docker-rmi

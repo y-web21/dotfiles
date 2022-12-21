@@ -1,17 +1,55 @@
 *
 !*/
 
-!scripts/*
-!git/**
-
+# main files
 !.gitignore
+!.profile
 !.bash_aliases
-!.bashrc_user
-!.bashrc_wsl
-!.bashrc_linux
 !.sshrc
 !.vimrc
 !.dircolors
+!.nanorc
 !.gitconfig
+!.zshrc
+!.zprofile
+!.commonrc
+!.lesskey
+!.tigrc
+!.inputrc
+!.tmux.conf
+!.bashrc
+!.shellcheckrc
 
+# bash
+!bash.d/*
+
+# sample
+!.bash_profile__
+
+# main files sub
+!aliases/*
+
+# dotgit
+!git/**
+
+# subfolders
+!.config/**/*
+!.aws/config
+
+!.docker/config.json
+
+# submodules
+!functions/*.bash
+!modules/keybinds*
+!modules/keybinds*
+!modules/PS1
+!modules/*.md
+
+# home bin scripts
+!bin/*
+
+# doc and scripts
+!make_link.bash
+!clone_lib.bash
+!scripts/*
 !/README.md
