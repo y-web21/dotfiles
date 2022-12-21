@@ -24,7 +24,7 @@ __history_with_fzf() {
   history -a
   ret=$(
     HISTTIMEFORMAT=''
-    tac ~/.bash_history | grep -av '^#' | uniq | fzf-tmux -p 90% --height 80% --layout=reverse-list --query "$READLINE_LINE"
+    tac ~/.bash_history | grep -av '^#' | uniq | fzf-tmux -p 90% --height 80% --no-sort --layout=reverse-list --query "$READLINE_LINE"
   )
   if [ '' = "$ret" ]; then return; fi
   # put text in the bash command line buffer

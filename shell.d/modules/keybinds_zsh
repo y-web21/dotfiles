@@ -60,7 +60,7 @@ fi
 __history_with_fzf() {
   local ret
   ret=$(
-    tac < <(history -n 1) | uniq | fzf-tmux -p 90% --layout=default --query -- "$BUFFER"
+    tac < <(history -n 1) | uniq | fzf-tmux -p 90% --no-sort --layout=default --query -- "$BUFFER"
   )
   if [ '' = "$ret" ]; then return; fi
   # put text in the bash command line buffer
