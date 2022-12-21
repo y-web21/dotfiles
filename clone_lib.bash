@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-cd "$(dirname "$0")/lib" || exit
+cd "$(dirname "$0")/shell.d/lib" || exit

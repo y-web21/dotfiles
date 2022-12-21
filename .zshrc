@@ -6,6 +6,7 @@ test $shwo_zsh_execution_time -ne 0 && zmodload zsh/zprof && zprof
 # EDITOR=vim でターミナルも bindkey -v 相当にされてしまうため明示的に emacs の設定をする
 bindkey -e
 
+# common settings
 test -r ~/.shellrc && . ~/.shellrc
 
 # if [[ -o interactive ]]; then :; fi
@@ -123,7 +124,7 @@ PROMPT="$(__prompt_1st)
 $(__prompt_2nd)
 %(?.%B%F{green}.%B%F{red})%(?!> !< )%f%b"
 
-test -r ~/dotfiles/modules/keybinds_zsh && . ~/dotfiles/modules/keybinds_zsh
+test -r ~/dotfiles/shell.d/modules/keybinds_zsh && . ~/dotfiles/shell.d/modules/keybinds_zsh
 
 complete -C '/usr/local/bin/aws_completer' aws
 type zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
