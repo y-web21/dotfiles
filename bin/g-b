@@ -13,7 +13,7 @@ git-i-branch() {
   select="$(eval "$request_cmd" |
     tr '*' ' ' |
     sed -E 's/^ *//' |
-    grep --color=never -v -E 'remotes\/.*\/(main|dev|develop|prod)' |
+    grep --color=never -v -E 'remotes\/[a-zA-Z0-9]*\/(main|dev|develop|prod)' |
     column -t -s "$(printf '\t')" |
     fzf-tmux -p 90% \
       --query="${1:-}" \
