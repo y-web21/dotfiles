@@ -6,7 +6,7 @@
 # set -eou pipefail
 
 cd "$(dirname "$0")" || exit
-EXCEPT='grep -v -e ^\.gitignore -e README -e \.git$ -e ^\.vscode -e \.bak$ -e \.shellcheckrc'
+EXCEPT='grep -v -e \.gitignore$ -e README -e \.git$ -e ^\.vscode -e \.bak$ -e \.shellcheckrc'
 FORCE=0
 test -n "$1" && test "$1" = '-f' && FORCE=1
 
@@ -59,6 +59,8 @@ done
 # ./bin/* files
 [ ! -e ~/bin ] && mkdir ~/bin
 for MY_SCRIPTS in $(find ./bin -maxdepth 1 -type f | cut -c 3- | $EXCEPT | sort); do
-  sudo chmod u+x "$MY_SCRIPTS"
   make_link "$MY_SCRIPTS"
+done
+for MY_SCRIPTS in $(find ./bin -maxdepth 1 -type f | cut -c 3- | $EXCEPT | sort); do
+  sudo chmod u+x "$MY_SCRIPTS"
 done
