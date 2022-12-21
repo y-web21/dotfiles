@@ -76,6 +76,13 @@ __relogin() {
   exec $0 -l
 }
 
+backward-kill-dir () {
+  # "unix-filename-rubout" in zsh
+  local WORDCHARS=${WORDCHARS/\/}
+  zle backward-kill-word
+  zle -f kill
+}
+
 # =============== keybind zsh =================
 # = list of keybind             -> bindkey
 # = remove bind                 -> bindkey -r "^G"
@@ -83,6 +90,7 @@ __relogin() {
 # = check current settings      -> stty -a
 # = declare function use inbind -> zle -N <function>
 if [ -n "$ZSH_VERSION" ]; then
+  # common bash
   zle -N __relogin
   zle -N __history_with_fzf
   zle -N __interactive_cd
@@ -120,6 +128,9 @@ if [ -n "$ZSH_VERSION" ]; then
   bindkey '^[;' __ls_al_readline
   bindkey -s '^[?' "bindkey | grep __ ^M"
   bindkey '^[^rr' __reset_screen
+  # only zsh
+  zle -N backward-kill-dir
+  bindkey '^w' backward-kill-dir
 fi
 
 bindkey -s '^[A' "| awk '{print $}'|^B^B^B^M"
