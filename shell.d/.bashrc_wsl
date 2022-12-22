@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC1090,SC2034
+#
+# ShellCheck ignore list:
+#  - SC1090: Can't follow non-constant source. Use a directive to specify location.
+#  - SC2034: foo appears unused. Verify it or export it.
+#
+# You can find more details for each warning at the following page:
+#    https://github.com/koalaman/shellcheck/wiki/<SCXXXX>
+#    https://www.shellcheck.net/wiki/<SCXXXX>
+#
+# __shellcheck source=/dev/null # [sample] Avoid warning SC1090
+
+# ========================================
+# alias
+# ========================================
+alias qfind='find / \( -path /mnt* -o -path /proc* -o -path /var* \) -prune -o -print'
+alias file-cnt='sudo find / -mindepth 1 -maxdepth 1 -not -path "/mnt*" 2>/dev/null | xargs -i bash -c '\''echo -n '\''{}/ '\'' && sudo find {}/ -type f | wc -l'\'' | sort'
+alias subntu='$(wslpath -u C:\\Windows\\System32\\wsl.exe) -d Ubuntu-20.04-experimental -u $(whoami)'
+alias cdd='cd $WINHOME'
+
+alias cmd='cmd.exe'
+alias pwsh='pwsh.exe'
+alias _pwshdotnet='powershell.exe'
+# 非インタラクティブシェルでのコマンド実行
+alias cmdc='cmd.exe /c'
+alias pwshc='pwsh.exe -noprofile -command'
+
+# ========================================
+# env
+# ========================================
+# wslvar 実行でのスクロールバッファクリア問題は、wslu v3 で解消済みだが、実行速度の観点から決め打ちを採用
+# export WINHOME="$(wslpath "$(wslvar USERPROFILE)")"
+export WINHOME="/mnt/c/Users/${USER}"
+
+export EDITOR="code"
+export GIT_EDITOR="vim"
+export GH_EDITOR="code --wait"
+export PLAYER="nircmd.exe mediaplay 1400 "
+
+. ~/dotfiles/shell.d/modules/PS1 'wsl'
+
+# windows との共有設定
+test -e ~/.bashrc.local || ln -s "${WINHOME}"/dotfiles_common/.bashrc.local ~/.bashrc.local
+test -e ~/.gitconfig.local || ln -s "${WINHOME}"/dotfiles_common/.gitconfig.local ~/.gitconfig.local
+
+# shellcheck disable=2142
+[ -n "$ZSH_VERSION" ] && alias chrome='(){/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe $(wslpath -w $(realpath $1))}'
+
+# chrome(){
+#   /mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe "$(wslpath -w "$(realpath "${1}")")"
+# }
+
+fix_wsl2_interop() {
+  # C:\Windows\System32\wsl.exe code などから実行されると $WSL_INTEROP 変数がセットされていない状態になることがあるその回避のため
+  # e.g. $ echo a | clip.exe
+  #      <3>init: (15155) ERROR: UtilConnectToInteropServer:307: connect failed 2
+  # [[WSL2] [Interop] Keep a single shared /run/WSL/* socket · Issue #5065 · microsoft/WSL](https://github.com/microsoft/WSL/issues/5065)
+  for i in $(pstree -np -s $$ | grep -o -E '[0-9]+'); do
+      if [[ -e "/run/WSL/${i}_interop" ]]; then
+          export WSL_INTEROP=/run/WSL/${i}_interop
+      fi
+  done
+}
+fix_wsl2_interop
+
+machine_info(){
+  # M/B,cpu,memory,gpu,networkcard
+  sudo dmidecode -t baseboard
+  cat /proc/cpuinfo
+  cat /proc/meminfo
+  lspci | grep VGA
+  lspci | grep Ethernet
+  wichi nvidia-smi
+  # disc
+  df                       # simple disc info
+  sudo parted -l           # model
+  lsblk                    # hierarchy construction
+  ls -la /dev/disk/by-uuid # uuid
+  # read -p "Hit enter: "
+}
+
+if [[ "$(which vagrant)" = '' ]]; then
+  # . /opt/vagrant/embedded/gems/2.2.19/gems/vagrant-2.2.19/contrib/bash/completion.sh
+
+  echo 'export vagrant env var'
+  # WSL2 の Vagrant が Windows の VirtualBox を使えるようにする
+  # hostと同じバージョンのvagrantをインストール
+  # require vagrant plugin
+  # vagrant plugin install virtualbox_WSL2
+  export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS=1
+  export VAGRANT_WSL_WINDOWS_ACCESS_USER=${USER}
+  export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
+  # export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/home/${USER}/imo"
+
+  cp-to-vagrant() {
+    echo 'ex.scp -r -P 2222 -F ssh.config ./src vagrant@localhost:/home/vagrant/'
+    local src=$1
+    local dst=$2
+    local config=${3:-ssh.config}
+    local port=${3:-2222}
+    local hostname=${5:-localhost}
+    local username=${6:-vagrant}
+    if (($# < 3)); then
+      cat <<-EOF
+			2 args required
+			\$1 = filepath(host)
+			\$2 = destination(guest)
+			\$3 = config default=./${config}
+			\$4 = port default=${port}
+			\$5 = hostname default=${hostname}
+			\$6 = username default=${username}
+			EOF
+    else
+      scp -r -P ${port} -F ${config} ${src} ${username}@${hostname}:${dst}
+    fi
+  }
+
+  cp-from-vagrant() {
+    echo 'ex.scp -r -P 2222 -F ssh.config vagrant@localhost:/home/vagrant/src ./'
+    local src=$1
+    local dst=$2
+    local config=${3:-ssh.config}
+    local port=${3:-2222}
+    local hostname=${5:-localhost}
+    local username=${6:-vagrant}
+    if (($# < 3)); then
+      cat <<-EOF
+			2 args required
+			\$1 = filepath(guest)
+			\$2 = destination(host)
+			\$3 = config default=./${config}
+			\$4 = port default=${port}
+			\$5 = hostname default=${hostname}
+			\$6 = username default=${username}
+			EOF
+    else
+      scp -r -P ${port} -F ${config} ${username}@${hostname}:${src} ${dst}
+    fi
+  }
+
+fi
+
+if [ "$(grep MemTotal </proc/meminfo | awk '{print $2}')" -gt 4000000 ]; then
+  :
+fi
