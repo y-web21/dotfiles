@@ -9,12 +9,10 @@
 # export EDITOR=nano
 # export EDITOR=code --wait
 
-alias ls="ls -F"
-
 # enable i-search. (disable terminal stop)
 if [[ -t 0 ]]; then
   stty stop undef
-# stty start undef
+  # stty start undef
 fi
 
 # base type
@@ -25,13 +23,13 @@ is_slackware_based() { :; }
 is_wayland() { [ -v WAYLAND_DISPLAY ]; }
 is_xorg() { echo 1; } # X11, TBDevelopment
 # os
-is_centos() { [ "$(< /etc/redhat-release head -1 | cut -d' ' -f1 2>/dev/null)" = 'CentOS' ]; }
+is_centos() { [ "$(head </etc/redhat-release -1 | cut -d' ' -f1 2>/dev/null)" = 'CentOS' ]; }
 is_linux() { [ "$(printf '%s' "$(uname -s)" | cut -c 1-5)" = 'Linux' ]; }
 is_mac() { [ "$(uname)" = 'Darwin' ]; }
 is_ubuntu() { grep '^ID=ubuntu' /etc/os-release >/dev/null 2>&1; }
 is_debian() { grep '^ID=debian' /etc/os-release >/dev/null 2>&1; }
 # shellcheck disable=SC2317
-is_wsl() { type wslpath >/dev/null 2>&1 ; } # type2
+is_wsl() { type wslpath >/dev/null 2>&1; } # type2
 is_wsl() { [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; }
 # vm
 is_lxc_container() { sudo grep -qa container=lxc /proc/1/environ; }
@@ -48,7 +46,7 @@ if [[ -f ${shpath} ]]; then
 fi
 unset shpath
 
-# for prompt (test)
+# for ps1,prompt (test)
 type aws >/dev/null 2>&1 && _AWS_CURRENT_REGION=$(aws configure get region)
 export _AWS_CURRENT_REGION
 
@@ -59,101 +57,38 @@ export LC_ALL=en_US.UTF-8
 # brew install fzf
 export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -path '*/.node_modules' -prune -o -type f -print"
 
-[ -f /usr/local/bin/git-prompt.sh ] && . /usr/local/bin/git-prompt.sh
-[ -f "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh" ] && . "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh"
-[ -f "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.sh" ] && . "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.sh"
 
-# ============= function ==============
 
-dic() {
-  ~/dotfiles/scripts/dict.js "${1}" | grep -iE "$|${1}" --color
+if [ -f /usr/local/bin/git-prompt.sh ]; then
+  . /usr/local/bin/git-prompt.sh
+elif [ -f "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh" ]; then
+  . "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh"
+elif [ -f "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.sh" ]; then
+  . "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.sh"
+fi
 
-  # -v operator bash => 4.2
-  [ -v "$2" ] && return
-  if [ -v PLAYER ]; then
-    SOUND_URL=$(~/dotfiles/scripts/dict.js "${1}" | grep -E 'https.*mp3' | head -1)
-    if [ -n "$SOUND_URL" ]; then
-      TEMP_SOUND=$(mktemp) && {
-        curl "$SOUND_URL" -o "$TEMP_SOUND" >/dev/null 2>&1
-        $PLAYER "$TEMP_SOUND"
-        # rm -v $TEMP_SOUND
-      }
-    fi
-  fi
-  # trap '[ -v TEMP_SOUND ] && rm -v "$TEMP_SOUND"' EXIT
-  trap '[ -v TEMP_SOUND ] && rm "$TEMP_SOUND"' EXIT
-}
-
-port_listen() {
-  sudo lsof -i -P -n
-}
-
-__ssh-list-config-files() {
-
-  local SSH_DIR=$HOME/.ssh/
-
-  if test -d "$SSH_DIR"; then
-    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
-      echo "$file"
-    done
-  fi
-}
-
-__ssh-list-known-hosts() {
-
-  local SSH_DIR=$HOME/.ssh/
-
-  if test -d "$SSH_DIR"; then
-    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
-      grep ^Host "$file" | sed 's/^Host //'
-    done
-  fi
-}
-
-__ssh-list-known-keys() {
-
-  local SSH_DIR=$HOME/.ssh/
-
-  if test -d "$SSH_DIR"; then
-    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
-      grep IdentityFile "$file" | sed -E 's/^[ \t]{0,}IdentityFile //'
-    done
-  fi
-}
-
-__ssh-list-all-keys() {
-
-  local SSH_DIR=$HOME/.ssh/
-
-  if test -d "$SSH_DIR"; then
-    find "$SSH_DIR" | grep -E '(pem|pub)$' | sed 's/\.pub$//'
-  fi
-}
-
-__ssh-show-known-hosts() {
-
-  local SSH_DIR=$HOME/.ssh/
-  local displayFileName=${1:-false}
-
-  if test -d "$SSH_DIR"; then
-    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
-      if ${displayFileName}; then echo -e "\n$file"; fi
-      cat "$file"
-    done
-  fi
-}
-
-__ssh-show-known-hosts-with-filename() {
-  ssh-show-known-hosts true
-}
-
+# load bashrc related files
+test -r ~/.bashrc.local && . ~/.bashrc.local
+test -r ~/dotfiles/shell.d/funcs/main.bash && . ~/dotfiles/shell.d/funcs/main.bash
+test -r ~/dotfiles/shell.d/funcs/tools.bash && . ~/dotfiles/shell.d/funcs/tools.bash
 test -r ~/dotfiles/shell.d/.bash_aliases && . ~/dotfiles/shell.d/.bash_aliases
 
+if is_wsl; then
+  test -r ~/dotfiles/shell.d/.bashrc_wsl && . ~/dotfiles/shell.d/.bashrc_wsl
+elif is_linux; then
+  test -r ~/dotfiles/shell.d/.bashrc_linux && . ~/dotfiles/shell.d/.bashrc_linux
+elif is_mac; then
+  :
+else
+  :
+fi
+
+# package settings
 if type brew >/dev/null 2>&1; then
   if brew ls z &>/dev/null; then
     . "$HOMEBREW_PREFIX"/etc/profile.d/z.sh
   fi
 fi
 
+# completion
 type aws >/dev/null 2>&1 && complete -C '/usr/local/bin/aws_completer' aws
-

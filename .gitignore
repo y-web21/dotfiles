@@ -29,7 +29,7 @@
 !.docker/config.json
 !bin/*
 !aliases/*
-!shell.d/*
+!shell.d/**/*
 
 # doc and scripts
 !make_link.bash

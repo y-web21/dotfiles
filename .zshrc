@@ -6,9 +6,6 @@ test $shwo_zsh_execution_time -ne 0 && zmodload zsh/zprof && zprof
 # EDITOR=vim でターミナルも bindkey -v 相当にされてしまうため明示的に emacs の設定をする
 bindkey -e
 
-# common settings
-test -r ~/.shellrc && . ~/.shellrc
-
 # if [[ -o interactive ]]; then :; fi
 # login shell は bash なので、zprofile が読み込まれない
 HISTFILE=~/.zsh_history
@@ -58,6 +55,9 @@ if type brew &>/dev/null; then
   setopt correct
   SPROMPT="correct: $RED%R$DEFAULT -> $GREEN%r$DEFAULT ? [Yes/No/Abort/Edit] => "
 fi
+
+# common settings
+test -r ~/.shellrc && . ~/.shellrc
 
 # alias -s pdf=xpdf
 # alias -g

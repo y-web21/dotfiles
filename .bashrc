@@ -65,20 +65,7 @@ history() {
   builtin history "$@"
 }
 
-if is_wsl; then
-  test -r ~/dotfiles/shell.d/bash.d/.bashrc_wsl && . ~/dotfiles/shell.d/bash.d/.bashrc_wsl
-elif is_linux; then
-  test -r ~/dotfiles/shell.d/bash.d/.bashrc_linux && . ~/dotfiles/shell.d/bash.d/.bashrc_linux
-elif is_mac; then
-  :
-else
-  echo 'nomatch'
-fi
-
-# test -r ~/.bash_aliases && . ~/.bash_aliases
-test -r ~/.bashrc.local && . ~/.bashrc.local
 test -r ~/dotfiles/shell.d/modules/keybinds_bash && . ~/dotfiles/shell.d/modules/keybinds_bash
-test -r ~/dotfiles/shell.d/funcs/tools.bash && . ~/dotfiles/shell.d/funcs/tools.bash
 test -f ~/dotfiles/private/shell.d/post.bash && . ~/dotfiles/private/shell.d/post.bash
 
 # load homebrew bash-completion file by apt bash-completion.
