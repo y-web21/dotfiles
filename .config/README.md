@@ -1,5 +1,11 @@
 # README
 
+## [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
+
+- `XDGBDS`は必須ではないが、強く推奨されている。
+- ホームが設定ファイルだらけになるので、対応しているものはなるべく`XDG_CONFIG_HOME`に置く
+  - 基本ロケーションは `$HOME/.config`、環境変数`$XDG_CONFIG_HOME`に従う。
+
 ## peco/config.json
 
 [peco/README.md at master · peco/peco](https://github.com/peco/peco/blob/master/README.md)

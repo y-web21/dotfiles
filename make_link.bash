@@ -11,29 +11,29 @@ FORCE=0
 test -n "$1" && test "$1" = '-f' && FORCE=1
 
 make_link() {
-  local rel_path abs_path
-  rel_path=${1}
-  abs_path=${HOME}/${rel_path}
+  local entity_path symlink_path
+  entity_path=${1} # rel
+  symlink_path=${HOME}/${entity_path} # abs
 
   if [ "$FORCE" = 1 ];then
-    rm "${abs_path}" 2>/dev/null
-    _mk_dir "$abs_path"
-    _do_link "$rel_path"
+    rm "${symlink_path}" 2>/dev/null
+    _mk_dir "$symlink_path"
+    _do_link "$entity_path"
     return
   fi
 
   # interactive mode
-  read -rp "execute:  ln -s $(pwd)/${rel_path} ${abs_path}"' ok? (y/N) ' input
+  read -rp "execute:  ln -s ./${entity_path} ${symlink_path}"' ok? (y/N) ' input
   [ "$input" != "y" ] && return
 
-  echo "${abs_path}"
-  if [ -e "${abs_path}" ]; then
+  echo "${symlink_path}"
+  if [ -e "${symlink_path}" ]; then
     read -rp "file already exist. remove the file? (y/N) " input
     test "${input}" != "y" && return # continue
-    rm "${abs_path}"
+    rm "${symlink_path}"
   fi
-  _mk_dir "$abs_path"
-  _do_link "$rel_path"
+  _mk_dir "$symlink_path"
+  _do_link "$entity_path"
 }
 
 _mk_dir(){

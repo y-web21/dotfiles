@@ -61,6 +61,10 @@ __git_hash(){
   __set_buffer "$(g-l)"
 }
 
+__git_hash_reflog(){
+  __set_buffer "$(g-l reflog)"
+}
+
 __interactive_cd() {
   local DIR
   while true; do
@@ -256,6 +260,7 @@ if [ -n "$BASH_VERSION" ]; then
   bind -x '"\eg\ef": __rg_file_uu'
   bind -x '"\eG\eF": __rg_file'
   bind -x '"\eg\eh": __git_hash'
+  bind -x '"\eg\eH": __git_hash_reflog'
   bind -x '"\ejj": __z'
   bind -x '"\ej\ej": __cd_z'
   bind -x '"\e;": __ls_al_readline'
