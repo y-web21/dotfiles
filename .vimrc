@@ -1,4 +1,3 @@
-
 " init all settings
 set all&
 " init autocmd
@@ -138,6 +137,16 @@ endif
 " finish loading vimrc if tiny or small version.
 "------------------------------------
 if !1 | finish | endif
+
+"------------------------------------
+" custom command
+"------------------------------------
+cnoreabbrev vt VerticalTerminal
+command! -nargs=0 VerticalTerminal echo s:VerticalTerminal()
+function! s:VerticalTerminal()
+  :vert term
+  :call feedkeys("\<C-w>r")
+endfunction
 
 "------------------------------------
 " key binding memo
