@@ -128,7 +128,7 @@ git-i-staging() {
       # shellcheck disable=2086
       git diff --color=always $selects | less -R
     elif [ "$input" = alt-D ]; then
-      git diff --color=always --cached
+      git diff --color=always --cached | less -R
     elif [ "$input" = alt-h ]; then
       # hank 単位での add
       # shellcheck disable=2086
