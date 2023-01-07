@@ -16,15 +16,30 @@ aliases:
     fpr: |-
       !gh pr list -s all | column -t -s "$(printf '\t')" |
         fzf-tmux -p 90% --preview-window=bottom:65%,+4 \
-          --query="'OPEN " \
+          --query="${1:-'OPEN }" \
           --bind alt-p:preview-up,alt-n:preview-down \
+          --bind="alt-w:execute(gh pr view {1} -w)" \
           --preview "gh pr view {1} | bat --color=always -l md"
     fis: |-
-      !gh issue list -s all | column -t -s "$(printf '\t')" |
+      !select="$(gh issue list -s all | column -t -s "$(printf '\t')" |
         fzf-tmux -p 90% --preview-window=bottom:65%,+4 \
-          --query="'OPEN " \
+          --query="${1:-'OPEN }" \
+          --expect=alt-b \
           --bind alt-p:preview-up,alt-n:preview-down \
-          --preview "gh issue view {1} | bat --color=always -l md"
+          --bind="alt-w:execute(gh issue view {1} -w)" \
+          --preview "gh issue view {1} | bat --color=always -l md" )"
+      [ -z "${select}" ] && return
+      key=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 1)
+      line=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 2)
+      id=$(echo $line | awk '{print $1}')
+      case "${key}" in
+        alt-b)
+          git checkout -b feature/#${id} || git checkout feature/#${id}
+        ;;
+        *)
+          gh issue view ${id}
+        ;;
+      esac
     fgist: |-
         !select="$(gh api https://api.github.com/gists --paginate |
           jq -r ' .[] | .files[] as $files | [ ( $files.language // "unknown" ) , $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" |
