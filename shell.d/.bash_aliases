@@ -97,7 +97,6 @@ if is_debian_based; then
   alias _apt-outdated='sudo apt update && apt list --upgradable'
   alias _apt-update-single-package='sudo apt install --only-upgrade'
   alias _alldeclare='set'
-  alias _alias=__-alias; __-alias(){ alias | grep -E "${1:-.*}" "${@:2}" --color; }
   alias _functions='declare -f'
 fi
 
@@ -142,13 +141,12 @@ alias _ping='ping -c 5'
 alias _fastping='ping -c 100 -s.2'
 alias _ports='netstat -tulanp'
 
-# test loobback address
-alias _lb='__curl_local_host__'
-__curl_local_host__(){
-  curl 127.0.0.1:${1:-8000} ${2}
-}
+# test loopback address
+# shellcheck disable=2142
+alias _lb='f(){ curl 127.0.0.1:${1:-8000} ${2}; }; f'
 # lsof -i:8080 | awk '{print $2}' | tail +2 | xargs kill
-alias _po=__po__; __po__(){ lsof -i:${1}; }
+# shellcheck disable=2142
+alias _po='f(){ lsof -i:${1}; }; f'
 
 # get web server headers #
 alias header='curl -I'
@@ -172,23 +170,20 @@ alias httpdtest='sudo /usr/sbin/apachectl -t && /usr/sbin/apachectl -t -D DUMP_V
 
 alias py='python3.10'
 
-# -- applications below -- #
-if bundle -v >/dev/null 2>&1; then
+# --------------------
+# for packages
+# --------------------
+if type bundle >/dev/null 2>&1; then
   alias _jkwatch='undle exec jekyll serve --force-polling --drafts --livereload --host=0.0.0.0' # --port 4001 --detach
 fi
 
-# if wl-copy -v >/dev/null 2>&1;then
-if [ -f .nix-profile/bin/wl-copy ];then
-  alias clip='wl-copy'
-fi
-
-if which code-server >/dev/null 2>&1; then
-  if ! which code >/dev/null 2>&1;then
+if type code-server >/dev/null 2>&1; then
+  if ! type code >/dev/null 2>&1;then
     alias code='code-server'
   fi
 fi
 
-if which youtube-dl >/dev/null 2>&1; then
+if type youtube-dl >/dev/null 2>&1; then
   alias ydl-sub-en='youtube-dl --no-cache-dir --write-auto-sub --sub-lang en'
   alias ydl-sub-ja='youtube-dl --no-cache-dir --write-auto-sub --sub-lang ja'
 fi
@@ -197,15 +192,19 @@ if type rg &>/dev/null; then
   alias rgd='rg --hidden --files --null | xargs -0 dirname | sort -u | uniq'
 fi
 
-# -- include dedicated files -- #
+# --------------------
+# include dedicated files
+# --------------------
 # shellcheck source=/dev/null # [sample] Avoid warning SC1090
 SRC=$HOME/dotfiles/aliases
 while read -d $'\0' file; do
     source "${file}"
-done < <(find ${SRC} -mindepth 1 -maxdepth 1 -print0)
+done < <(find "${SRC}" -mindepth 1 -maxdepth 1 -print0)
 unset SRC
 
-# -- for bash completions -- #
+# --------------------
+# for bash completions
+# --------------------
 # /usr/share/bash-completion/completions/systemctl
 # complete -F _systemctl systemctl s
 alias s='systemctl '

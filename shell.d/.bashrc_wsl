@@ -47,6 +47,9 @@ test -e ~/.gitconfig.local || ln -s "${WINHOME}"/dotfiles_common/.gitconfig.loca
 # shellcheck disable=2142
 [ -n "$ZSH_VERSION" ] && alias chrome='(){/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe $(wslpath -w $(realpath $1))}'
 
+# shellcheck disable=2142
+[ -n "$BASH_VERSION" ] && alias chrome='f(){ "/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe" $(wslpath -w $(realpath "$1")); }; f'
+
 # chrome(){
 #   /mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe "$(wslpath -w "$(realpath "${1}")")"
 # }
