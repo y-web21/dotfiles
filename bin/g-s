@@ -89,7 +89,7 @@ git-i-staging() {
     ret_fzf=$(
       echo "$target" |
         sed -e '$ s/ $//g; s/ /\n/g' | # --query "$query" --print-query \
-        fzf-tmux --multi \
+        fzf-tmux -p 90% --multi \
           --exit-0 \
           --preview-window=right:80%,~4 \
           --reverse \
