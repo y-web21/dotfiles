@@ -6,9 +6,7 @@ autocmd!
 "------------------------------------
 " Open & Reload .vimrc
 "------------------------------------
-" set foldmethod=expr
-" set modeline
-" command! Evimrc  e $MYVIMRC
+command! Evimrc e $MYVIMRC
 
 augroup source-vimrc
   autocmd!
@@ -19,12 +17,46 @@ augroup END
 "------------------------------------
 " general
 "------------------------------------
-set nocompatible  " vi vim を別物 プラグインの誤動作を防止
 set encoding=utf-8
 set fileencodings=utf-8,cp932,euc-jp,sjis
-"set fileencodings=iso-2022-jp,enc-jp,enc-jp,sjis,utf-8
 set fileformats=unix,dos,mac
 set shell=/bin/bash
+set mouse=a
+" set modeline
+
+"------------------------------------
+" color theme
+"------------------------------------
+function UpdateColorScheme()
+  if &readonly && &buftype ==# ""
+    " readonly and not helpfile
+    colorscheme evening
+  else
+    let l:cmd = printf('test -x %s', expand('%'))
+    let l:_ = system(l:cmd)
+    if v:shell_error != 0
+      colorscheme murphy
+    else
+      colorscheme default
+      "  colorscheme torte
+    endif
+  endif
+endfunction
+autocmd BufReadPost,BufEnter * call UpdateColorScheme()
+
+"------------------------------------
+" status line
+"------------------------------------
+" always display
+set laststatus=2
+set statusline=%3*[%{mode()}]\ %*
+set statusline+=%F%m%r%h%w%=
+set statusline+=\ %{fugitive#statusline()}
+set statusline+=\ [%{&ff}:%{&fileencoding}]
+set statusline+=\ [%Y]
+set statusline+=\ [%04l,%04v]
+set statusline+=\ [%p%%/%L]
+set statusline+=\ %{strftime(\"%Y/%m/%d\ %H:%M:%S\")}
 
 "------------------------------------
 " appearance settings
@@ -65,7 +97,6 @@ set title
 set list  " 不可視文字を表示する
 set listchars=tab:>-,trail:.  " タブを >--- 半スペを . で表示する
 set number
-set statusline=%F%m%r%h%w%=\ %{fugitive#statusline()}\ [%{&ff}:%{&fileencoding}]\ [%Y]\ [%04l,%04v]\ [%l/%L]\ %{strftime(\"%Y/%m/%d\ %H:%M:%S\")}
 
 
 if has("autocmd")
@@ -96,8 +127,8 @@ endif
 "------------------------------------
 " normal mode settings
 "------------------------------------
-" set ignorecase " with smartcase
-set smartcase  " lower upperのみのときはignorecaseしない
+set ignorecase
+set smartcase " require ignorecase
 
 "------------------------------------
 " command line mode settings
@@ -141,13 +172,27 @@ if !1 | finish | endif
 "------------------------------------
 " custom command
 "------------------------------------
+cnoreabbrev vsv vert sview
+cnoreabbrev vsview vert sview
+cnoreabbrev reload source $MYVIMRC
 cnoreabbrev vt VerticalTerminal
+cnoreabbrev vterm VerticalTerminal
+
 command! -nargs=0 VerticalTerminal echo s:VerticalTerminal()
 function! s:VerticalTerminal()
   :vert term
   :call feedkeys("\<C-w>r")
 endfunction
 
+command! SamplePy3 echo s:py3(expand('%'), getpos('.'))
+
+function! s:py3(file, pos)
+  let l:line = a:pos[1]
+  let l:cmd = printf('tmux-send-keys /usr/bin/env python3 %s', a:file)
+  return system(l:cmd)
+endfunction
+
+nnoremap py3 :<C-u>SamplePy3<Return>
 "------------------------------------
 " key binding memo
 "------------------------------------
@@ -159,6 +204,14 @@ endfunction
 " :nmap
 " :vmap
 " :verbose nmap
+
+"------------------------------------
+" enable alt modifier (linux)
+"------------------------------------
+" :help :set-termcap
+execute "set <M-b>=\eb"
+execute "set <M-f>=\ef"
+execute "set <M-k>=\ek"
 "------------------------------------
 " Normal, Visual, Select, Operator-pendin mode key binding
 "------------------------------------
@@ -176,7 +229,7 @@ nnoremap gj j
 nnoremap gk k
 nnoremap ; :
 nnoremap : ;
-nnoremap <ESC><ESC> :nohl<CR>
+nnoremap <silent> <ESC><ESC> :<C-u>nohlsearch<CR>
 nnoremap ZQ <Nop>
 nnoremap <Space>/ *
 
@@ -223,6 +276,8 @@ cnoremap <C-e> <End>
 cnoremap <C-f> <Right>
 cnoremap <C-n> <Down>
 cnoremap <C-p> <Up>
+cnoremap <C-k> <C-\>e(strpart(getcmdline(), 0, getcmdpos() - 1))<CR>
+cnoremap <M-k> <C-k>
 cnoremap <M-b> <S-Left>
 cnoremap <M-f> <S-Right>
 
