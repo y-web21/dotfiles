@@ -27,6 +27,7 @@ fi
 
 if type fzf &>/dev/null; then
   export FZF_DEFAULT_OPTS='--reverse --bind=enter:accept,alt-p:preview-up,alt-n:preview-down'
+  export FZF_DEFAULT_OPTS+=',shift-up:preview-top,shift-down:preview-bottom'
 fi
 
 # set PATH so it includes user's private bin if it exists
