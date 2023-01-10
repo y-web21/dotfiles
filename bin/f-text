@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+
+describe() {
+  cat <<-EOS
+		text view
+		Positional Args:
+		  arg1 = base directory (default .)
+		  arg2 = find depth (default 3)
+		Keybinds:
+		  esc:    exit
+		  ctrl-c: exit
+		  ctrl-j: view
+		  enter:  view
+		  alt-o:  open with \$EDITOR
+		  ctrl-o: open with \$EDITOR
+		  alt-e:  open with vim
+		  alt-f:  search by find
+		  alt-g:  search by grep
+		  alt-r:  rename
+		  alt-R:  remove
+	EOS
+}
+
+_do_fzf() {
+  cmd="$1"
+  preview="$2"
+  query="$3"
+  eval "${cmd}" |
+    fzf-tmux -p 90% \
+      --query="${query:-}" \
+      --preview-window=bottom:70%,+4 \
+      --preview "${preview}" \
+      --bind alt-p:preview-up,alt-n:preview-down \
+      --expect=esc,ctrl-c \
+      --expect=alt-o,ctrl-o,alt-e,ctrl-j \
+      --expect=alt-f,alt-g \
+      --expect=alt-r,alt-R
+}
+
+fzf_text() {
+  local cmd preview
+  local find_cmd find_preview find_excludes grep_excludes
+  local dir_ select_ key line file
+  local yn regex
+
+  dir_=${1:-.}
+  find_excludes="-path '*/node_modules' -prune -o -path '*.git' -prune -o -path '*.obsidian' -prune -o"
+  find_preview="bat --color=always --wrap=auto {}"
+  find_cmd="find -L $dir_  -maxdepth ${2:-3} ${find_excludes} -type f -print"
+  grep_excludes="--exclude-dir={node_modules,.git,.obsidian} --exclude={*.jpg,*.png}"
+  cmd=$find_cmd
+  preview=$find_preview
+  regex=''
+
+  while true; do
+    select_=$(_do_fzf "${cmd}" "$preview" "$file")
+    key=$(printf '%s' "$select_" | tr '\n' '&' | cut -d'&' -f 1)
+    line=$(printf '%s' "$select_" | tr '\n' '&' | cut -d'&' -f 2)
+    file="$line"
+
+    case "${key}" in
+    esc | ctrl-c)
+      return
+      ;;
+    alt-f)
+      cmd="${find_cmd}"
+      preview="${find_preview}"
+      file=''
+      ;;
+    alt-g)
+      read -er -i "$regex" -p 'Enter grep regex: ' regex
+      cmd="grep -aRlEi $regex $dir_ $grep_excludes"
+      read -er -i "$cmd" -p 'cmd OK?: ' cmd
+      preview="grep -C 5 -nEi $regex {} --color=always"
+      read -er -i "$preview" -p 'fzf preview cmd OK?: ' preview
+      file=''
+      ;;
+    alt-r)
+      read -er -i "$file" -p "Please enter new file name: " input
+      if test -n "$input"; then
+        yn=y
+        test -e "$input" && read -er -i 'N' -p "${input} is already exists, over write? (y|N)" yn
+        test "$yn" = y && echo mv "$file" "$input" && mv "$file" "$input" &&
+          file=$input
+      fi
+      ;;
+    alt-R)
+      yn=n
+      echo -n -i 'N' "delete ${file}? (y|N)" yn
+      test "$yn" = y && rm "$file"
+      ;;
+    "" | ctrl-j)
+      bat "$file" --paging always
+      ;;
+    alt-e)
+      # vim -c start "$file"
+      vim "$file"
+      ;;
+    alt-o | ctrl-o)
+      ${EDITOR:-code} "$file"
+      ;;
+    *) ;;
+
+    esac
+  done
+
+}
+
+if [[ "$1" = '--help' || "$1" = '-h' ]]; then
+  describe
+else
+  fzf_text "$@"
+fi
