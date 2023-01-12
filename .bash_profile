@@ -21,7 +21,7 @@ fi
 HISTSIZE=300000 # current process
 HISTFILESIZE=300000 # .bash_history
 HISTTIMEFORMAT='%F %T '
-HISTIGNORE='history:pwd:ls:ls *:ll:lla:cd:..:gl:glo'
+HISTIGNORE='history:pwd:ls:\:*:ll:lla:cd:..:gl:glo'
 HISTCONTROL=ignorespace:ignoredups:erasedups
 export HISTSIZE HISTCONTROL HISTTIMEFORMAT HISTIGNORE HISTCONTROL
 # do not append .bash_history when the end of session (append by PROMPT_COMMAND)
