@@ -80,10 +80,12 @@ alias nowtime=now
 alias nowdate='date +"%d-%m-%Y"'
 
 # clipboard base
-alias C="sed -z -e '$ s/\n//' |xclip -selection c"
+alias C="sed -z -e '$ s/\n//' | xclip -selection c"
+clip(){ sed -z -e '$ s/\n//' | xclip -selection c; }
 
 if ! is_mac; then
   alias C="gsed -z -e '$ s/\n//' | pbcopy"
+  clip(){ gsed -z -e '$ s/\n//' | pbcopy; }
   # open app by extension
   alias open='xdg-open'
 fi
@@ -92,6 +94,7 @@ if is_debian_based; then
   if is_wayland; then
     # apt install wl-cpoy
     alias C="sed -z -e '$ s/\n//' | wl-copy"
+    clip(){ sed -z -e '$ s/\n//' | wl-copy; }
   fi
   alias sai='sudo apt install -y'
   alias _apt-outdated='sudo apt update && apt list --upgradable'
@@ -102,6 +105,7 @@ fi
 
 if is_wsl;then
   alias C="sed -z -e '$ s/\n//' | clip.exe"
+  clip(){ sed -z -e '$ s/\n//' | clip.exe; }
   alias CP="powershell.exe –noprofile -command Get-clipboard"
   alias e.='explorer.exe .'
 

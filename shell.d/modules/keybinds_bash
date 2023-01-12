@@ -4,14 +4,14 @@
 # shellcheck disable=1090
 test -r ~/dotfiles/bin/b-l && . ~/dotfiles/bin/b-l
 
-__get_buffer(){
+__get_buffer() {
   if [ -n "$ZSH_VERSION" ]; then
     echo "${BUFFER}"
   fi
   echo "${READLINE_LINE}"
 }
 
-__set_buffer(){
+__set_buffer() {
   if [ -n "$ZSH_VERSION" ]; then
     BUFFER="${BUFFER}${1}"
     # shellcheck disable=2034
@@ -22,17 +22,95 @@ __set_buffer(){
 }
 
 __history_with_fzf() {
-  local ret
+
+  if [ "$READLINE_LINE" == 'help' ];then
+    cat <<-EOS
+			fzf history
+			Keybinds:
+			  enter:  paste to readline (not multi selectable)
+			  esc:    exit
+			  ctrl-c: exit
+			  alt-a:  toggle-all
+			  alt-c:  yank history
+			  alt-y:  yank history
+			  ctrl-y: yank history
+			  alt-l:  output to file
+			  ctrl-l: output to file
+			  alt-d:  delete picked from history
+			  alt-D:  run script (remove dupes)
+		EOS
+    READLINE_LINE=''
+    return
+  fi
+
+  local ret key pick HISTFILE_tmp filename
+  HISTFILE_tmp="${HISTFILE}tmp"
   # add current session history to ~/.bash_history
   history -a
-  ret=$(
-    HISTTIMEFORMAT=''
-    tac ~/.bash_history | grep -av '^#' | uniq | fzf-tmux -p 90% --height 80% --no-sort --layout=reverse-list --query "$READLINE_LINE"
-  )
-  if [ '' = "$ret" ]; then return; fi
-  # put text in the bash command line buffer
-  READLINE_LINE="$ret"
-  READLINE_POINT=${#ret}
+
+  while true; do
+    ret=$(
+      HISTTIMEFORMAT=''
+      tac "${HISTFILE}" | grep -nav '^#' | uniq |
+        fzf-tmux -w 50% -h 60% --height 80% \
+          --layout=reverse-list \
+          --no-sort \
+          --multi \
+          --query "$READLINE_LINE" \
+          --bind=alt-a:toggle-all \
+          --expect=esc,ctrl-c \
+          --expect=alt-c,alt-y,ctrl-y \
+          --expect=alt-l,ctrl-l \
+          --expect=alt-d,alt-D
+    )
+
+    key=$(printf '%s' "$ret" | tail +1 | head -1)
+    pick=$(printf '%s' "$ret" | tail +2 | head -1)
+
+    case "${key}" in
+    esc | ctrl-c) ;;
+    alt-c | alt-y | ctrl-y)
+      while read -r i; do
+        echo "$i" >> "$HISTFILE_tmp"
+      done < <(echo "$ret" | tail +2 | cut -d ':' -f 2-)
+      < "$HISTFILE_tmp" clip
+      ;;
+    alt-l | ctrl-l)
+      while read -r i; do
+        echo "$i" >> "$HISTFILE_tmp"
+      done < <(echo "$ret" | tail +2 | cut -d ':' -f 2-)
+      read -re -p 'output filepath: ' -i "$HOME/history_log" filename
+      test -n "$filename" && cp "$HISTFILE_tmp" "$filename"
+      ;;
+    alt-d)
+      # ret(del_line)は選択順なので降順に並び直してから当該行を削除する
+      del_line=()
+      while read -r i; do
+        del_line+=("$(echo "$i" | cut -d ':' -f 1)")
+      done < <(echo "$ret" | tail +2 | tac)
+
+      tac "${HISTFILE}" >"${HISTFILE_tmp}"
+      while read -r i; do
+        sed -i -e "${i}d" "${HISTFILE_tmp}"
+      done < <(for i in "${del_line[@]}"; do echo "$i"; done | sort -rn)
+      tac "${HISTFILE_tmp}" >"${HISTFILE}"
+      continue
+      ;;
+    alt-D)
+      echo remove dupes.
+      "${HOME}/bin/remove_dupes_from_timestamped_bash_history.bash"
+      continue
+      ;;
+    *)
+      # put text in the bash command line buffer
+      READLINE_LINE="$(echo "$pick" | cut -d ':' -f 2-)"
+      ;;
+    esac
+    break
+  done
+
+  test -e "${HISTFILE_tmp}" && rm "${HISTFILE_tmp}"
+  READLINE_POINT=${#pick}
 }
 
 __pick_env() {
@@ -57,11 +135,11 @@ __pick_docker_container() {
   __set_buffer " $RET"
 }
 
-__git_hash(){
+__git_hash() {
   __set_buffer "$(g-l)"
 }
 
-__git_hash_reflog(){
+__git_hash_reflog() {
   __set_buffer "$(g-l reflog)"
 }
 
@@ -151,9 +229,9 @@ __rg_edit() {
     fi
     ((i++))
   done < <(
-    rg --color=never $rgopt "$(__get_buffer)"  |
+    rg --color=never $rgopt "$(__get_buffer)" |
       fzf \
-        --query "$(__get_buffer)"  \
+        --query "$(__get_buffer)" \
         --delimiter=':' \
         --reverse \
         --expect=alt-l \
@@ -178,14 +256,14 @@ __rg_file() {
   local rgopt
   rgopt=${1:-"-u -e"}
   # shellcheck disable=2086
-  rg --files | rg --color=always $rgopt "$(__get_buffer)"  | bat --style plain
+  rg --files | rg --color=always $rgopt "$(__get_buffer)" | bat --style plain
 }
 
 __cd_z() {
   local fol jumper
   jumper=z
   type zoxide >/dev/null 2>&1 && jumper='zoxide query --score --list'
-  fol=$(eval "$jumper" | fzf-tmux -p -w70% -h90% -x10 --height 40% --reverse --preview='ls -lCF {2} --color' --preview-window='top:30%'  | awk '{print $NF}')
+  fol=$(eval "$jumper" | fzf-tmux -p -w70% -h90% -x10 --height 40% --reverse --preview='ls -lCF {2} --color' --preview-window='top:30%' | awk '{print $NF}')
   if [ '' = "$fol" ]; then return; fi
   cd "$fol" || return
   pwd
@@ -195,7 +273,7 @@ __z() {
   local fol jumper
   jumper=z
   type zoxide >/dev/null 2>&1 && jumper='zoxide query --score --list'
-  fol=$(eval "$jumper" | fzf-tmux -p -w70% -h90% -x10 --height 40% --reverse --preview='ls -lCF {2} --color' --preview-window='top:30%'  | awk '{print $NF}')
+  fol=$(eval "$jumper" | fzf-tmux -p -w70% -h90% -x10 --height 40% --reverse --preview='ls -lCF {2} --color' --preview-window='top:30%' | awk '{print $NF}')
   if [ '' = "$fol" ]; then return; fi
   __set_buffer "$fol"
 }
