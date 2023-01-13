@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# shellcheck source=/dev/null
+. "$HOME/dotfiles/shell.d/func/is.bash"
+
+prepare() {
+  if [ -p /dev/stdin ]; then
+    _clip "$(cat -)" "$@"
+  else
+    _clip "$@"
+  fi
+}
+
+_clip() {
+  if is_wsl; then
+    printf '%s' "$*" | sed -z -e '$ s/\n//' | clip.exe
+  elif ! is_mac; then
+    printf '%s' "$*" | gsed -z -e '$ s/\n//' | pbcopy
+  elif is_debian_based; then
+    if is_wayland; then
+      printf '%s' "$*" | sed -z -e '$ s/\n//' | wl-copy
+    else
+      printf '%s' "$*" | sed -z -e '$ s/\n//' | xclip -selection c
+    fi
+  fi
+}
+
+prepare "$@"

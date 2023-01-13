@@ -15,25 +15,7 @@ if [[ -t 0 ]]; then
   # stty start undef
 fi
 
-# base type
-is_debian_based() { [ -f /etc/debian_version ]; } # /etc/os-release ID_LIKE=debian || ID=debian
-is_redhat_based() { [ -f /etc/redhat-release ]; }
-is_slackware_based() { :; }
-# window
-is_wayland() { [ -v WAYLAND_DISPLAY ]; }
-is_xorg() { echo 1; } # X11, TBDevelopment
-# os
-is_centos() { [ "$(head </etc/redhat-release -1 | cut -d' ' -f1 2>/dev/null)" = 'CentOS' ]; }
-is_linux() { [ "$(printf '%s' "$(uname -s)" | cut -c 1-5)" = 'Linux' ]; }
-is_mac() { [ "$(uname)" = 'Darwin' ]; }
-is_ubuntu() { grep '^ID=ubuntu' /etc/os-release >/dev/null 2>&1; }
-is_debian() { grep '^ID=debian' /etc/os-release >/dev/null 2>&1; }
-# shellcheck disable=SC2317
-is_wsl() { type wslpath >/dev/null 2>&1; } # type2
-is_wsl() { [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; }
-# vm
-is_lxc_container() { sudo grep -qa container=lxc /proc/1/environ; }
-is_crostini() { is_debian && is_lxc_container; }
+. "$HOME/dotfiles/shell.d/func/is.bash"
 
 # =========== ENV, VAR ===========
 export LESSCHARSET=utf-8
@@ -68,8 +50,8 @@ elif [ -f "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.s
 fi
 
 # load bashrc related files
-test -r ~/dotfiles/shell.d/funcs/main.bash && . ~/dotfiles/shell.d/funcs/main.bash
-test -r ~/dotfiles/shell.d/funcs/tools.bash && . ~/dotfiles/shell.d/funcs/tools.bash
+test -r ~/dotfiles/shell.d/func/main.bash && . ~/dotfiles/shell.d/func/main.bash
+test -r ~/dotfiles/shell.d/func/tools.bash && . ~/dotfiles/shell.d/func/tools.bash
 test -r ~/dotfiles/shell.d/.bash_aliases && . ~/dotfiles/shell.d/.bash_aliases
 
 if is_wsl; then
