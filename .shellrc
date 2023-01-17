@@ -39,8 +39,6 @@ export LC_ALL=en_US.UTF-8
 # brew install fzf
 export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -path '*/.node_modules' -prune -o -type f -print"
 
-
-
 if [ -f /usr/local/bin/git-prompt.sh ]; then
   . /usr/local/bin/git-prompt.sh
 elif [ -f "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh" ]; then
@@ -52,6 +50,7 @@ fi
 # load bashrc related files
 test -r ~/dotfiles/shell.d/func/main.bash && . ~/dotfiles/shell.d/func/main.bash
 test -r ~/dotfiles/shell.d/func/tools.bash && . ~/dotfiles/shell.d/func/tools.bash
+test -r ~/dotfiles/shell.d/func/fzf.bash && . ~/dotfiles/shell.d/func/fzf.bash
 test -r ~/dotfiles/shell.d/.bash_aliases && . ~/dotfiles/shell.d/.bash_aliases
 
 if is_wsl; then

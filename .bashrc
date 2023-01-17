@@ -86,3 +86,11 @@ unset -f load_brew_completion
 
 type gh >/dev/null 2>&1 && eval "$(gh completion -s bash)"
 type zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
+
+# Source
+# --------------------
+# added by ./Cellar/fzf/0.35.1/install
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+# lib
+test -r ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.bash && . ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.bash

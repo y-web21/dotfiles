@@ -134,3 +134,11 @@ if [ $shwo_zsh_execution_time -ne 0 ]; then
     zprof
   fi
 fi
+
+# Source
+# --------------------
+# added by ./Cellar/fzf/0.35.1/install
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# lib
+[ -f ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.zsh ] && source ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.zsh

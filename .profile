@@ -27,10 +27,10 @@ fi
 
 if type fzf &>/dev/null; then
   export FZF_DEFAULT_OPTS='--reverse --bind=enter:accept,alt-p:preview-up,alt-n:preview-down'
-  export FZF_DEFAULT_OPTS+=',shift-up:preview-top,shift-down:preview-bottom'
-  export FZF_DEFAULT_OPTS+=',ctrl-alt-j:jump-accept,alt-j:jump'
-  export FZF_DEFAULT_OPTS+=',alt-a:toggle-all'
-  export FZF_DEFAULT_OPTS+=','\''?:toggle-preview'\'''
+  export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS",shift-up:preview-top,shift-down:preview-bottom
+  export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS",ctrl-alt-j:jump-accept,alt-j:jump
+  export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS",alt-a:toggle-all
+  export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS"',?:toggle-preview'
 
   # shellcheck disable=2016,2089
   FZF_CTRL_T_OPTS='--preview-window=right:65% --preview '\'' \
@@ -54,6 +54,7 @@ if type fzf &>/dev/null; then
       cd)               fzf --preview 'tree -C {} | head -200'   "$@" ;;
       export|unset)     fzf --preview "eval 'echo \$'{}"         "$@" ;;
       ssh)              fzf --preview 'dig {}'                   "$@" ;;
+      docker)           fzf --header 'ctrl-a,d,t: multi-select'  "$@" ;;
       *)                fzf --preview 'bat -n --color=always {}' "$@" ;;
     esac
   }
