@@ -13,7 +13,7 @@ prepare() {
 
 _clip() {
   if is_wsl; then
-    printf '%s' "$*" | sed -z -e '$ s/\n//' | clip.exe
+    printf '%s' "$*" | clip.exe
   elif ! is_mac; then
     printf '%s' "$*" | gsed -z -e '$ s/\n//' | pbcopy
   elif is_debian_based; then
