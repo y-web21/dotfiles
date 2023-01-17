@@ -24,6 +24,12 @@ set shell=/bin/bash
 set mouse=a
 " set modeline
 
+" don't allow editing of read only files
+augroup ro-edit
+  autocmd!
+  autocmd BufRead * let &l:modifiable = !&readonly
+augroup END
+
 "------------------------------------
 " color theme
 "------------------------------------
@@ -98,28 +104,25 @@ set list  " 不可視文字を表示する
 set listchars=tab:>-,trail:.  " タブを >--- 半スペを . で表示する
 set number
 
-
-if has("autocmd")
-  augroup tab_setting
-    autocmd!
-    "ファイルタイプの検索を有効にする
-    filetype plugin on
-    "ファイルタイプに合わせたインデントを利用
-    filetype indent on
-    "sw=shiftwidth, sts=softtabstop, ts=tabstop, et=expandtabの略
-    autocmd FileType c           setlocal sw=4 sts=4 ts=4 et
-    autocmd FileType sh          setlocal sw=2 sts=2 ts=2 et
-    autocmd FileType bash        setlocal sw=2 sts=2 ts=2 et
-    autocmd FileType zsh         setlocal sw=2 sts=2 ts=2 et
-    autocmd FileType python      setlocal sw=4 sts=4 ts=4 et
-    autocmd FileType json        setlocal sw=2 sts=2 ts=2 et
-    autocmd FileType html        setlocal sw=2 sts=2 ts=2 et
-    autocmd FileType css         setlocal sw=4 sts=4 ts=4 et
-    autocmd FileType scss        setlocal sw=4 sts=4 ts=4 et
-    autocmd FileType sass        setlocal sw=4 sts=4 ts=4 et
-    autocmd FileType javascript  setlocal sw=2 sts=2 ts=2 et
-  augroup END
-endif
+augroup tab_setting
+  autocmd!
+  "ファイルタイプの検索を有効にする
+  filetype plugin on
+  "ファイルタイプに合わせたインデントを利用
+  filetype indent on
+  "sw=shiftwidth, sts=softtabstop, ts=tabstop, et=expandtabの略
+  autocmd FileType c           setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType sh          setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType bash        setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType zsh         setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType python      setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType json        setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType html        setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType css         setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType scss        setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType sass        setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType javascript  setlocal sw=2 sts=2 ts=2 et
+augroup END
 
 if filereadable(expand("~/.vimrc.local"))
   source ~/.vimrc.local
@@ -233,12 +236,12 @@ nnoremap <silent> <ESC><ESC> :<C-u>nohlsearch<CR>
 nnoremap ZQ <Nop>
 nnoremap <Space>/ *
 
-augroup main
+augroup NormalModeBreak
   autocmd!
 augroup END
 
 "" Insert line break by Enter in normal mode
-autocmd main BufWinEnter *
+autocmd  NormalModeBreak BufWinEnter *
   \  if &modifiable
   \|   nnoremap <buffer> <CR> i<CR><ESC>
   \| else
