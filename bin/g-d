@@ -1,5 +1,35 @@
 #!/usr/bin/env bash
 
+describe() {
+  cat <<-EOS
+		git diff
+		Positional Args:
+		  arg1 =
+		Keybinds:
+		  esc:    exit
+		  ctrl-c: exit
+	EOS
+}
+
+_do_fzf() {
+  cmd="$1"
+  preview="$2"
+  query="$3"
+  eval "${cmd}" |
+    fzf-tmux -p 90% \
+      --query="${query:-}" \
+      --preview-window=bottom:70%,+4 \
+      --preview "${preview}" \
+      --bind alt-p:preview-up,alt-n:preview-down \
+      --expect=esc,ctrl-c
+}
+
 git-i-diff(){
   :
 }
+
+if [[ "$1" = '--help' || "$1" = '-h' ]]; then
+  describe
+else
+  git-i-diff "$@"
+fi

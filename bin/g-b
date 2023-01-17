@@ -9,36 +9,46 @@ describe() {
 }
 
 git-i-branch() {
+  local query header request_cmd ret_fzf
+  local key selects branch
+  query="${1:-}"
+  header=$(describe)
   request_cmd='git branch -a -v --color'
-  select="$(eval "$request_cmd" |
-    tr '*' ' ' |
-    sed -E 's/^ *//' |
-    grep --color=never -v -E 'remotes\/[a-zA-Z0-9]*\/(main|dev|develop|prod)' |
-    column -t -s "$(printf '\t')" |
-    fzf-tmux -p 90% \
-      --query="${1:-}" \
-      --ansi \
-      --multi \
-      --expect=alt-r,alt-a)"
-  [ -z "${select}" ] && return
+  while true; do
+    ret_fzf="$(eval "$request_cmd" |
+      tr '*' ' ' |
+      sed -E 's/^ *//' |
+      grep --color=never -v -E 'remotes\/[a-zA-Z0-9]*\/(main|master|dev|develop|prod)' |
+      grep --color=never -v -E '(main|master)' |
+      column -t -s "$(printf '\t')" |
+      fzf-tmux -p 90% \
+        --query="${query}" \
+        --ansi \
+        --multi \
+        --header="$header" \
+        --expect=alt-r,alt-a)"
+    [ -z "${ret_fzf}" ] && return
 
-  input=$(printf '%s' "$select" | cut -d $'\n' -f 1)
-  lines=$(printf '%s' "$select" | cut -d $'\n' -f 2-)
-  branch=$(echo $lines | awk '{print $1}')
+    key=$(printf '%s' "$ret_fzf" | cut -d $'\n' -f 1)
+    selects=$(printf '%s' "$ret_fzf" | cut -d $'\n' -f 2-)
+    branch=$(echo $selects | awk '{print $1}') # last one selected.
 
-  case "${input}" in
-  alt-r)
-    printf '%s' "$lines" | cut -d $'\n' -f 1- | while read -r var; do
-      _delete-branch "$(echo "$var" | cut -d ' ' -f 1)"
-    done
-    ;;
-  alt-a)
-    _make_new_branch
-    ;;
-  *)
-    git checkout "$branch"
-    ;;
-  esac
+    case "${key}" in
+    alt-r)
+      printf '%s' "$selects" | cut -d $'\n' -f 1- | while read -r line; do
+        _delete-branch "$(echo "$line" | cut -d ' ' -f 1)"
+      done
+      ;;
+    alt-a)
+      query="'$(_make_new_branch)"
+      continue
+      ;;
+    *)
+      git checkout "$branch"
+      ;;
+    esac
+    break
+  done
 }
 
 _delete-branch() {
@@ -72,6 +82,7 @@ _make_new_branch() {
   local new_branch
   new_branch="$(read -r -p 'new branch name: ' && echo "$REPLY")"
   git branch "$new_branch"
+  echo "$new_branch"
   read -r -e -p 'add to remote branch now? (yN): ' -i "" yn
   [[ $yn =~ y|Y ]] && git push --set-upstream origin "$new_branch"
   return 0

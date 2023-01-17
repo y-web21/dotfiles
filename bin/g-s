@@ -53,19 +53,19 @@ _diff() {
 }
 
 _git_i_reset() {
-  local file target ret_fzf file_cnt selects
+  local file staged_files ret_fzf file_cnt selects
 
   while true; do
-    target=''
+    staged_files=''
     while read -r file; do
       if ! _exists_in_stashlist "$file"; then
-        target+="$file "
+        staged_files+="$file "
       fi
     done < <(git status --short | awk '{if(substr($0,1,1) !~ /^[ ?]/ )print $NF}')
-    [ -z "${target}" ] && return
+    [ -z "${staged_files}" ] && return
 
     ret_fzf=$(
-      echo "$target" |
+      echo "$staged_files" |
         sed -e '$ s/ $//g; s/ /\n/g' |
         fzf-tmux --multi \
           --query '' \
@@ -86,22 +86,22 @@ _git_i_reset() {
 }
 
 git-i-staging() {
-  local file target ret_fzf input file_cnt selects
-  # local query
+  local file changed_files header ret_fzf input file_cnt selects
+  header=$(describe)
 
   while true; do
 
-    target=''
+    changed_files=''
     while read -r file; do
       if ! _exists_in_stashlist "$file"; then
-        target+="$file "
+        changed_files+="$file "
       fi
     done < <(git status --short | awk '{if (substr($0,2,1) != " ") print $NF}')
-    [ -z "${target}" ] && return
+    [ -z "${changed_files}" ] && return
 
     # shellcheck disable=2016
     ret_fzf=$(
-      echo "$target" |
+      echo "$changed_files" |
         sed -e '$ s/ $//g; s/ /\n/g' | # --query "$query" --print-query \
         fzf-tmux -p 90% --multi \
           --exit-0 \
@@ -118,6 +118,7 @@ git-i-staging() {
           --expect=alt-h \
           --expect=alt-c \
           --expect=ctrl-s \
+          --header="$header" \
           --preview '\
             if [ -d {} ];then tree -C {} -p; exit; fi;\
             if [ $(git log -n 1 -p {} | wc -l) -eq 0 ];\
