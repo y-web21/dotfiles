@@ -4,54 +4,104 @@ describe() {
   cat <<-EOS
 		show log and pick hash
 		Args:
-		  arg1 = sub command (default log)
+		  arg1 = option (default --all)
 		Keybinds:
 		  esc: exit
 		  ctrl-c: exit
-		  enter: echo selected hash
+		  enter: echo selected hash and store to clipboard
+		Environments:
+		  G_L_OPTS: git log options
+		    e.g
+		    export G_L_OPTS="--no-merges --since='2010/1/1' --until='4 days ago' --author=$(git config user.name) --committer=$(git config user.name)"
 	EOS
 }
 
-_pick_hash() {
-  local fzf_ret hash input sub_cmd
+_do_fzf() {
+  cmd="$1"
+  preview="$2"
+  query="$3"
+  eval "${cmd}" |
+    fzf-tmux -p 90% \
+      --query="${query:-}" \
+      --expect=alt-d \
+      --expect=alt-o,ctrl-o \
+      --expect=alt-i \
+      --expect=alt-h,alt-m \
+      --bind="?:preview:git log {1} -1 --color --name-status" \
+      --bind="ctrl-s:preview:git status" \
+      --bind="ctrl-r:reload(git reflog --oneline),ctrl-f:reload(eval ${cmd})" \
+      --preview-window=65%,,~6 \
+      --preview "${preview}" \
+      --header "$(
+        printf '%-20s\t%-20s\n%-20s\t%-20s\n%-20s\t%-20s\n%-20s\t%-20s\n%-20s\t%-20s' \
+          'Enter: copy hash' 'alt-d: diff' \
+          'alt-o,ctrl-o: vim' 'alt-i: rebase -i' \
+          'alt-h: reset --hard' 'alt-m: reset --mixed' \
+          'ctrl-s: show status' ' ' \
+          'ctrl-r: reflog' 'ctrl-f: log' \
+      )"
+}
 
-  sub_cmd="${1:-log}"
+_git_log_fzf() {
+  local fzf_ret key pick ghash
+  local opts cmd preview
+
+  opts="${1:---all} ${G_L_OPTS:-}"
 
   # filetr DBD
   # author alt+a
 
+  cmd="git log ${opts} --oneline"
+  preview='git show --color=always --pretty=fuller {1}'
+
   while true; do
+    fzf_ret=$(_do_fzf "${cmd}" "$preview")
+    key=$(printf '%s' "$fzf_ret" | tail +1 | head -1)
+    pick=$(printf '%s' "$fzf_ret" | tail +2 | head -1)
+    ghash=$(echo "$pick" | awk '{print $1}')
 
-    unset path
-    unset fzf_ret
-    while read -r ret; do
-      fzf_ret+=("$ret")
-    done < <(
-      git "${sub_cmd}" --all --oneline |
-        fzf-tmux \
-          -p 90% \
-          --expect=ctrl-c \
-          --expect=esc \
-          --preview-window=65%,,~6 \
-          --preview 'git show --color=always {1}' |
-        awk '{print $1}'
-    )
+    [ "$key" = 'ctrl-c' ] && break
+    [ "$key" = 'esc' ] && break
 
-    # var check
-    # i=0 && for f in "${fzf_ret[@]}"; do echo $i "$f" ;((i++)); done
+    case "${key}" in
+    alt-c | alt-y | ctrl-y) ;;
+    alt-d)
+      git diff "$ghash"
+      continue
+      ;;
+    alt-o | ctrl-o)
+      # shellcheck disable=SC2046
+      vim -c 'ls' $(git log "${ghash}" -1 --name-only --oneline | tail +2 | sed -z 's/\n/ /g')
+      ;;
+    alt-i)
+      git rebase -i "${ghash}~"
+      continue
+      ;;
+    alt-h)
+      read -r -p 'ok? (y/N) ' && [[ $REPLY =~ y|Y ]] &&
+        echo -e -n "run 'reset \e[31m--hard\e[39m', really ok? (y|N)" && read -r && [[ $REPLY =~ y|Y ]] &&
+        git reset --hard "${ghash}"
+      continue
+      ;;
+    alt-m)
+      read -r -p 'ok? (y/N) ' && [[ $REPLY =~ y|Y ]] && git reset --mixed "${ghash}"
+      continue
+      ;;
+    *)
+      echo "$ghash" | clip
+      echo "$ghash"
+      if [ -n "$BASH_VERSION" ]; then
+        :
+      fi
+      ;;
+    esac
 
-    input="${fzf_ret[0]}"
-    [ "$input" = 'ctrl-c' ] && break
-    [ "$input" = 'esc' ] && break
-
-    hash="${fzf_ret[1]}"
     break
   done
-  echo "$hash"
 }
 
 if [[ "$1" = '--help' || "$1" = '-h' ]]; then
   describe
 else
-  _pick_hash "$@"
+  _git_log_fzf "$@"
 fi
