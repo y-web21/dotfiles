@@ -38,6 +38,8 @@ test -f ~/dotfiles/shell.d/private_ettings/pre.bash && . ~/dotfiles/private/shel
 # common settings
 test -r ~/.shellrc && . ~/.shellrc
 
+# History
+# --------------------
 # シェルの切り替えで上書きされる
 HISTFILE=~/.bash_history
 export HISTFILE
@@ -59,15 +61,15 @@ __bash_history_append_and_reload() {
   return $prev_status
 }
 
+# Wrapper function
+# --------------------
 history() {
-  # wrapper
   __bash_history_append_and_reload
   builtin history "$@"
 }
 
-test -r ~/dotfiles/shell.d/modules/keybinds_bash && . ~/dotfiles/shell.d/modules/keybinds_bash
-test -f ~/dotfiles/private/shell.d/post.bash && . ~/dotfiles/private/shell.d/post.bash
-
+# Completion
+# --------------------
 # load homebrew bash-completion file by apt bash-completion.
 load_brew_completion() {
   local brew_completion
@@ -91,6 +93,9 @@ type zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
 # --------------------
 # added by ./Cellar/fzf/0.35.1/install
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+test -r ~/dotfiles/shell.d/modules/keybinds_bash && . ~/dotfiles/shell.d/modules/keybinds_bash
+test -f ~/dotfiles/private/shell.d/post.bash && . ~/dotfiles/private/shell.d/post.bash
 
 # lib
 test -r ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.bash && . ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.bash

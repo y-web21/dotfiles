@@ -47,6 +47,15 @@ elif [ -f "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.s
   . "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.sh"
 fi
 
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+  if [ -r ~/.dircolors ]; then
+    eval "$(dircolors -b ~/.dircolors)"
+  else
+    eval "$(dircolors -b)"
+  fi
+fi
+
 # load bashrc related files
 test -r ~/dotfiles/shell.d/func/main.bash && . ~/dotfiles/shell.d/func/main.bash
 test -r ~/dotfiles/shell.d/func/tools.bash && . ~/dotfiles/shell.d/func/tools.bash
@@ -72,5 +81,6 @@ if type brew >/dev/null 2>&1; then
   fi
 fi
 
-# completion
+# Completion
+# --------------------
 type aws >/dev/null 2>&1 && complete -C '/usr/local/bin/aws_completer' aws

@@ -3,6 +3,13 @@
 shwo_zsh_execution_time=0
 test $shwo_zsh_execution_time -ne 0 && zmodload zsh/zprof && zprof
 
+# linuxbrew
+if type /home/linuxbrew/.linuxbrew/bin/brew >/dev/null 2>&1; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif type /home/"$(whoami)"/.linuxbrew/bin/brew >/dev/null 2>&1; then
+  eval "$(/home/"$(whoami)"/.linuxbrew/bin/brew shellenv)"
+fi
+
 # EDITOR=vim でターミナルも bindkey -v 相当にされてしまうため明示的に emacs の設定をする
 bindkey -e
 
@@ -45,8 +52,9 @@ if type brew &>/dev/null; then
   zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
   # Use unsetopt to disable
+  # [zsh: 16 Options](https://zsh.sourceforge.io/Doc/Release/Options.html)
   setopt complete_in_word
-  setopt auto_List
+  setopt auto_list
   setopt auto_menu
   setopt list_packed
   setopt list_types
@@ -124,8 +132,8 @@ PROMPT="$(__prompt_1st)
 $(__prompt_2nd)
 %(?.%B%F{green}.%B%F{red})%(?!> !< )%f%b"
 
-test -r ~/dotfiles/shell.d/modules/keybinds_zsh && . ~/dotfiles/shell.d/modules/keybinds_zsh
-
+# Completion
+# --------------------
 complete -C '/usr/local/bin/aws_completer' aws
 type zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 
@@ -139,6 +147,8 @@ fi
 # --------------------
 # added by ./Cellar/fzf/0.35.1/install
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+test -r ~/dotfiles/shell.d/modules/keybinds_zsh && . ~/dotfiles/shell.d/modules/keybinds_zsh
 
 # lib
 [ -f ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.zsh ] && source ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.zsh
