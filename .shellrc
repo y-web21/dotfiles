@@ -61,6 +61,7 @@ test -r ~/dotfiles/shell.d/func/main.bash && . ~/dotfiles/shell.d/func/main.bash
 test -r ~/dotfiles/shell.d/func/tools.bash && . ~/dotfiles/shell.d/func/tools.bash
 test -r ~/dotfiles/shell.d/func/fzf.bash && . ~/dotfiles/shell.d/func/fzf.bash
 test -r ~/dotfiles/shell.d/.bash_aliases && . ~/dotfiles/shell.d/.bash_aliases
+test -r ~/dotfiles/shell.d/modules/less_termcap && . ~/dotfiles/shell.d/modules/less_termcap
 
 if is_wsl; then
   test -r ~/dotfiles/shell.d/.bashrc_wsl && . ~/dotfiles/shell.d/.bashrc_wsl
