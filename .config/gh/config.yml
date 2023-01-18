@@ -16,6 +16,8 @@ aliases:
     fpr: |-
       !gh pr list -s all | column -t -s "$(printf '\t')" |
         fzf-tmux -p 90% --preview-window=bottom:65%,+4 \
+          --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n' \
+            'ALT-w: browser view' 'Enter: view')" \
           --query="${1:-'OPEN }" \
           --bind alt-p:preview-up,alt-n:preview-down \
           --bind="alt-w:execute(gh pr view {1} -w)" \
@@ -23,6 +25,8 @@ aliases:
     fis: |-
       !select="$(gh issue list -s all | column -t -s "$(printf '\t')" |
         fzf-tmux -p 90% --preview-window=bottom:65%,+4 \
+          --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n' \
+            'ALT-b: create feature branch' 'ALT-w: browser view' 'Enter: view')" \
           --query="${1:-'OPEN }" \
           --expect=alt-b \
           --bind alt-p:preview-up,alt-n:preview-down \
@@ -44,16 +48,21 @@ aliases:
         !select="$(gh api https://api.github.com/gists --paginate |
           jq -r ' .[] | .files[] as $files | [ ( $files.language // "unknown" ) , $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" |
           fzf-tmux -p 90% --query="${1:-'Markdown }" \
-            --preview-window=bottom:80%,+4 \
+            --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n' \
+              'Enter: Edit' 'alt-a: Add file to selected' 'alt-d: Edit description' 'alt-r: Remove gist' \
+              'alt-h: echo hash' 'alt-N: Add new file' 'alt-w: gh gist view -w' 'alt-c: gh gist clone' \
+              'alt-b: bat')" \
+            --preview-window=bottom:75%,+4 \
             --preview "gh gist view {-1} -f {2} | bat --color=always -l md" \
             --bind alt-p:preview-up,alt-n:preview-down \
-            --expect=alt-r,alt-a,alt-d,alt-h,alt-N \
+            --expect=alt-r,alt-a,alt-d,alt-h,alt-N,alt-b \
             --bind="alt-w:execute(gh gist view {-1} -w)" \
             --bind="alt-c:execute(gh gist clone {-1} {2})" )"
         [ -z "${select}" ] && return
         key=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 1)
         line=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 2)
         id=$(echo $line | awk '{print $NF}')
+        type=$(echo $line | awk '{print $1}')
         file=$(echo $line | awk '{print $2}')
         desc=$(echo $line | awk '{for(i=3;i<=NF-1;i++) printf $i" "; print ""}' )
         case "${key}" in
@@ -84,6 +93,14 @@ aliases:
           alt-h)
             # $READLINE_LINE, $BUFFER
             echo $id
+          ;;
+          alt-b)
+            bat --list-languages | tr ',' '\n' | sed 's/^.*://' | grep -i "^${type}$" >/dev/null
+            if [ $? -eq 0 ]; then
+              gh gist view "$id" -f "$file" | bat --paging always --color always -l "$type"
+            else
+              gh gist view "$id" -f "$file" | bat --paging always
+            fi
           ;;
           alt-N)
             echo "type new filename to be added to ${desc}"; read name
