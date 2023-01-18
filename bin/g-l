@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+script_name="$(basename $0)"
+
 describe() {
   cat <<-EOS
 		show log and pick hash
@@ -29,17 +31,44 @@ _do_fzf() {
       --expect=alt-h,alt-m \
       --bind="?:preview:git log {1} -1 --color --name-status" \
       --bind="ctrl-s:preview:git status" \
-      --bind="ctrl-r:reload(git reflog --oneline),ctrl-f:reload(eval ${cmd})" \
+      --bind="alt-f:preview:echo {} | cut -d ' ' -f 1 | xargs -I% git log % -1 --oneline --name-status --color" \
+      --bind="ctrl-r:reload(git reflog --oneline),ctrl-t:reload(eval ${cmd})" \
+      --bind="F1:toggle-preview" \
       --preview-window=65%,,~6 \
       --preview "${preview}" \
       --header "$(
-        printf '%-20s\t%-20s\n%-20s\t%-20s\n%-20s\t%-20s\n%-20s\t%-20s\n%-20s\t%-20s' \
+        printf '%-20s\t%-20s\n%-20s\t%-20s\n%-20s\t%-20s\n%-20s\t%-20s\n%-20s\t%-20s\n%-20s\t%-20s' \
           'Enter: copy hash' 'alt-d: diff' \
           'alt-o,ctrl-o: vim' 'alt-i: rebase -i' \
           'alt-h: reset --hard' 'alt-m: reset --mixed' \
-          'ctrl-s: show status' ' ' \
-          'ctrl-r: reflog' 'ctrl-f: log' \
+          'alt-f: show name-status' 'ctrl-s: show status' \
+          'F1: toggle-preview' ' ' \
+          'ctrl-r: reflog' 'ctrl-t: log' \
       )"
+}
+
+_is_branch_clean() {
+  test "$(git status --short | wc -l)" -eq 0
+}
+
+_is_rebsae_in_progress() {
+  test -d "$(git rev-parse --show-toplevel)/.git/rebase-merge"
+}
+
+_stash_and_rebase() {
+  local stash_msg stash
+
+  if ! _is_branch_clean;then
+    stash_msg="stash by script ${script_name}. fucntion ${FUNCNAME[0]}. hash ${0}"
+    git stash push --include-untracked --message "${stash_msg}"
+    stash="$(git stash list | grep "${stash_msg}"  | awk -F':' '{print $(1)}')"
+  fi
+
+  git rebase -i "${ghash}~"
+
+  if [ -n "$stash" ] && ! _is_rebsae_in_progress; then
+    git stash pop "$stash"
+  fi
 }
 
 _git_log_fzf() {
@@ -74,7 +103,7 @@ _git_log_fzf() {
       vim -c 'ls' $(git log "${ghash}" -1 --name-only --oneline | tail +2 | sed -z 's/\n/ /g')
       ;;
     alt-i)
-      git rebase -i "${ghash}~"
+      _stash_and_rebase "${ghash}"
       continue
       ;;
     alt-h)
