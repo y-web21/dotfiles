@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+describe() {
+  cat <<-EOS
+		Environments:
+		  G_L_OPTS: git log options
+		    e.g
+		    export G_L_OPTS="--no-merges --since='2010/1/1' --until='4 days ago' --author=$(git config user.name) --committer=$(git config user.name)"
+	EOS
+}
+
+_do_fzf() {
+  cmd="$1"
+  preview="$2"
+  header="$3"
+  query="$4"
+  eval "${cmd}" |
+    fzf --height=90% \
+      --no-sort \
+      --query="${query:-}" \
+      --expect=alt-i,ctrl-i,ctrl-a,alt-m \
+      --bind="alt-a:execute(git rebase --abort)+reload($cmd)" \
+      --bind="?:preview:git log {1} -1 --color --name-status" \
+      --bind="ctrl-s:preview:git status" \
+      --bind="ctrl-r:reload(git reflog --oneline),ctrl-f:reload(eval ${cmd})" \
+      --preview-window=65%,,~6 \
+      --preview="${preview:-}" \
+      --header="${header:-}"
+}
+
+_header_enter_msg() {
+  if [[ "$(git diff --name-only --cached | wc -l)" -lt 1 ]];then
+    echo -e "\e[31mno staging files. do \"git add\" \e[39m" ; exit 1
+  else
+    echo 'commit --fixup <commit>'
+  fi
+}
+
+_commit_fixup() {
+  local fzf_ret key pick ghash
+  local cmd opts preview header
+  local echo_cmd
+
+  cmd="git log ${opts} --oneline"
+  opts="${1:---all} ${G_L_OPTS:-}"
+  preview='git show --color=always --pretty=fuller {1}'
+
+  while true; do
+    header=$(
+      cat <<-EOF
+			Pick target commit
+			enter: $(_header_enter_msg)
+			alt-i: rebase auto-squash <commit>
+			alt-a: rebase --abort
+			alt-m: commit ammend
+			ctrl-a: add .
+			ctrl-s: show status
+			EOF
+    )
+    fzf_ret=$(_do_fzf "${cmd}" "$preview" "$header")
+    key=$(printf '%s' "$fzf_ret" | tail +1 | head -1)
+    pick=$(printf '%s' "$fzf_ret" | tail +2 | head -1)
+    ghash=$(echo "$pick" | awk '{print $1}')
+
+    test -z "$pick" && return
+
+    case "$key" in
+    alt-i|ctrl-i)
+      git rebase -i --autosquash "${ghash}~"
+      ;;
+    alt-m)
+      git commit --amend --message="$(cat <(echo 'fixup! ') <(git log --pretty=format:%s -1) )"
+      ;;
+    ctrl-a)
+      git add .
+      ;;
+    *)
+      echo_cmd="git commit --fixup $ghash"
+      eval "$echo_cmd" && git log -1 --oneline
+      if [ $? -ne 0 ]; then
+        _header_enter_msg
+        exit 1
+      fi
+      ;;
+    esac
+  done
+}
+
+if [[ "$1" = '--help' || "$1" = '-h' ]]; then
+  describe
+else
+  _commit_fixup "$@"
+fi
