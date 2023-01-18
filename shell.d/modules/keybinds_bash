@@ -21,29 +21,10 @@ __set_buffer() {
   READLINE_POINT=${#READLINE_LINE}
 }
 
-__history_with_fzf() {
-
-  if [ "$READLINE_LINE" == 'help' ];then
-    cat <<-EOS
-			fzf history
-			Keybinds:
-			  enter:  paste to readline (not multi selectable)
-			  esc:    exit
-			  ctrl-c: exit
-			  alt-a:  toggle-all
-			  alt-c:  yank history
-			  alt-y:  yank history
-			  ctrl-y: yank history
-			  alt-l:  output to file
-			  ctrl-l: output to file
-			  alt-d:  delete picked from history
-			  alt-D:  run script (remove dupes)
-		EOS
-    READLINE_LINE=''
-    return
-  fi
-
-  local ret key pick HISTFILE_tmp filename
+# overwrite ~/.fzf.bash __fzf_history__
+# --------------------
+__fzf_history__() {
+  local ret key picks HISTFILE_tmp filename
   HISTFILE_tmp="${HISTFILE}tmp"
   # add current session history to ~/.bash_history
   history -a
@@ -51,34 +32,44 @@ __history_with_fzf() {
   while true; do
     ret=$(
       HISTTIMEFORMAT=''
-      tac "${HISTFILE}" | grep -nav '^#' | uniq |
-        fzf-tmux -w 50% -h 60% --height 80% \
-          --layout=reverse-list \
+      tac "${HISTFILE}" | grep -nav '^#' | sed -E 's/^([0-9]{1,}:)/\1\t/' |
+        fzf-tmux -w 60% -h 60% --height 80% \
+          --layout=reverse \
           --no-sort \
           --multi \
           --query "$READLINE_LINE" \
+          --bind=ctrl-r:toggle-sort \
+          --bind=ctrl-d:half-page-down \
+          --bind=ctrl-u:half-page-up \
           --bind=alt-a:toggle-all \
           --expect=esc,ctrl-c \
           --expect=alt-c,alt-y,ctrl-y \
-          --expect=alt-l,ctrl-l \
-          --expect=alt-d,alt-D
+          --expect=alt-l \
+          --expect=alt-d,alt-D \
+          --bind='ctrl-l:unix-line-discard' \
+          --header-first \
+          --header="$(printf '%-15s\t%-25s\t%-20s\t%-20s\n%-15s\t%-25s\t%-20s\t%-20s' \
+            'Enter: Print' 'Tab,ctrl-i: Multi select' 'alt-a: Toggle selected' 'alt-D: Delete dupes' \
+            'alt-c,y: copy' 'alt-d: Delete' 'alt-l: dump to file' 'ctrl-l: unix-line-discard' )"
     )
 
     key=$(printf '%s' "$ret" | tail +1 | head -1)
-    pick=$(printf '%s' "$ret" | tail +2 | head -1)
+    picks="echo \"\$ret\" | tail +2 | cut -d ':' -f 2- | cut -f 2-"
 
     case "${key}" in
     esc | ctrl-c) ;;
     alt-c | alt-y | ctrl-y)
       while read -r i; do
+        echo "$i"
         echo "$i" >> "$HISTFILE_tmp"
-      done < <(echo "$ret" | tail +2 | cut -d ':' -f 2-)
-      < "$HISTFILE_tmp" clip
+      done < <(eval "${picks}")
+      # shellcheck disable=2002
+      cat "$HISTFILE_tmp" | clip
       ;;
-    alt-l | ctrl-l)
+    alt-l)
       while read -r i; do
         echo "$i" >> "$HISTFILE_tmp"
-      done < <(echo "$ret" | tail +2 | cut -d ':' -f 2-)
+      done < <(eval "${picks}")
       read -re -p 'output filepath: ' -i "$HOME/history_log" filename
       test -n "$filename" && cp "$HISTFILE_tmp" "$filename"
       ;;
@@ -103,18 +94,22 @@ __history_with_fzf() {
       ;;
     *)
       # put text in the bash command line buffer
-      READLINE_LINE="$(echo "$pick" | cut -d ':' -f 2-)"
+      READLINE_LINE="$(eval "${picks}" | head -1)"
       ;;
     esac
     break
   done
 
   test -e "${HISTFILE_tmp}" && rm "${HISTFILE_tmp}"
-  READLINE_POINT=${#pick}
+  READLINE_POINT=${#READLINE_LINE}
 }
 
 __pick_env() {
-  READLINE_LINE="$READLINE_LINE$(cat <(set -o posix;set) <(echo '')  | fzf | cut -d '=' -f 2-)"
+  READLINE_LINE="$READLINE_LINE$(cat <(set -o posix;set) <(echo '') | fzf \
+    --header="$(printf '%s\t%s\t%s' 'Enter: print value' 'alt-j: print name' 'alt-k: set new')" \
+    --bind='alt-j:execute(echo \${} | cut -d '=' -f 1)+abort' \
+    --bind='alt-k:execute(printf '%s%s' $(echo {} | cut -d '=' -f 1) '=')+abort' \
+    --bind='enter:execute(echo {} | cut -d '=' -f 2-)+abort')"
   READLINE_POINT=${#READLINE_LINE}
 }
 
@@ -144,19 +139,29 @@ __git_hash_reflog() {
 }
 
 __interactive_cd() {
-  local DIR
+  local DIR cmd filter
   while true; do
-    DIR=$(find -L "${1:-.}" -mindepth 0 -maxdepth 1 -type d | sed '1a ..' | grep -av ^\.$ | fzf --preview 'ls {}' --border)
+    filter="grep -vE '\.(git|npm)' | grep -v 'node_modules'"
+    cmd='find -L "${1:-.}" -mindepth 0 -maxdepth ${lvl:-1} -type d | sed "1a .." | grep -av ^\.$'
+    DIR=$(eval "$cmd" |
+      fzf-tmux -p 65% --height 70% \
+        --preview 'ls -AF --color {} | column ;echo -e '' ; tree -C -d -L 2 {}' --border \
+        --preview-window=65% \
+        --bind="alt-h:reload(lvl=1; eval $cmd)" \
+        --bind="alt-j:reload(lvl=2; eval $cmd)" \
+        --bind="alt-k:reload(lvl=3; eval $cmd)" \
+        --bind="alt-l:reload(lvl=4; eval $cmd)" \
+        --bind="alt-H:reload(lvl=1; eval $cmd | $filter)" \
+        --bind="alt-J:reload(lvl=2; eval $cmd | $filter)" \
+        --bind="alt-K:reload(lvl=3; eval $cmd | $filter)" \
+        --bind="alt-L:reload(lvl=4; eval $cmd | $filter)" \
+        --bind="ctrl-l:jump-accept" \
+        --header="$(printf '%s\n%s\t%s\n%s' "$(pwd)" 'alt-hjkl: depth 1-4' 'alt-HJKL: filter' \
+          'ctrl-l: jump-accept(EasyMotion-like)')" \
+      )
     if [ '' = "$DIR" ]; then return; fi
     cd "$DIR" || return
   done
-}
-
-__interacrive_cd_b() {
-  local DIR
-  DIR=$(find . -mindepth 1 -type d | peco --layout=bottom-up)
-  if [ '' = "$DIR" ]; then return; fi
-  cd "$DIR" || return
 }
 
 __open_with_editor() {
@@ -309,6 +314,23 @@ __reset_screen() {
 
 __test_bind() { echo valid; }
 
+# Source: https://github.com/junegunn/fzf/wiki/Examples#readline
+# --------------------
+__fzf_readline() {
+  builtin eval "
+    builtin bind ' \
+      \"\C-x3\": $(
+        builtin bind -l | command fzf +s +m --toggle-sort=ctrl-r
+      ) \
+    '
+  "
+}
+
+if [ -n "$BASH_VERSION" ]; then
+  builtin bind -x '"\C-x2": __fzf_readline';
+  builtin bind '"\C-x1": "\C-x2\C-x3"'
+fi
+
 # =============== keybind =================
 # = Readline commands are assigned with /etc/inputrc or ~/.inputrc
 # = list of readline commands -> bind -l
@@ -323,9 +345,7 @@ __test_bind() { echo valid; }
 if [ -n "$BASH_VERSION" ]; then
   # user defined function
   bind -x '"\e\C-l": __relogin'
-  bind -x '"\eh": __history_with_fzf'
   bind -x '"\ed": __interactive_cd'
-  bind -x '"\e\ed": __interacrive_cd_b'
   bind -x '"\ee": __open_with_editor'
   bind -r "\ep"
   bind -x '"\ep\ee": __pick_env'
@@ -343,5 +363,9 @@ if [ -n "$BASH_VERSION" ]; then
   bind -x '"\ej\ej": __cd_z'
   bind -x '"\e;": __ls_al_readline'
   bind '"\e?": "bind -X | column -t | sort -k 2 | less\n"'
+  bind -x '"\e??": f-man'
   bind -x '"\e\C-rr": __reset_screen'
+  # Readline function
+  bind '"\ew": kill-word'
+  bind '"\ea":"\C-e | awk '\''{print $()}'\'' | \C-b\C-b\C-b\C-b\C-b\C-b"'
 fi

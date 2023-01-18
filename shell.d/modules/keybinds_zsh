@@ -58,13 +58,7 @@ fi
 . "$(dirname $0)/keybinds_bash"
 
 __history_with_fzf() {
-  local ret
-  ret=$(
-    tac < <(history -n 1) | uniq | fzf-tmux -p 90% --no-sort --layout=default --query -- "$BUFFER"
-  )
-  if [ '' = "$ret" ]; then return; fi
-  # put text in the bash command line buffer
-  __set_buffer $ret
+  fzf-history-widget
 }
 
 __pick_env() {
@@ -110,7 +104,6 @@ if [ -n "$ZSH_VERSION" ]; then
   zle -N __ls_al_readline
   zle -N __reset_screen
   bindkey '^[^l' __relogin
-  bindkey '^[h' __history_with_fzf
   bindkey '^[d' __interactive_cd
   bindkey '^[^[d' __interacrive_cd_b
   bindkey '^[e' __open_with_editor
