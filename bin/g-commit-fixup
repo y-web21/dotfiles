@@ -2,6 +2,7 @@
 
 describe() {
   cat <<-EOS
+		Git 'commit --fixup' & 'rebase --auto-squash'
 		Environments:
 		  G_L_OPTS: git log options
 		    e.g
