@@ -132,6 +132,8 @@ aliases:
         !read -p 'query: ' input
         query=$(echo "$input" | sed -E 's/^https.*com\///; s/ /%20/g; s/\//%2F/g; s/:/%3A/g')
         gh search repos --limit 50 --sort=stars "$query" | column -t -s "$(printf '\t')" | fzf --query "$query" | awk '{print $1}' | xargs -i gh repo view -w {}
+    co-issue: |-
+        !gh issue list --state open | fzf | awk '{print $1}' | xargs -i git checkout -b "feature/#{}"
     # search: |-
     #     !input_query() { echo $(read -r input && echo "$input" | sed -E 's/^https.*com\///; s/ /%20/g; s/\//%2F/g; s/:/%3A/g'); }
     #     json=$(gh api -H "Accept: application/vnd.github+json" \

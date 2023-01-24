@@ -23,6 +23,7 @@
 	cm = commit
 	cmm = commit -m
 	cma = commit --amend
+	cmaf = commit --amend --no-verify
 	cmam = commit --amend -m
 	cmr = reset --soft HEAD~
 	c = checkout
@@ -103,15 +104,16 @@
 		cat $TMP | column -t && rm $TMP;'"
 	recent = !git for-each-ref --sort=-committerdate --count=${1:-10} --format='Date: %(color:red)%(authordate:iso)%(color:reset)\t%(color:green)[%(authorname)]%(color:reset)\nRef: %(color:yellow)%(refname:short)%(color:reset)\nSubject: %(subject)\n' refs/heads refs/remotes
 	conf-l = "!f(){ git rev-parse --is-inside-work-tree 2>/dev/null 1>&2 && ${1:-${EDITOR:-vim}} "$(git rev-parse --git-dir)/config"; }; f $*"
-	conf-g = "git config --global --edit"
+	conf-g = "!GIT_EDITOR="${EDITOR:-vim}"; git config --global --edit "
 	# == ls ==
 	ls = ls-files --directory
 	ls-untracked = ls-files --others --exclude-standard
 	ls-ignored = ls-files --others --ignored --exclude-standard --directory
-	# == zfz ==
+	# == fzf ==
 	cmf = !g-commit-fixup
 	acmf = !git add . && g-commit-fixup
 	# == memo ==
+	include-diff-untracked = git add -N . && git diff && git reset
 	staged = diff --name-only --cached
 	unstage = reset HEAD --
 	dotgit = "!echo "$(git rev-parse --show-toplevel)/.git""
