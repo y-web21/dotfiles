@@ -4,6 +4,36 @@ set all&
 autocmd!
 
 "------------------------------------
+" Make Vim follow XDG Base Directory specification
+" https://blog.joren.ga/vim-xdg
+"------------------------------------
+if empty($MYVIMRC) | let $MYVIMRC = expand('<sfile>:p') | endif
+
+if empty($XDG_CACHE_HOME)  | let $XDG_CACHE_HOME  = $HOME."/.cache"       | endif
+if empty($XDG_CONFIG_HOME) | let $XDG_CONFIG_HOME = $HOME."/.config"      | endif
+if empty($XDG_DATA_HOME)   | let $XDG_DATA_HOME   = $HOME."/.local/share" | endif
+if empty($XDG_STATE_HOME)  | let $XDG_STATE_HOME  = $HOME."/.local/state" | endif
+
+set runtimepath^=$XDG_CONFIG_HOME/vim
+set runtimepath+=$XDG_DATA_HOME/vim
+set runtimepath+=$XDG_CONFIG_HOME/vim/after
+
+set packpath^=$XDG_DATA_HOME/vim,$XDG_CONFIG_HOME/vim
+set packpath+=$XDG_CONFIG_HOME/vim/after,$XDG_DATA_HOME/vim/after
+
+let g:netrw_home = $XDG_DATA_HOME."/vim"
+call mkdir($XDG_DATA_HOME."/vim/spell", 'p', 0700)
+
+set backupdir=$XDG_STATE_HOME/vim/backup | call mkdir(&backupdir, 'p', 0700)
+set directory=$XDG_STATE_HOME/vim/swap   | call mkdir(&directory, 'p', 0700)
+set undodir=$XDG_STATE_HOME/vim/undo     | call mkdir(&undodir,   'p', 0700)
+set viewdir=$XDG_STATE_HOME/vim/view     | call mkdir(&viewdir,   'p', 0700)
+
+if !has('nvim') " Neovim has its own special location
+  set viminfofile=$XDG_STATE_HOME/vim/viminfo
+endif
+
+"------------------------------------
 " Open & Reload .vimrc
 "------------------------------------
 command! Evimrc e $MYVIMRC
@@ -289,28 +319,11 @@ cnoremap <M-f> <S-Right>
 "------------------------------------
 vnoremap <C-c> :w !wl-copy<cr>  " wayland
 
-" no create temp files
-" set noswapfile
-" set nobackup
-" set noundofile
-" set viminfo=
-
 "  augroup highlightIdegraphicSpace
 "    autocmd!
 "    autocmd Colorscheme * highlight IdeographicSpace term=underline ctermbg=DarkGreen guibg=DarkGreen
 "    autocmd VimEnter,WinEnter * match IdeographicSpace /　/
 "  augroup END  " visuble zenkaku space
-
-" An example for a vimrc file.
-"
-" Maintainer:   Bram Moolenaar <Bram@vim.org>
-" Last change:  2019 Jan 26
-"
-" To use it, copy it to
-"     for Unix and OS/2:  ~/.vimrc
-"         for Amiga:  s:.vimrc
-"  for MS-DOS and Win32:  $VIM\_vimrc
-"       for OpenVMS:  sys$login:.vimrc
 
 " When started as "evim", evim.vim will already have done these settings, bail
 " out.
@@ -360,27 +373,6 @@ function! s:mkdir(dir)
     call mkdir(a:dir, "p")
   endif
 endfunction
-
-"------------------------------------
-" vim files
-"------------------------------------
-set nobackup
-set noswapfile
-set noundofile
-
-set directory=$HOME/.vim/swap
-call s:mkdir(&directory)
-set swapfile
-
-set backupdir=$HOME/.vim/backup
-call s:mkdir(&backupdir)
-set backup
-
-if has('persistent_undo')
-  set undodir=$HOME/.vim/undo
-  call s:mkdir(&undodir)
-  set undofile
-endif
 
 "------------------------------------
 " 分岐処理いろいろ
