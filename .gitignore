@@ -33,7 +33,7 @@
 
 # doc and scripts
 !make_link.bash
-!clone_lib.bash
+!download_lib.bash
 !scripts/*
 !/README.md
 

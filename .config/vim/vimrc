@@ -4,39 +4,57 @@ set all&
 autocmd!
 
 "------------------------------------
-" Make Vim follow XDG Base Directory specification
-" https://blog.joren.ga/vim-xdg
+" vim files
+" note: xdg sample https://blog.joren.ga/vim-xdg
+" command: Plug[Install|Update|Upgrade|Status...]
 "------------------------------------
-if empty($MYVIMRC) | let $MYVIMRC = expand('<sfile>:p') | endif
+let s:enable_vim_files = 1
+if s:enable_vim_files != 0
+  set swapfile
+  set directory=$HOME/.vim/swap
+  call mkdir(&directory, 'p', 0700)
 
-if empty($XDG_CACHE_HOME)  | let $XDG_CACHE_HOME  = $HOME."/.cache"       | endif
-if empty($XDG_CONFIG_HOME) | let $XDG_CONFIG_HOME = $HOME."/.config"      | endif
-if empty($XDG_DATA_HOME)   | let $XDG_DATA_HOME   = $HOME."/.local/share" | endif
-if empty($XDG_STATE_HOME)  | let $XDG_STATE_HOME  = $HOME."/.local/state" | endif
+  set backup
+  set backupdir=$HOME/.vim/backup
+  call mkdir(&backupdir, 'p', 0700)
 
-set runtimepath^=$XDG_CONFIG_HOME/vim
-set runtimepath+=$XDG_DATA_HOME/vim
-set runtimepath+=$XDG_CONFIG_HOME/vim/after
+  if has('persistent_undo')
+    set undofile
+    set undodir=$HOME/.vim/undo
+    call mkdir(&undodir, 'p', 0700)
+  endif
 
-set packpath^=$XDG_DATA_HOME/vim,$XDG_CONFIG_HOME/vim
-set packpath+=$XDG_CONFIG_HOME/vim/after,$XDG_DATA_HOME/vim/after
-
-let g:netrw_home = $XDG_DATA_HOME."/vim"
-call mkdir($XDG_DATA_HOME."/vim/spell", 'p', 0700)
-
-set backupdir=$XDG_STATE_HOME/vim/backup | call mkdir(&backupdir, 'p', 0700)
-set directory=$XDG_STATE_HOME/vim/swap   | call mkdir(&directory, 'p', 0700)
-set undodir=$XDG_STATE_HOME/vim/undo     | call mkdir(&undodir,   'p', 0700)
-set viewdir=$XDG_STATE_HOME/vim/view     | call mkdir(&viewdir,   'p', 0700)
+  set viminfo+=n~/.vim/viminfo
+else
+  set noswapfile
+  set nobackup
+  set noundofile
+  set viminfo=
+endif
 
 if !has('nvim') " Neovim has its own special location
   set viminfofile=$XDG_STATE_HOME/vim/viminfo
 endif
 
 "------------------------------------
+" plugins
+" Plugin Manager: [vim-plug](https://github.com/junegunn/vim-plug)
+"------------------------------------
+if filereadable(expand('~/.vim/autoload/plug.vim'))
+  call mkdir(expand('~/.vim/plugged'), 'p', 0700)
+  call plug#begin(expand('~/.vim/plugged'))
+    set helplang=ja,en
+    Plug 'vim-jp/vimdoc-ja'
+
+    " git plugin
+    Plug 'tpope/vim-fugitive'
+  call plug#end()
+endif
+
+"------------------------------------
 " Open & Reload .vimrc
 "------------------------------------
-command! Evimrc e $MYVIMRC
+command! Evimrc edit $MYVIMRC
 
 augroup source-vimrc
   autocmd!
@@ -87,7 +105,9 @@ autocmd BufReadPost,BufEnter * call UpdateColorScheme()
 set laststatus=2
 set statusline=%3*[%{mode()}]\ %*
 set statusline+=%F%m%r%h%w%=
-set statusline+=\ %{fugitive#statusline()}
+if exists("*FugitiveConfig")
+  set statusline+=\ %{fugitive#statusline()}
+endif
 set statusline+=\ [%{&ff}:%{&fileencoding}]
 set statusline+=\ [%Y]
 set statusline+=\ [%04l,%04v]
@@ -166,36 +186,15 @@ set smartcase " require ignorecase
 "------------------------------------
 " command line mode settings
 "------------------------------------
-set wildmenu    " tab 補完 C-l,C-i より直感的
+set wildmenu    " tab 補完(C+i)
 
 "------------------------------------
 " re-examination
 "------------------------------------
-" set softtabstop
-" set hlsearch
-" set cindent
-" set showcmd
-" set ignorecase
-" set visualbell
-" set backspace
-" set clipboard  " yank to clipboard(not supported)
 language C  " system laguage english
 syntax enable
 " set norestorescreen
-" set fileformats=unix,dos,mac    " newline char auto reco
-" " set script encoding
 " scriptencoding utf-8
-
-"------------------------------------
-" plugins
-"------------------------------------
-if isdirectory(expand("~/.vim/plugged"))
-  call plug#begin()
-    set helplang=ja,en
-    Plug 'tpope/vim-fugitive'
-    Plug 'vim-jp/vimdoc-ja'
-  call plug#end()
-endif
 
 "------------------------------------
 " finish loading vimrc if tiny or small version.
@@ -325,44 +324,9 @@ vnoremap <C-c> :w !wl-copy<cr>  " wayland
 "    autocmd VimEnter,WinEnter * match IdeographicSpace /　/
 "  augroup END  " visuble zenkaku space
 
-" When started as "evim", evim.vim will already have done these settings, bail
-" out.
-if v:progname =~? "evim"
-  finish
-endif
-
-" Get the defaults that most users want.
-source $VIMRUNTIME/defaults.vim
-
-if has("vms")
-  set nobackup      " do not keep a backup file, use versions instead
-else
-  set backup        " keep a backup file (restore to previous version)
-  if has('persistent_undo')
-    set undofile    " keep an undo file (undo changes after closing)
-  endif
-endif
-
 if &t_Co > 2 || has("gui_running")
   " Switch on highlighting the last used search pattern.
   set hlsearch
-endif
-
-" Put these in an autocmd group, so that we can delete them easily.
-augroup vimrcEx
-  au!
-  " For all text files set 'textwidth' to 78 characters.
-  autocmd FileType text setlocal textwidth=78
-augroup END
-
-" Add optional packages.
-"
-" The matchit plugin makes the % command work better, but it is not backwards
-" compatible.
-" The ! means the package won't be loaded right away but when plugins are
-" loaded during initialization.
-if has('syntax') && has('eval')
-  packadd! matchit
 endif
 
 "------------------------------------
@@ -387,10 +351,10 @@ elseif has("win64")
     call mkdir('~/user/appfiles/vim')
   endif
   " temp files export destination
-  set directory=~/user/appfiles/vim
-  set backupdir=~/user/appfiles/vim
+  set directory=~/user/appfiles/vim/swap
+  set backupdir=~/user/appfiles/vim/backup
   if has('persistent_undo')
-    set undodir=~/user/appfiles/vim
+    set undodir=~/user/appfiles/vim/undo
     set undofile
   endif
   set viminfo+=n~/user/appfiles/vim/viminfo

@@ -8,7 +8,7 @@ lib() {
 }
 
 tmux_plugin_manger() {
-  local plg_dir tpm_dir
+  local dest tpm_dir
   plg_dir="${XDG_CONFIG_HOME}/tmux/plugins"
   test -d "$plg_dir" || mkdir -p "$plg_dir"
   tpm_dir="${plg_dir}/tpm"
@@ -17,7 +17,9 @@ tmux_plugin_manger() {
 }
 
 vim_plugin_manger() {
-  curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+  local dest="$HOME/.vim/autoload"
+  test -d "$dest" || mkdir -p "$dest"
+  curl -fLo "$dest"/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 }
 
