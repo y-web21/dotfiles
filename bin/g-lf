@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+describe() {
+  cat <<-EOS
+		Args:
+		  arg1 = filename
+		Keybinds:
+		  enter: show
+	EOS
+}
+
+_git_log_file_fzf() {
+  local filename pager hash
+  if [ $# -lt 1 ];then
+    echo -e "\e[31m1 arg required. arg1: filename\e[39m"
+    return 1
+  fi
+  filename="${1:-.vimrc}"
+  pager='bat --color always --paging always'
+  hash=$(git log --oneline -- "$filename" |
+    fzf --preview="git log \$(echo {} | cut -d' ' -f1 ) -1 -p --color -- \"$filename\"" --preview-window='bottom,70%' |
+    awk '{print $1}'
+  )
+  git show --color $hash:"$filename" | eval "$pager"
+}
+
+if [[ "$1" = '--help' || "$1" = '-h' ]]; then
+  describe
+else
+  _git_log_file_fzf "$@"
+fi
