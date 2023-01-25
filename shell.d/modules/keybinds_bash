@@ -130,14 +130,6 @@ __pick_docker_container() {
   __set_buffer " $RET"
 }
 
-__git_hash() {
-  __set_buffer "$(g-l)"
-}
-
-__git_hash_reflog() {
-  __set_buffer "$(g-l reflog)"
-}
-
 __interactive_cd() {
   local DIR cmd filter
   while true; do
@@ -343,7 +335,7 @@ fi
 
 # zsh include guard
 if [ -n "$BASH_VERSION" ]; then
-  # user defined function
+  # user defined function (bind -X)
   bind -x '"\e\C-l": __relogin'
   bind -x '"\ed": __interactive_cd'
   bind -x '"\ee": __open_with_editor'
@@ -351,21 +343,27 @@ if [ -n "$BASH_VERSION" ]; then
   bind -x '"\ep\ee": __pick_env'
   bind -x '"\ep\ep": __pick_path'
   bind -x '"\ep\ed": __pick_docker_container'
-  bind -x '"\eg\eg": __rg_uu'
-  bind -x '"\eG\eG": __rg'
-  bind -x '"\eg\ee": __rg_edit_uu'
+  # bind -x '"\eg\eg": __rg_uu'
+  # bind -x '"\eG\eG": __rg'
+  # bind -x '"\eg\ee": __rg_edit_uu'
   bind -x '"\eG\eE": __rg_edit'
-  bind -x '"\eg\ef": __rg_file_uu'
-  bind -x '"\eG\eF": __rg_file'
-  bind -x '"\eg\eh": __git_hash'
-  bind -x '"\eg\eH": __git_hash_reflog'
+  # bind -x '"\eg\ef": __rg_file_uu'
+  # bind -x '"\eG\eF": __rg_file'
   bind -x '"\ejj": __z'
   bind -x '"\ej\ej": __cd_z'
   bind -x '"\e;": __ls_al_readline'
-  bind '"\e?": "bind -X | column -t | sort -k 2 | less\n"'
   bind -x '"\e??": f-man'
   bind -x '"\e\C-rr": __reset_screen'
+  # git prefix alt+g
+  bind -x '"\eg\es": g-s'
+  bind -x '"\eg\eb": g-b'
+  bind -x '"\eg\el": g-l'
+  bind '"\eg\eg": "\C-a\C-kgh fgist\n"'
+  bind '"\eg\ei": "\C-a\C-kgh fis\n"'
+  bind '"\eg\ep": "\C-a\C-kgh fpr\n"'
   # Readline function
   bind '"\ew": kill-word'
-  bind '"\ea":"\C-e | awk '\''{print $()}'\'' | \C-b\C-b\C-b\C-b\C-b\C-b"'
+  # key macro (bind -S)
+  bind '"\ea": "\C-e | awk '\''{print $()}'\'' \C-b\C-b\C-b\C-b"'
+  bind '"\e?": "\C-a\C-k(LC_ALL=C; cat <(bind -X | sed -e '\''s\/ \/\\t\/; s\/^\"\/\/; s\/\":\/\/'\'' | sort -k 2 ) <(bind -S | sed '\''s\/ \/\\t\/1'\'' ) | column -t -s \"$(printf '\''\\t'\'')\") | less\n"'
 fi

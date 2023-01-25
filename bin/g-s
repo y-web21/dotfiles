@@ -137,6 +137,7 @@ git-i-staging() {
     selects="$(tail -${file_cnt} <<<"$ret_fzf" | sed -E 's/\n/ /g')"
     [ -z "${selects[*]}" ] && return
 
+    clear
     if [ "$input" = alt-o ]; then
       # shellcheck disable=2086
       vim $selects
