@@ -24,13 +24,14 @@ __set_buffer() {
 # overwrite ~/.fzf.bash __fzf_history__
 # --------------------
 __fzf_history__() {
-  local ret key picks HISTFILE_tmp filename
+  local ret key picks HISTFILE_tmp filename line
   HISTFILE_tmp="${HISTFILE}tmp"
+  local data_dir="${XDG_DATA_HOME:-$HOME}"
   # add current session history to ~/.bash_history
   history -a
 
-  while true; do
-    ret=$(
+  inner() {
+    (
       HISTTIMEFORMAT=''
       tac "${HISTFILE}" | grep -nav '^#' | sed -E 's/^([0-9]{1,}:)/\1\t/' |
         fzf-tmux -w 60% -h 60% --height 80% \
@@ -44,15 +45,19 @@ __fzf_history__() {
           --bind=alt-a:toggle-all \
           --expect=esc,ctrl-c \
           --expect=alt-c,alt-y,ctrl-y \
-          --expect=alt-l \
+          --expect=alt-l,alt-m \
           --expect=alt-d,alt-D \
           --bind='ctrl-l:unix-line-discard' \
           --header-first \
-          --header="$(printf '%-15s\t%-25s\t%-20s\t%-20s\n%-15s\t%-25s\t%-20s\t%-20s' \
+          --header="$(printf '%-15s\t%-25s\t%-20s\t%-20s\n%-15s\t%-25s\t%-20s\t%-20s\n%-15s' \
             'Enter: Print' 'Tab,ctrl-i: Multi select' 'alt-a: Toggle selected' 'alt-D: Delete dupes' \
-            'alt-c,y: copy' 'alt-d: Delete' 'alt-l: dump to file' 'ctrl-l: unix-line-discard' )"
+            'alt-c,y: copy' 'alt-d: Delete' 'alt-l: dump to file' 'alt-m: keep with a comment' \
+            'ctrl-l: unix-line-discard' )"
     )
+  }
 
+  while true; do
+    ret=$(inner)
     key=$(printf '%s' "$ret" | tail +1 | head -1)
     picks="echo \"\$ret\" | tail +2 | cut -d ':' -f 2- | cut -f 2-"
 
@@ -73,17 +78,25 @@ __fzf_history__() {
       read -re -p 'output filepath: ' -i "$HOME/history_log" filename
       test -n "$filename" && cp "$HISTFILE_tmp" "$filename"
       ;;
+    alt-m)
+      line="$(eval "${picks}" | head -1)"
+      echo "$line"
+      read -re -p 'one line comment: '
+      printf '%s\n%s\n\n' "# Description: $REPLY" "$line" >> "$data_dir/aif/temp.sh" \
+        && echo "keep to $data_dir/aif/temp.sh"
+      continue
+      ;;
     alt-d)
       # ret(del_line)は選択順なので降順に並び直してから当該行を削除する
-      del_line=()
+      line=()
       while read -r i; do
-        del_line+=("$(echo "$i" | cut -d ':' -f 1)")
+        line+=("$(echo "$i" | cut -d ':' -f 1)")
       done < <(echo "$ret" | tail +2 | tac)
 
       tac "${HISTFILE}" >"${HISTFILE_tmp}"
       while read -r i; do
         sed -i -e "${i}d" "${HISTFILE_tmp}"
-      done < <(for i in "${del_line[@]}"; do echo "$i"; done | sort -rn)
+      done < <(for i in "${line[@]}"; do echo "$i"; done | sort -rn)
       tac "${HISTFILE_tmp}" >"${HISTFILE}"
       continue
       ;;
@@ -172,6 +185,7 @@ __open_with_editor() {
     fzf_ret="$(find -L . -maxdepth "$depth" 2>/dev/null | sed 's/^\.$/../' |
       xargs -n1 bash -c 'echo $0 $( [ -d $0 ] && echo "📦directory🙄" )' |
       fzf-tmux -p 90% \
+        --header="$(pwd)" \
         --expect=ctrl-c \
         --expect=esc \
         --bind="ctrl-e:execute(pwd)" \
