@@ -21,13 +21,22 @@ describe() {
 	EOS
 }
 
+_header(){
+  local n
+  n=$(( $(describe | grep -n Keybinds: | cut -d':' -f1 | head -1) + 1 ))
+  describe | tail +${n} | sed -e 's/^ *//; $a \\n' |
+    awk '{ if(NR%4)ORS="\t";else ORS="\n";print }' | column -t -s "$(printf '\t')"
+}
+
 _do_fzf() {
   cmd="$1"
-  preview="$2"
-  query="$3"
+  header="$2"
+  preview="$3"
+  query="$4"
   eval "${cmd}" |
     fzf-tmux -p 90% \
       --query="${query:-}" \
+      --header="${header:-}" \
       --preview-window=bottom:70%,+4 \
       --preview "${preview}" \
       --bind alt-p:preview-up,alt-n:preview-down \
@@ -53,7 +62,7 @@ fzf_text() {
   regex=''
 
   while true; do
-    select_=$(_do_fzf "${cmd}" "$preview" "$file")
+    select_=$(_do_fzf "${cmd}" "$(_header)" "$preview" "$file")
     key=$(printf '%s' "$select_" | tr '\n' '&' | cut -d'&' -f 1)
     line=$(printf '%s' "$select_" | tr '\n' '&' | cut -d'&' -f 2)
     file="$line"
