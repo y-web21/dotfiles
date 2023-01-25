@@ -2,15 +2,17 @@
 
 describe() {
   cat <<-EOS
-		alt-a: add branch
-		alt-r: remove branch
+		alt-a: add new
+		alt-r: remove
+		alt-R: force remove
+		ctrl-r: rename
 		enter: checkout
 	EOS
 }
 
 git-i-branch() {
   local query header request_cmd ret_fzf
-  local key selects branch
+  local key selects branch branch_one
   query="${1:-}"
   header=$(describe)
   request_cmd='git branch -a -v --color'
@@ -19,36 +21,53 @@ git-i-branch() {
       tr '*' ' ' |
       sed -E 's/^ *//' |
       grep --color=never -v -E 'remotes\/[a-zA-Z0-9]*\/(main|master|dev|develop|prod)' |
-      grep --color=never -v -E '(main|master)' |
       column -t -s "$(printf '\t')" |
       fzf-tmux -p 90% \
         --query="${query}" \
         --ansi \
         --multi \
         --header="$header" \
-        --expect=alt-r,alt-a)"
+        --expect=alt-r,alt-a,ctrl-r)"
     [ -z "${ret_fzf}" ] && return
 
     key=$(printf '%s' "$ret_fzf" | cut -d $'\n' -f 1)
     selects=$(printf '%s' "$ret_fzf" | cut -d $'\n' -f 2-)
-    branch=$(echo $selects | awk '{print $1}') # last one selected.
+    branch_one=$(echo $selects | awk '{print $1}') # last one selected.
 
     case "${key}" in
     alt-r)
       printf '%s' "$selects" | cut -d $'\n' -f 1- | while read -r line; do
-        _delete-branch "$(echo "$line" | cut -d ' ' -f 1)"
+        branch="$(echo "$line" | cut -d ' ' -f 1)"
+        if _is_protected "$branch" ; then
+          echo -e "\e[31mcan not remove. branch $branch is protected.\e[39m"
+        else
+          _delete-branch "$branch"
+        fi
       done
+      ;;
+    alt-R)
+      echo git branch -D
       ;;
     alt-a)
       query="'$(_make_new_branch)"
       continue
       ;;
+    ctrl-r)
+      read -rep "rename $branch_one to: " -i "$branch_one"
+      test -z "$REPLY" && continue
+      git branch --move "$branch_one" "$REPLY"
+      continue
+      ;;
     *)
-      git checkout "$branch"
+      git checkout "$branch_one"
       ;;
     esac
     break
   done
+}
+
+_is_protected() {
+  echo "$1" | grep -E '^(main|master|dev)$'
 }
 
 _delete-branch() {
