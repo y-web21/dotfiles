@@ -120,10 +120,14 @@ git-i-staging() {
           --expect=ctrl-s \
           --header="$header" \
           --preview '\
-            if [ -d {} ];then tree -C {} -p; exit; fi;\
+            if [ -d {} ];then\
+              tree -C {} -p;\
+              bat --color always $(find {} -type f);\
+              exit;\
+            fi;\
             if [ $(git log -n 1 -p {} | wc -l) -eq 0 ];\
-            then echo -e '\''new file\n'\'' && bat {} --color always;\
-            else git diff --color=always {};\
+              then echo -e '\''new file\n'\'' && bat {} --color always;\
+              else git diff --color=always {};\
             fi'
     )
 
@@ -133,7 +137,6 @@ git-i-staging() {
     selects="$(tail -${file_cnt} <<<"$ret_fzf" | sed -E 's/\n/ /g')"
     [ -z "${selects[*]}" ] && return
 
-    clear
     if [ "$input" = alt-o ]; then
       # shellcheck disable=2086
       vim $selects
@@ -167,8 +170,15 @@ git-i-staging() {
   done
 }
 
+commit_if_all_staged(){
+  test "$(git status --short | awk '{if (substr($0,2,1) != " ") print $NF}' | wc -l)" -gt 0 && return
+  [ -z "$GIT_EDITOR" ] && export GIT_EDITOR=vim
+  git commit
+}
+
 if [[ "$1" = '--help' || "$1" = '-h' ]]; then
   describe
 else
   git-i-staging "$1"
+  commit_if_all_staged
 fi
