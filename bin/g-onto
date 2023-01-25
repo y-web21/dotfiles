@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+describe() {
+  cat <<-EOS
+		ctrl-b: branch
+		ctrl-c: commit
+	EOS
+}
+
+_do_fzf() {
+  cmd="$1"
+  preview="$2"
+  header="$3"
+  query="$4"
+  eval "${cmd}" |
+    fzf --height=90% \
+      --no-sort \
+      --query="${query:-}" \
+      --expect=alt-m \
+      --bind="?:preview:git log {1} -1 --color --name-status" \
+      --bind="ctrl-s:preview:git status" \
+      --bind="ctrl-c:reload(git log --pretty='%h'),ctrl-b:reload(eval ${cmd})" \
+      --preview-window=right,70% \
+      --preview="${preview:-}" \
+      --header="${header:-}"
+}
+
+_rebase_onto() {
+  local rebase_cmd header
+
+  rebase_cmd="git rebase --onto "
+
+  inner() {
+    local cmd preview fzf_ret
+    cmd="git branch --all | cut -c 3-"
+    preview='git log {1} --graph --color=always --oneline --pretty=format:"%C(green)(%cr)%C(reset) - %<(60,trunc)%s" | head -100'
+
+    fzf_ret=$(_do_fzf "${cmd}" "$preview" "$header")
+    printf '%s ' "$fzf_ret" | tail +2 | head -1
+  }
+
+  header=$(echo "$rebase_cmd"; printf '\e[31m%s\e[39m\n%s' 'new parent branch (or commit)' "$(describe)")
+  ret=$(inner "$header")
+  test -z "$ret" && exit 77
+  rebase_cmd+=$ret
+
+  header=$(echo "$rebase_cmd"; printf '\e[32m%s\e[39m\n%s' 'current parent branch (or commit)' "$(describe)")
+  ret=$(inner "$header")
+  test -z "$ret" && exit 77
+  rebase_cmd+=$ret
+
+  header=$(echo "$rebase_cmd"; printf '\e[33m%s\e[39m\n%s' 'target branch (or commit)' "$(describe)")
+  ret=$(inner "$header")
+  test -z "$ret" && exit 77
+  rebase_cmd+=$ret
+
+  echo "${rebase_cmd}"
+  eval "${rebase_cmd}"
+}
+
+if [[ "$1" = '--help' || "$1" = '-h' ]]; then
+  describe
+else
+  _rebase_onto "$@"
+fi
