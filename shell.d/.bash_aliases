@@ -54,7 +54,7 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
 # use user .vimrc with sudo vim.
-alias sudovim='sudo vim -u ~/.vimrc'
+alias sudovim='sudo vim -u $(if [ -n $XDG_CONFIG_HOME ];then echo "$XDG_CONFIG_HOME"/vim/vimrc ;else echo ~/.vimrc; fi)'
 alias vif='vim $(fzf --height 40% --reverse)'
 
 alias dot='/path/to/dotfiles'
