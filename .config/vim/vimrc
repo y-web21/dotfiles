@@ -4,54 +4,6 @@ set all&
 autocmd!
 
 "------------------------------------
-" vim files
-" note: xdg sample https://blog.joren.ga/vim-xdg
-" command: Plug[Install|Update|Upgrade|Status...]
-"------------------------------------
-let s:enable_vim_files = 1
-if s:enable_vim_files != 0
-  set swapfile
-  set directory=$HOME/.vim/swap
-  call mkdir(&directory, 'p', 0700)
-
-  set backup
-  set backupdir=$HOME/.vim/backup
-  call mkdir(&backupdir, 'p', 0700)
-
-  if has('persistent_undo')
-    set undofile
-    set undodir=$HOME/.vim/undo
-    call mkdir(&undodir, 'p', 0700)
-  endif
-
-  set viminfo+=n~/.vim/viminfo
-else
-  set noswapfile
-  set nobackup
-  set noundofile
-  set viminfo=
-endif
-
-if !has('nvim') " Neovim has its own special location
-  set viminfofile=$XDG_STATE_HOME/vim/viminfo
-endif
-
-"------------------------------------
-" plugins
-" Plugin Manager: [vim-plug](https://github.com/junegunn/vim-plug)
-"------------------------------------
-if filereadable(expand('~/.vim/autoload/plug.vim'))
-  call mkdir(expand('~/.vim/plugged'), 'p', 0700)
-  call plug#begin(expand('~/.vim/plugged'))
-    set helplang=ja,en
-    Plug 'vim-jp/vimdoc-ja'
-
-    " git plugin
-    Plug 'tpope/vim-fugitive'
-  call plug#end()
-endif
-
-"------------------------------------
 " Open & Reload .vimrc
 "------------------------------------
 command! Evimrc edit $MYVIMRC
@@ -71,12 +23,170 @@ set fileformats=unix,dos,mac
 set shell=/bin/bash
 set mouse=a
 " set modeline
+set viminfo='100,f1,<500,s10,h
 
 " don't allow editing of read only files
 augroup ro-edit
   autocmd!
   autocmd BufRead * let &l:modifiable = !&readonly
 augroup END
+
+" Uncomment the following to have Vim jump to the last position when reopening a file
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
+
+"------------------------------------
+" vim files
+" note: xdg sample https://blog.joren.ga/vim-xdg
+"------------------------------------
+let s:enable_vim_files = 1
+if s:enable_vim_files != 0
+
+  if has('nvim') " Neovim has its own special location
+    " nvim
+    set directory=$XDG_STATE_HOME/vim/swap
+    set backupdir=$XDG_STATE_HOME/vim/backup
+    set undodir=$XDG_STATE_HOME/vim/undo
+    set viewdir=$XDG_STATE_HOME/vim/view
+    set viminfofile=$XDG_STATE_HOME/vim/viminfo
+
+    set runtimepath^=$XDG_CONFIG_HOME/vim
+    set runtimepath+=$XDG_DATA_HOME/vim
+    set runtimepath+=$XDG_CONFIG_HOME/vim/after
+
+    set packpath^=$XDG_DATA_HOME/vim,$XDG_CONFIG_HOME/vim
+    set packpath+=$XDG_CONFIG_HOME/vim/after,$XDG_DATA_HOME/vim/after
+
+    let g:netrw_home = $XDG_DATA_HOME."/vim"
+    call mkdir($XDG_DATA_HOME."/vim/spell", 'p', 0700)
+  else
+    " vim
+    if exists('*mkdir') && !isdirectory($HOME.'/.vim/')
+      call mkdir($HOME.'/.vim/')
+    endif
+
+    set directory=$HOME/.vim/swap
+    set backupdir=$HOME/.vim/backup
+    set undodir=$HOME/.vim/undo
+    set viminfofile=$HOME/.vim/viminfo
+
+    let g:netrw_home = $HOME."/.vim"
+    call mkdir($HOME."/.vim/spell", 'p', 0700)
+  endif
+
+  set swapfile
+  set backup
+  call mkdir(&directory, 'p', 0700)
+  call mkdir(&backupdir, 'p', 0700)
+  if has('persistent_undo')
+    set undofile
+    call mkdir(&undodir, 'p', 0700)
+  endif
+
+  else
+  set noswapfile
+  set nobackup
+  set noundofile
+  set viminfo=
+endif
+
+"------------------------------------
+" plugins
+" Plugin Manager: [vim-plug](https://github.com/junegunn/vim-plug)
+" Command: Plug[Install|Update|Upgrade|Status...]
+"------------------------------------
+"ファイルタイプごとのプラグイン読み込みを有効にする
+filetype plugin on
+
+if filereadable(expand('~/.vim/autoload/plug.vim'))
+  call mkdir(expand('~/.vim/plugged'), 'p', 0700)
+  call plug#begin(expand('~/.vim/plugged'))
+    set helplang=ja,en
+    Plug 'vim-jp/vimdoc-ja'
+
+    " git plugin
+    Plug 'tpope/vim-fugitive'
+    call plug#end()
+endif
+
+"------------------------------------
+" builtin plugin netrw
+"------------------------------------
+let g:netrw_banner=1
+" display file size and timestamp
+let g:netrw_liststyle=1
+" h=1000 H=1024(KiB style unit)
+let g:netrw_sizestyle="H"
+let g:netrw_timefmt="%Y/%m/%d(%a) %H:%M:%S"
+" vertically preview window (p key)
+let g:netrw_preview=1
+" use buffer only remote directory
+let g:netrw_fastbrowse=1
+
+"------------------------------------
+" input mode settings
+"------------------------------------
+set autoindent
+set expandtab  " tab to space
+set tabstop=4   " num of char to convert tab to spaces when open
+set softtabstop=4   " when keyboard input
+set shiftwidth=4    " autoindent spaces
+set showmatch  " 対応カッコをハイライト
+set ruler
+set title
+set list  " 不可視文字を表示する
+set listchars=tab:>-,trail:.  " タブを >--- 半スペを . で表示する
+set number
+
+augroup tab_setting
+  autocmd!
+  "ファイルタイプに合わせたインデントを有効にする
+  filetype indent on
+  "sw=shiftwidth, sts=softtabstop, ts=tabstop, et=expandtabの略
+  autocmd FileType c           setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType sh          setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType bash        setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType zsh         setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType python      setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType json        setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType html        setlocal sw=2 sts=2 ts=2 et
+  autocmd FileType css         setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType scss        setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType sass        setlocal sw=4 sts=4 ts=4 et
+  autocmd FileType javascript  setlocal sw=2 sts=2 ts=2 et
+augroup END
+
+if filereadable(expand("~/.vimrc.local"))
+  source ~/.vimrc.local
+endif
+
+"------------------------------------
+" normal mode settings
+"------------------------------------
+set ignorecase
+set smartcase " require ignorecase
+
+"------------------------------------
+" command line mode settings
+"------------------------------------
+set wildmenu    " tab 補完(C+i)
+
+"------------------------------------
+" appearance settings
+"------------------------------------
+" cursor type
+if has('vim_starting')
+    let &t_EI .= "\e[2 q"   " normal mode
+    let &t_SI .= "\e[6 q"   " insert mode
+    let &t_SR .= "\e[4 q"   " replace mode
+endif
+
+" hilight line
+" カーソル行を強調表示しない
+set nocursorline
+" 挿入モードの時のみ、カーソル行をハイライトする
+autocmd InsertEnter,InsertLeave * set cursorline!
 
 "------------------------------------
 " color theme
@@ -115,22 +225,6 @@ set statusline+=\ [%p%%/%L]
 set statusline+=\ %{strftime(\"%Y/%m/%d\ %H:%M:%S\")}
 
 "------------------------------------
-" appearance settings
-"------------------------------------
-" cursor type
-if has('vim_starting')
-    let &t_EI .= "\e[2 q"   " normal mode
-    let &t_SI .= "\e[6 q"   " insert mode
-    let &t_SR .= "\e[4 q"   " replace mode
-endif
-
-" hilight line
-" カーソル行を強調表示しない
-set nocursorline
-" 挿入モードの時のみ、カーソル行をハイライトする
-autocmd InsertEnter,InsertLeave * set cursorline!
-
-"------------------------------------
 " clipboard settings
 "------------------------------------
 " ビジュアルモードで選択したテキストが、クリップボードに入るようにする。
@@ -138,68 +232,6 @@ autocmd InsertEnter,InsertLeave * set cursorline!
 set clipboard+=autoselect
 " 無名レジスタに入るデータを、*レジスタにも入れる。
 set clipboard+=unnamed
-
-"------------------------------------
-" editor settings
-"------------------------------------
-set autoindent
-set expandtab  " tab to space
-set tabstop=4   " num of char to convert tab to spaces when open
-set softtabstop=4   " when keyboard input
-set shiftwidth=4    " autoindent spaces
-set showmatch  " 対応カッコをハイライト
-set ruler
-set title
-set list  " 不可視文字を表示する
-set listchars=tab:>-,trail:.  " タブを >--- 半スペを . で表示する
-set number
-
-augroup tab_setting
-  autocmd!
-  "ファイルタイプの検索を有効にする
-  filetype plugin on
-  "ファイルタイプに合わせたインデントを利用
-  filetype indent on
-  "sw=shiftwidth, sts=softtabstop, ts=tabstop, et=expandtabの略
-  autocmd FileType c           setlocal sw=4 sts=4 ts=4 et
-  autocmd FileType sh          setlocal sw=2 sts=2 ts=2 et
-  autocmd FileType bash        setlocal sw=2 sts=2 ts=2 et
-  autocmd FileType zsh         setlocal sw=2 sts=2 ts=2 et
-  autocmd FileType python      setlocal sw=4 sts=4 ts=4 et
-  autocmd FileType json        setlocal sw=2 sts=2 ts=2 et
-  autocmd FileType html        setlocal sw=2 sts=2 ts=2 et
-  autocmd FileType css         setlocal sw=4 sts=4 ts=4 et
-  autocmd FileType scss        setlocal sw=4 sts=4 ts=4 et
-  autocmd FileType sass        setlocal sw=4 sts=4 ts=4 et
-  autocmd FileType javascript  setlocal sw=2 sts=2 ts=2 et
-augroup END
-
-if filereadable(expand("~/.vimrc.local"))
-  source ~/.vimrc.local
-endif
-"------------------------------------
-" normal mode settings
-"------------------------------------
-set ignorecase
-set smartcase " require ignorecase
-
-"------------------------------------
-" command line mode settings
-"------------------------------------
-set wildmenu    " tab 補完(C+i)
-
-"------------------------------------
-" re-examination
-"------------------------------------
-language C  " system laguage english
-syntax enable
-" set norestorescreen
-" scriptencoding utf-8
-
-"------------------------------------
-" finish loading vimrc if tiny or small version.
-"------------------------------------
-if !1 | finish | endif
 
 "------------------------------------
 " custom command
@@ -225,6 +257,20 @@ function! s:py3(file, pos)
 endfunction
 
 nnoremap py3 :<C-u>SamplePy3<Return>
+
+"------------------------------------
+" re-examination
+"------------------------------------
+language C  " system laguage english
+syntax enable
+" set norestorescreen
+" scriptencoding utf-8
+
+"------------------------------------
+" finish loading vimrc if tiny or small version.
+"------------------------------------
+if !1 | finish | endif
+
 "------------------------------------
 " key binding memo
 "------------------------------------
@@ -244,12 +290,14 @@ nnoremap py3 :<C-u>SamplePy3<Return>
 execute "set <M-b>=\eb"
 execute "set <M-f>=\ef"
 execute "set <M-k>=\ek"
+
 "------------------------------------
 " Normal, Visual, Select, Operator-pendin mode key binding
 "------------------------------------
 noremap g<c-a> <ESC>ggvGV
 noremap <Space>h ^
 noremap <Space>l $
+
 "------------------------------------
 " nomal(command) mode key binding custumize
 "------------------------------------
