@@ -110,5 +110,6 @@ _make_new_branch() {
 if [[ "$1" = '--help' || "$1" = '-h' ]]; then
   describe
 else
+  git rev-parse || exit
   git-i-branch "$1"
 fi

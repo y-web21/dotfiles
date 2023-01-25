@@ -136,5 +136,6 @@ _git_log_fzf() {
 if [[ "$1" = '--help' || "$1" = '-h' ]]; then
   describe
 else
+  git rev-parse || exit
   _git_log_fzf "$@"
 fi

@@ -180,6 +180,7 @@ commit_if_all_staged(){
 if [[ "$1" = '--help' || "$1" = '-h' ]]; then
   describe
 else
+  git rev-parse || exit
   git-i-staging "$1"
   commit_if_all_staged
 fi
