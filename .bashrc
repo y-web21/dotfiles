@@ -68,6 +68,12 @@ history() {
   builtin history "$@"
 }
 
+# Source: https://stackoverflow.com/questions/46432027/bash-kill-vim-when-vim-warning-output-not-to-a-terminal
+vim() {
+  [ -t 1 ] || { echo "Not starting vim without stdout to TTY!" >&2; return 1; }
+  command vim "$@"
+}
+
 # Completion
 # --------------------
 # load homebrew bash-completion file by apt bash-completion.
