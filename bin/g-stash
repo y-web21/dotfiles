@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+cmd_stash='git stash list --pretty=format:"%C(red)%h%C(reset) - %C(dim yellow)%C(bold magenta)%gd%C(dim yellow)%C(reset) %<(70,trunc)%s %C(green)(%cr) %C(bold blue)<%an>%C(reset)"'
+preview="${cmd_stash} | grep {}; printf '\n\n' ; git stash show {} --color -p;"
+header=$(printf '%s\n%s' 'enter: diff stash' 'alt-l: --name-status')
+
+git stash list | awk -F ':' '{print $1}' |
+fzf --preview="$preview" \
+  --preview-window='75%,wrap' \
+  --header="$header" \
+  --bind='alt-l:preview(git stash show {})' \
+  --bind='enter:execute(git stash show -p {} --color | less -X)'
+
+  # --bind='alt-l:preview(git stash show --name-status {} --color)' \
