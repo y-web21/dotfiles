@@ -6,7 +6,7 @@
 # set -eou pipefail
 
 cd "$(dirname "$0")" || exit
-EXCEPT='grep -v -e \.gitignore$ -e README -e \.git$ -e ^\.vscode -e \.bak$ -e \.shellcheckrc'
+EXCEPT='grep -v -e \.gitignore$ -e README -e \.git$ -e \.github$ -e ^\.vscode -e \.bak$ -e \.shellcheckrc'
 FORCE=0
 test -n "$1" && test "$1" = '-f' && FORCE=1
 
@@ -51,7 +51,7 @@ done
 
 # ./.xxx directories
 for DOT_FOLDER in $(find ./ -maxdepth 1 -type d | cut -c 3- | grep -i '^\.' | $EXCEPT | sort); do
-  for DOT_CONFIG in $(find "${DOT_FOLDER}" -maxdepth 3 -type f | $EXCEPT); do
+  for DOT_CONFIG in $(find "${DOT_FOLDER}" -type f | $EXCEPT); do
     make_link "$DOT_CONFIG"
   done
 done
