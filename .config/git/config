@@ -49,12 +49,12 @@
 	gistpush = !git add . && git commit --allow-empty-message -m '' && git push
 	pust = !git add . && git commit -m 'test [skip ci]' && git push origin @
 	tesh = !git add . && git commit -m \"$(date \"+%Y-%m-%d_%H:%M:%S\")\" && git push origin @
+	ls-hold = !"bash -cv 'git ls-files -v | grep ^S'"
 	hold = update-index --skip-worktree
 	unhold = update-index --no-skip-worktree
 	# 更新頻度が低い場合は assume unchanged でも良い
 	# hold = update-index --assume-unchanged
 	# unhold = update-index --no-assume-unchanged
-	ls-hold = !"bash -cv 'git ls-files -v | grep ^S'"
 	reset-aslo-unstage = "!git reset && git clean -df"
 	ciskip = !git add . && git commit -m 'test [skip ci]' && git push origin @
 	tesh = !git add . && git commit -m \"$(date \"+%Y-%m-%d_%H:%M:%S\")\" && git push origin @
@@ -108,6 +108,7 @@
 	# == ls ==
 	ls = ls-files --directory
 	ls-untracked = ls-files --others --exclude-standard
+	ls-untracked-all = ls-files --others
 	ls-ignored = ls-files --others --ignored --exclude-standard --directory
 	# == fzf ==
 	cmf = !g-commit-fixup
