@@ -100,7 +100,11 @@ _git_log_fzf() {
       ;;
     alt-o | ctrl-o)
       # shellcheck disable=SC2046
-      vim -c 'ls' $(git log "${ghash}" -1 --name-only --oneline | tail +2 | sed -z 's/\n/ /g')
+      if [ -t 1 ]; then
+        vim -c 'ls' $(git log "${ghash}" -1 --name-only --oneline | tail +2 | sed -z 's/\n/ /g')
+      else
+        echo "Not starting vim without stdout to TTY!" >&2
+      fi
       ;;
     alt-i)
       _stash_and_rebase "${ghash}"
