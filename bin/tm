@@ -4,16 +4,13 @@
 # --------------------
 describe() {
   cat <<-EOS
-		text view
-		Positional Args:
-		  arg1 = base directory (default .)
-		  arg2 = find depth (default 3)
+		tmux session manager
 		Keybinds:
-		  ctrl-s: Session list
-		  ctrl-w: Window list
-		  ctrl-p: Pane list
-		  alt-k: Kill
-		  enter: Attach session, window, pane
+		  alt-s: kill Session
+		  alt-w: kill Window & Pane
+		  ctrl-s: select Session
+		  ctrl-w: select Window & Pane
+		  enter: mode action
 
 	EOS
 }
@@ -23,7 +20,7 @@ _header() {
   local n
   n=$(($(describe | grep -n 'Keybinds:' | cut -d':' -f1 | head -1) + 1))
   describe | tail +${n} | sed -e 's/^ *//; $a \\n' |
-    awk '{ if(NR%3)ORS="\t";else ORS="\n";print }' | column -t -s "$(printf '\t')"
+    awk '{ if(NR%2)ORS="\t";else ORS="\n";print }' | column -t -s "$(printf '\t')"
 }
 
 _do_fzf() {
@@ -31,58 +28,62 @@ _do_fzf() {
   header="$2"
   preview="$3"
   option="$4"
-  query="$5"
+  preview_size="$5"
+  query="$6"
   eval "${cmd}" |
     fzf-tmux -p 70% --height=60% "${option:-''}" \
       --header-first \
       --header="${header:-}" \
+      --header-lines=0 \
       --query="${query:-}" \
-      --preview-window=bottom:60% \
+      --preview-window=bottom:"${preview_size:-60%}" \
       --preview "${preview}" \
-      --expect=enter,esc,ctrl-c \
-      --expect=alt-a,alt-k \
-      --expect=ctrl-s,ctrl-w,ctrl-p
+      --expect=enter,esc,ctrl-c,F1 \
+      --expect=alt-s,alt-w, \
+      --expect=ctrl-s,ctrl-w
 }
 
 main() {
-  local cmd preview
-  local default_cmd default_preview
-  local select_ key
+  local cmd selects key id preview_size
 
-  default_preview='printf '\''%s\n\n%s\n\n%s\n\n%s'\'' "$(tmux list-clients)" "$(tmux list-sessions)" "$(tmux list-windows)" "$(tmux list-panes)"; echo {} '
-  default_cmd="tmux list-sessions"
-  cmd=$default_cmd
-  preview="$default_preview"
-  local mode=session
+  local default_preview='printf '\''%s\n\n%s\n\n'\'' "$(tmux list-windows)" "$(tmux list-panes -s)";'
+  local preview="$default_preview"
+  local target=pane
+  local mode=select
   local message=''
   local option='--no-multi'
 
+  local cmd_session="tmux list-sessions"
+  local cmd_pane='tmux list-panes -s -F '\''#I.#P: #{p-3:pane_id} #{?window_active,*,.}#{?pane_active,*,.} #{p5:#{?:pane_dead,dead,alive}} [history#{p-7:history_bytes} bytes] #{p10:pane_current_command} #{=/-60/...:pane_current_path}'\'' | column -t'
+  cmd=$cmd_session && [ $target == 'pane' ] && cmd=$cmd_pane
+
   while true; do
-    select_=$(_do_fzf "${cmd}" "$(_header) $(printf '\n\e[33mmode: %s\e[39m\n%s' "$mode" "$message")" "$preview" "$option")
-    key=$(printf '%s' "$select_" | tr '\n' '&' | cut -d'&' -f 1)
-    id=$(printf '%s' "$select_" | tail +2 | cut -d':' -f 1)
+    preview_size='60%' && [ $target == 'pane' ] && preview_size='0%'
+    selects=$(_do_fzf "${cmd}" "$(_header) $(printf '\n\e[33mmode: %s\t\ttarget: %s\e[39m\n%s' "$mode" "$target" "$message")" "$preview" "$option" "$preview_size")
+    key=$(printf '%s' "$selects" | head -1)
+    id=$(printf '%s' "$selects" | tail +2 | cut -d':' -f 1)
     message=''
 
     case "${key}" in
     esc | ctrl-c) return ;;
-    ctrl-s) mode=session; option='--no-multi'; cmd='tmux list-sessions' ;;
-    ctrl-w) mode=window; option='--multi'; cmd='tmux list-windows' ;;
-    ctrl-p) mode=pane; option='--multi'; cmd='tmux list-panes' ;;
-    alt-k)
-      tmux kill-"$mode" -t "$id" ;;
+    ctrl-s) target=session; mode='select'; option='--no-multi'; cmd="$cmd_session" ;;
+    ctrl-w) target=pane; mode='select'; option='--no-multi'; cmd="$cmd_pane" ;;
+    alt-s) target=session; mode='kill'; option='--multi'; cmd="$cmd_session" ;;
+    alt-w) target=pane; mode='kill'; option='--multi'; cmd="$cmd_pane" ;;
     enter)
-      if [ $mode == 'session' ];then
-        tmux attach -t "$id"
-      elif [ $mode == 'window' ];then
-        tmux attach -d
-        tmux
-      else
-        tmux attach -d
+      if [ $mode == 'kill' ]; then
+        while read -r i; do
+          tmux kill-"$target" -t "$i"
+        done < <(echo "$id")
+      elif [ $mode == 'select' ]; then
+        if [ $target == 'session' ]; then
+          tmux attach -t "$id"
+        elif [ $target == 'pane' ]; then
+          tmux select-pane -t "$id" && tmux select-window -t "$id"
+        fi
       fi
-      message=$(echo -e "\e[31mattach session is only possible in session mode\e[39m")
       ;;
-    *) ;;
-
+    *) message=$(echo -e "\e[31mundefined keybind\e[39m") ;;
     esac
   done
 
