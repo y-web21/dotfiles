@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+# t-mux
+# --------------------
+describe() {
+  cat <<-EOS
+		text view
+		Positional Args:
+		  arg1 = base directory (default .)
+		  arg2 = find depth (default 3)
+		Keybinds:
+		  ctrl-s: Session list
+		  ctrl-w: Window list
+		  ctrl-p: Pane list
+		  alt-k: Kill
+		  enter: Attach session, window, pane
+
+	EOS
+}
+
+_header() {
+  # describe to fzf header strings
+  local n
+  n=$(($(describe | grep -n 'Keybinds:' | cut -d':' -f1 | head -1) + 1))
+  describe | tail +${n} | sed -e 's/^ *//; $a \\n' |
+    awk '{ if(NR%3)ORS="\t";else ORS="\n";print }' | column -t -s "$(printf '\t')"
+}
+
+_do_fzf() {
+  cmd="$1"
+  header="$2"
+  preview="$3"
+  option="$4"
+  query="$5"
+  eval "${cmd}" |
+    fzf-tmux -p 70% --height=60% "${option:-''}" \
+      --header-first \
+      --header="${header:-}" \
+      --query="${query:-}" \
+      --preview-window=bottom:60% \
+      --preview "${preview}" \
+      --expect=enter,esc,ctrl-c \
+      --expect=alt-a,alt-k \
+      --expect=ctrl-s,ctrl-w,ctrl-p
+}
+
+main() {
+  local cmd preview
+  local default_cmd default_preview
+  local select_ key
+
+  default_preview='printf '\''%s\n\n%s\n\n%s\n\n%s'\'' "$(tmux list-clients)" "$(tmux list-sessions)" "$(tmux list-windows)" "$(tmux list-panes)"; echo {} '
+  default_cmd="tmux list-sessions"
+  cmd=$default_cmd
+  preview="$default_preview"
+  local mode=session
+  local message=''
+  local option='--no-multi'
+
+  while true; do
+    select_=$(_do_fzf "${cmd}" "$(_header) $(printf '\n\e[33mmode: %s\e[39m\n%s' "$mode" "$message")" "$preview" "$option")
+    key=$(printf '%s' "$select_" | tr '\n' '&' | cut -d'&' -f 1)
+    id=$(printf '%s' "$select_" | tail +2 | cut -d':' -f 1)
+    message=''
+
+    case "${key}" in
+    esc | ctrl-c) return ;;
+    ctrl-s) mode=session; option='--no-multi'; cmd='tmux list-sessions' ;;
+    ctrl-w) mode=window; option='--multi'; cmd='tmux list-windows' ;;
+    ctrl-p) mode=pane; option='--multi'; cmd='tmux list-panes' ;;
+    alt-k)
+      tmux kill-"$mode" -t "$id" ;;
+    enter)
+      if [ $mode == 'session' ];then
+        tmux attach -t "$id"
+      elif [ $mode == 'window' ];then
+        tmux attach -d
+        tmux
+      else
+        tmux attach -d
+      fi
+      message=$(echo -e "\e[31mattach session is only possible in session mode\e[39m")
+      ;;
+    *) ;;
+
+    esac
+  done
+
+}
+
+if [[ "$1" = '--help' || "$1" = '-h' ]]; then
+  describe
+else
+  main "$@"
+fi
