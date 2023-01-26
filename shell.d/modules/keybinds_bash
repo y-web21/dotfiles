@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 # keybind functions
 
-# shellcheck disable=1090
-test -r ~/dotfiles/bin/b-l && . ~/dotfiles/bin/b-l
-
 __get_buffer() {
   if [ -n "$ZSH_VERSION" ]; then
     echo "${BUFFER}"
@@ -373,7 +370,7 @@ if [ -n "$BASH_VERSION" ]; then
   bind -x '"\eg\eb": g-b'
   bind -x '"\eg\el": g-l'
   bind '"\eg\eg": "\C-a\C-kgh fgist\n"'
-  bind '"\eg\ei": "\C-a\C-kgh fis\n"'
+  bind '"\eg\ei": "\C-a\C-kgh fissue\n"'
   bind '"\eg\ep": "\C-a\C-kgh fpr\n"'
   # Readline function
   bind '"\ew": kill-word'

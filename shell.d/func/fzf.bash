@@ -4,27 +4,26 @@
 # --------------------
 f-man() {
   local cmd query preview binds header opts
-  local field1 sel preview2
+  local field1 bin_list sub_preview
   # shellcheck disable=2089
-  field1="cut -d ' ' -f 1"
-  sel="echo {} | $field1"
-  preview2='$( $sel ) --help || $( $sel ) -h'
+  field1="echo {} | cut -d ' ' -f 1"
+  sub_preview='$( $field1 ) --help || $( $field1 ) -h'
   cmd_full="man -k ${1:-\.}"
-  cmd="${cmd_full} | $field1"
-  bin_dir="cat <(command ls /bin) <(command ls /usr/bin) <(command ls /usr/local/bin ) <(command ls $HOMEBREW_PREFIX/bin) | sort | uniq"
+  cmd="${cmd_full} | cut -d ' ' -f 1"
+  bin_list="cat <(command ls /bin) <(command ls /usr/bin) <(command ls /usr/local/bin) <(command ls $HOMEBREW_PREFIX/bin) | sort | uniq"
   # fzf options
   opts="--height 100% --reverse --query=\"${query:-}\" "
   header="--header '$(printf '%-25s\t%-25s\t%-25s\t%-25s\n%-25s\t%-25s' \
     'Enter: Open with pager' 'ctrl-h: Help' 'alt-o: Open with vim' 'ctrl-o: Open with vim' \
     'alt-s,f: reload' 'alt-c: command list')'"
-  binds="--bind=\"?:preview:$preview2\" \
-      --bind=\"Enter:execute($sel | xargs man -P ${PAGER:-less})\" \
-      --bind=\"ctrl-h:execute(($preview2) | ${PAGER:-less})\" \
-      --bind=\"alt-o:execute($sel | xargs man | vim -)\" \
-      --bind=\"ctrl-o:execute($sel | xargs man | vim -)\" \
+  binds="--bind=\"?:preview:$sub_preview\" \
+      --bind=\"Enter:execute($field1 | xargs man -P ${PAGER:-less})\" \
+      --bind=\"ctrl-h:execute(($sub_preview) | ${PAGER:-less})\" \
+      --bind=\"alt-o:execute($field1 | xargs man | vim -)\" \
+      --bind=\"ctrl-o:execute($field1 | xargs man | vim -)\" \
       --bind=\"alt-s:reload($cmd)\" \
       --bind=\"alt-f:reload($cmd_full)\" \
-      --bind=\"alt-c:reload($bin_dir)\" \
+      --bind=\"alt-c:reload($bin_list)\" \
       --bind=change:top"
   preview="--preview \"echo {} | awk '{print \$1}' | xargs man -P ${PAGER:-less}\" --preview-window down:70%"
   opts+="${binds:-} ${header:-} ${preview:-}"

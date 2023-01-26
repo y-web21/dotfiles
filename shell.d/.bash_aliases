@@ -75,7 +75,7 @@ alias now='date +"%T"'
 alias nowtime=now
 alias nowdate='date +"%d-%m-%Y"'
 
-# clipboard base
+# clipboard
 alias C="sed -z -e '$ s/\n//' | xclip -selection c"
 
 if ! is_mac; then
@@ -165,6 +165,16 @@ alias httpdreload='sudo /usr/sbin/apachectl -k graceful'
 alias httpdtest='sudo /usr/sbin/apachectl -t && /usr/sbin/apachectl -t -D DUMP_VHOSTS'
 
 alias py='python3.10'
+
+# --------------------
+# git prefix gg
+# --------------------
+alias ggl='g-l'
+alias ggb='g-b'
+alias ggs='g-s'
+alias ggg='gh fgist'
+alias ggi='gh fissue'
+alias ggp='gh fpr'
 
 # --------------------
 # for packages
