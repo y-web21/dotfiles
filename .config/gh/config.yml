@@ -51,11 +51,11 @@ aliases:
             --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n' \
               'Enter: Edit' 'alt-a: Add file to selected' 'alt-d: Edit description' 'alt-r: Remove gist' \
               'alt-h: echo hash' 'alt-N: Add new file' 'alt-w: gh gist view -w' 'alt-c: gh gist clone' \
-              'alt-b: bat')" \
+              'alt-b: bat' 'alt-o: vim')" \
             --preview-window=bottom:75%,+4 \
             --preview "gh gist view {-1} -f {2} | bat --color=always -l md" \
             --bind alt-p:preview-up,alt-n:preview-down \
-            --expect=alt-r,alt-a,alt-d,alt-h,alt-N,alt-b \
+            --expect=alt-r,alt-a,alt-d,alt-h,alt-N,alt-b,alt-o \
             --bind="alt-w:execute(gh gist view {-1} -w)" \
             --bind="alt-c:execute(gh gist clone {-1} {2})" )"
         [ -z "${select}" ] && return
@@ -89,6 +89,10 @@ aliases:
             if [ -z "$new_desc" ]; then read -p "delete description? (y/N): " YN && [ $YN != y -a $YN != Y ] && exit; fi
             GH_EDITOR=cat && EDITOR=cat
             gh gist edit $id -d "$new_desc" >/dev/null
+          ;;
+          alt-o)
+            GH_EDITOR=vim
+            gh gist edit $id -f $file
           ;;
           alt-h)
             # $READLINE_LINE, $BUFFER
