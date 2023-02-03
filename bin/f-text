@@ -40,6 +40,7 @@ _do_fzf() {
       --preview-window=bottom:70%,+4 \
       --preview "${preview}" \
       --bind alt-p:preview-up,alt-n:preview-down \
+      --bind="?:preview:if type bat 2>/dev/null; then bat {} --color=always;else ${PAGER:-less} {}; fi" \
       --expect=esc,ctrl-c \
       --expect=alt-o,ctrl-o,alt-e,ctrl-j \
       --expect=alt-f,alt-g \
