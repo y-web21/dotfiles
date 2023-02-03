@@ -50,7 +50,7 @@ aliases:
           fzf-tmux -p 90% --query="${1:-'Markdown }" \
             --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n' \
               'Enter: Edit' 'alt-a: Add file to selected' 'alt-d: Edit description' 'alt-r: Remove gist' \
-              'alt-h: echo hash' 'alt-N: Add new file' 'alt-w: gh gist view -w' 'alt-c: gh gist clone' \
+              'alt-h: echo hash' 'alt-N: Create new to selected' 'alt-w: gh gist view -w' 'alt-c: gh gist clone' \
               'alt-b: bat' 'alt-o: vim')" \
             --preview-window=bottom:75%,+4 \
             --preview "gh gist view {-1} -f {2} | bat --color=always -l md" \
