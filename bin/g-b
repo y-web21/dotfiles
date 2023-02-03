@@ -22,12 +22,12 @@ git-i-branch() {
       sed -E 's/^ *//' |
       grep --color=never -v -E 'remotes\/[a-zA-Z0-9]*\/(main|master|dev|develop|prod)' |
       column -t -s "$(printf '\t')" |
-      fzf-tmux -p 90% \
+      fzf --height=50% --layout=default \
         --query="${query}" \
         --ansi \
         --multi \
         --header="$header" \
-        --expect=alt-r,alt-a,ctrl-r)"
+        --expect=alt-r,alt-a,ctrl-r,alt-R)"
     [ -z "${ret_fzf}" ] && return
 
     key=$(printf '%s' "$ret_fzf" | cut -d $'\n' -f 1)
@@ -46,7 +46,7 @@ git-i-branch() {
       done
       ;;
     alt-R)
-      echo git branch -D
+      echo git branch -D "$branch_one"
       ;;
     alt-a)
       query="'$(_make_new_branch)"
