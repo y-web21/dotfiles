@@ -6,7 +6,15 @@ describe() {
 		  arg1 = filename
 		Keybinds:
 		  enter: show
+		  alt-y: copy hash
 	EOS
+}
+
+_header(){
+  local n
+  n=$(( $(describe | grep -n Keybinds: | cut -d':' -f1 | head -1) + 1 ))
+  describe | tail +${n} | sed -e 's/^ *//; $a \\n' |
+    awk '{ if(NR%4)ORS="\t";else ORS="\n";print }' | column -t -s "$(printf '\t')"
 }
 
 _git_log_file_fzf() {
@@ -17,10 +25,19 @@ _git_log_file_fzf() {
   fi
   filename="${1:-.vimrc}"
   pager='bat --color always --paging always'
-  hash=$(git log --oneline -- "$filename" |
-    fzf --preview="git log \$(echo {} | cut -d' ' -f1 ) -1 -p --color -- \"$filename\"" --preview-window='bottom,70%' |
+  fzf_ret=$(git log --oneline -- "$filename" |
+    fzf --preview="git log \$(echo {} | cut -d' ' -f1 ) -1 -p --color -- \"$filename\"" \
+    --header="$(_header)" \
+    --expect=enter,alt-y \
+    --preview-window='bottom,70%' |
     awk '{print $1}'
   )
+
+  key=$(tail +1 <<< ${fzf_ret} | head -1)
+  hash=$(tail +2 <<< ${fzf_ret})
+
+  [ -z "$key" ] && return
+  [ "$key" == 'alt-y' ] && echo "$hash" | clip && return
   git show --color $hash:"$filename" | eval "$pager"
 }
 
