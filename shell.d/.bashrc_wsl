@@ -40,6 +40,9 @@ export PLAYER="nircmd.exe mediaplay 1400 "
 
 . ~/dotfiles/shell.d/modules/PS1 'wsl'
 
+# maximum number of open file descriptors 1024 to
+ulimit -n 2048
+
 # windows との共有設定
 test -e ~/.bashrc.local || ln -s "${WINHOME}"/dotfiles_common/.bashrc.local ~/.bashrc.local
 test -e ~/.gitconfig.local || ln -s "${WINHOME}"/dotfiles_common/.gitconfig.local ~/.gitconfig.local
