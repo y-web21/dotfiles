@@ -2,7 +2,7 @@
 
 describe() {
   cat <<-EOS
-		alt-a: add new
+		alt-n: add new
 		alt-r: remove
 		alt-R: force remove
 		ctrl-r: rename
@@ -14,9 +14,9 @@ git-i-branch() {
   local query header request_cmd ret_fzf
   local key selects branch branch_one
   query="${1:-}"
-  header=$(describe)
   request_cmd='git branch -a -v --color'
   while true; do
+    header=$(describe)
     ret_fzf="$(eval "$request_cmd" |
       tr '*' ' ' |
       sed -E 's/^ *//' |
@@ -27,7 +27,7 @@ git-i-branch() {
         --ansi \
         --multi \
         --header="$header" \
-        --expect=alt-r,alt-a,ctrl-r,alt-R)"
+        --expect=alt-r,alt-n,ctrl-r,alt-R)"
     [ -z "${ret_fzf}" ] && return
 
     key=$(printf '%s' "$ret_fzf" | cut -d $'\n' -f 1)
@@ -48,8 +48,9 @@ git-i-branch() {
     alt-R)
       echo git branch -D "$branch_one"
       ;;
-    alt-a)
+    alt-n)
       query="'$(_make_new_branch)"
+      _make_remote_branch "$query"
       continue
       ;;
     ctrl-r)
@@ -98,13 +99,18 @@ _delete_local_branch() {
 }
 
 _make_new_branch() {
-  local new_branch
-  new_branch="$(read -r -p 'new branch name: ' && echo "$REPLY")"
+  local new_branch msg yn
+  msg=$(printf '\e[32m%s\e[39m based new branch name: ' "$(git branch --show-current)")
+  new_branch="$(read -r -p "$msg" && echo "$REPLY")"
   git branch "$new_branch"
   echo "$new_branch"
-  read -r -e -p 'add to remote branch now? (yN): ' -i "" yn
-  [[ $yn =~ y|Y ]] && git push --set-upstream origin "$new_branch"
-  return 0
+}
+
+_make_remote_branch(){
+  local name yn
+  name="${1}"
+  read -r -e -p "create remote branch ${name}? (yN): " -i "" yn
+  [[ $yn =~ y|Y ]] && git push --set-upstream origin "$name"
 }
 
 if [[ "$1" = '--help' || "$1" = '-h' ]]; then
