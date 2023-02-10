@@ -45,17 +45,18 @@ aliases:
         ;;
       esac
     fgist: |-
-        !select="$(gh api https://api.github.com/gists --paginate |
+        !preview='ext=$(rev <<< {2} | cut -d "." -f 1 | rev); gh gist view {-1} -f {2} | bat --color=always -l "$ext" || gh gist view {-1} -f {2} | bat --color=always -l md'
+        select="$(gh api https://api.github.com/gists --paginate |
           jq -r ' .[] | .files[] as $files | [ ( $files.language // "unknown" ) , $files.filename, ( .description | tojson ) , .id] | @tsv' | column -t -s "$(printf '\t')" |
           fzf-tmux -p 90% --query="${1:-'Markdown }" \
             --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n' \
               'Enter: Edit' 'alt-a: Add file to selected' 'alt-d: Edit description' 'alt-r: Remove gist' \
               'alt-h: echo hash' 'alt-N: Create new to selected' 'alt-w: gh gist view -w' 'alt-c: gh gist clone' \
-              'alt-b: bat' 'alt-o: vim')" \
+              'alt-b: bat' 'alt-g: glow' 'alt-o: vim')" \
             --preview-window=bottom:75%,+4 \
-            --preview "gh gist view {-1} -f {2} | bat --color=always -l md" \
+            --preview "$preview" \
             --bind alt-p:preview-up,alt-n:preview-down \
-            --expect=alt-r,alt-a,alt-d,alt-h,alt-N,alt-b,alt-o \
+            --expect=alt-r,alt-a,alt-d,alt-h,alt-N,alt-b,alt-o,alt-g \
             --bind="alt-w:execute(gh gist view {-1} -w)" \
             --bind="alt-c:execute(gh gist clone {-1} {2})" )"
         [ -z "${select}" ] && return
@@ -97,6 +98,10 @@ aliases:
           alt-h)
             # $READLINE_LINE, $BUFFER
             echo $id
+          ;;
+          alt-g)
+            type glow || return 1
+            gh gist view "$id" -f "$file" | glow -
           ;;
           alt-b)
             bat --list-languages | tr ',' '\n' | sed 's/^.*://' | grep -i "^${type}$" >/dev/null

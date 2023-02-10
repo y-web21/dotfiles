@@ -40,9 +40,17 @@ test -r ~/.shellrc && . ~/.shellrc
 
 # History
 # --------------------
-# シェルの切り替えで上書きされる
+# profile を読み込まないで bash が実行されデフォルトのSIZE(500)が設定され履歴が飛ぶため rc に記述 (VSCode)
 HISTFILE=~/.bash_history
-export HISTFILE
+HISTSIZE=300000 # current process
+HISTFILESIZE=300000 # .bash_history
+HISTTIMEFORMAT='%F %T '
+HISTIGNORE='history:pwd:ls:\:*:ll:lla:cd:..:gl:glo'
+HISTCONTROL=ignorespace:ignoredups:erasedups
+export HISTFILE HISTSIZE HISTCONTROL HISTTIMEFORMAT HISTIGNORE HISTCONTROL
+# do not append .bash_history when the end of session (append by PROMPT_COMMAND)
+shopt -u histappend
+export PROMPT_COMMAND="__bash_history_append;${PROMPT_COMMAND//__bash_history_append;/}"
 
 __bash_history_append() {
   # history 共有できるように書き出す

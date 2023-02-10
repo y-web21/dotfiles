@@ -18,16 +18,6 @@ if [ -e "$HOME/.profile" ]; then
   . "$HOME/.profile"
 fi
 
-HISTSIZE=300000 # current process
-HISTFILESIZE=300000 # .bash_history
-HISTTIMEFORMAT='%F %T '
-HISTIGNORE='history:pwd:ls:\:*:ll:lla:cd:..:gl:glo'
-HISTCONTROL=ignorespace:ignoredups:erasedups
-export HISTSIZE HISTCONTROL HISTTIMEFORMAT HISTIGNORE HISTCONTROL
-# do not append .bash_history when the end of session (append by PROMPT_COMMAND)
-shopt -u histappend
-export PROMPT_COMMAND="__bash_history_append;${PROMPT_COMMAND//__bash_history_append;/}"
-
 if [ -n "$BASH_VERSION" ]; then
   if [ -f "$HOME/.bashrc" ]; then
     . "$HOME/.bashrc"
