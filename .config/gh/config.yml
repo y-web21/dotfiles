@@ -25,10 +25,10 @@ aliases:
     fissue: |-
       !select="$(gh issue list -s all | column -t -s "$(printf '\t')" |
         fzf-tmux -p 90% --preview-window=bottom:65%,+4 \
-          --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n' \
-            'ALT-b: create feature branch' 'ALT-w: browser view' 'Enter: view')" \
+          --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n\t%-30s\n' \
+            'ALT-b: create feature branch' 'ALT-w: browser view' 'ALT-j: add new' 'Enter: view')" \
           --query="${1:-'OPEN }" \
-          --expect=alt-b \
+          --expect=alt-b,alt-j \
           --bind alt-p:preview-up,alt-n:preview-down \
           --bind="alt-w:execute(gh issue view {1} -w)" \
           --preview "gh issue view {1} | bat --color=always -l md" )"
@@ -40,6 +40,7 @@ aliases:
         alt-b)
           git checkout -b feature/#${id} || git checkout feature/#${id}
         ;;
+        alt-j) gh issue create ;;
         *)
           gh issue view ${id}
         ;;
