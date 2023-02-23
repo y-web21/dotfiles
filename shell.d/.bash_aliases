@@ -183,6 +183,10 @@ if type bundle >/dev/null 2>&1; then
   alias _jkwatch='undle exec jekyll serve --force-polling --drafts --livereload --host=0.0.0.0' # --port 4001 --detach
 fi
 
+if type brew >/dev/null 2>&1; then
+  alias brew-autoremove-deps='brew list | xargs -P$(( $(grep processor /proc/cpuinfo | wc -l) - 1 )) -I{} sh -c '\''brew uses --installed {} | wc -l | xargs printf "%20s is used by %2d formulae.\n" {}'\'''
+fi
+
 if type code-server >/dev/null 2>&1; then
   if ! type code >/dev/null 2>&1;then
     alias code='code-server'
