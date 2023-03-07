@@ -36,8 +36,11 @@ export PATH=$PATH:~/bin
 # prevent garbled Japanese characters such as tig.
 export LC_ALL=en_US.UTF-8
 
-# brew install fzf
+
+# ==== fzf ====
+# require brew install fzf
 export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -path '*/.node_modules' -prune -o -type f -print"
+
 
 if [ -f /usr/local/bin/git-prompt.sh ]; then
   . /usr/local/bin/git-prompt.sh

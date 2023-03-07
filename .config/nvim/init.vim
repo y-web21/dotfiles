@@ -37,6 +37,27 @@ let g:netrw_home = $XDG_DATA_HOME."/vim"
 call mkdir($XDG_DATA_HOME."/vim/spell", 'p', 0700)
 
 "------------------------------------
+" input mode settings
+"------------------------------------
+set autoindent
+set expandtab  " tab to space
+set tabstop=4   " num of char to convert tab to spaces when open
+set softtabstop=4   " when keyboard input
+set shiftwidth=4    " autoindent spaces
+set showmatch  " 対応カッコをハイライト
+set ruler
+set title
+set list  " 不可視文字を表示する
+set listchars=tab:>-,trail:.  " タブを >--- 半スペを . で表示する
+set number
+
+"------------------------------------
+" normal mode settings
+"------------------------------------
+set ignorecase
+set smartcase " require ignorecase
+
+"------------------------------------
 " Normal, Visual, Select, Operator-pendin mode key binding
 "------------------------------------
 noremap g<c-a> <ESC>ggvGV
