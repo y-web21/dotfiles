@@ -19,6 +19,7 @@ augroup END
 "------------------------------------
 set encoding=utf-8
 set fileencodings=utf-8,cp932,euc-jp,sjis
+"set fileencodings=iso-2022-jp,enc-jp,enc-jp,sjis,utf-8
 set fileformats=unix,dos,mac
 set shell=/bin/bash
 set mouse=a
@@ -99,7 +100,7 @@ endif
 "ファイルタイプごとのプラグイン読み込みを有効にする
 filetype plugin on
 
-if filereadable(expand('~/.vim/autoload/plug.vim'))
+if !has('nvim') && filereadable(expand('~/.vim/autoload/plug.vim'))
   call mkdir(expand('~/.vim/plugged'), 'p', 0700)
   call plug#begin(expand('~/.vim/plugged'))
     set helplang=ja,en
@@ -277,7 +278,7 @@ if !1 | finish | endif
 " " key bind list
 " :help index.txt
 " " user key bind
-" :map
+" :p
 " :imap
 " :nmap
 " :vmap
@@ -304,6 +305,7 @@ noremap <Space>l $
 "(nmapは再帰的であるためループになる可能性があるのでnnoremap
 " ソフトラップされた仮想的な行を含めて下にスクロール
 nnoremap j gj
+nnoremap 8 gj
 nnoremap k gk
 nnoremap gj j
 nnoremap gk k
@@ -313,17 +315,17 @@ nnoremap <silent> <ESC><ESC> :<C-u>nohlsearch<CR>
 nnoremap ZQ <Nop>
 nnoremap <Space>/ *
 
+" nnoremap <CR> i<Return><Esc>^k
+"" Insert line break by Enter in normal mode
 augroup NormalModeBreak
   autocmd!
-augroup END
-
-"" Insert line break by Enter in normal mode
-autocmd  NormalModeBreak BufWinEnter *
+  autocmd NormalModeBreak BufWinEnter *
   \  if &modifiable
   \|   nnoremap <buffer> <CR> i<CR><ESC>
   \| else
   \|   nunmap <buffer> <CR>
   \| endif
+augroup END
 
 " move lines up, down  e.g 2[e = 2 lines up
 nnoremap [e  :<c-u>execute 'move -1-'. v:count1<cr>
@@ -443,7 +445,7 @@ if v:version >= 800|set breakindent|endif
 
 
 
-" Windows Subsystem for Linux で、ヤンクでクリップボードにコピー
+" wsl ヤンクでクリップボードにコピー
 if system('uname -a | grep -i microsoft') != ''
   augroup myYank
     autocmd!
