@@ -64,6 +64,12 @@ noremap g<c-a> <ESC>ggvGV
 noremap <Space>h ^
 noremap <Space>l $
 
+" test
+nnoremap "" /""<CR>l
+nnoremap '' /''<CR>l
+nnoremap NN /<\([^>/]\+\)><\/\1><CR>/<<CR>
+nnoremap MM ?<<CR>h?<\([^>/]\+\)><\/\1><CR>/<<CR>
+
 "------------------------------------
 " nomal(command) mode key binding custumize
 "------------------------------------
