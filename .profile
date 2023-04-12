@@ -34,6 +34,9 @@ export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME"/bundle
 export NODE_REPL_HISTORY="$XDG_DATA_HOME"/node_repl_history
 export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
 
+# ==== brew ====
+export HOMEBREW_NO_AUTO_UPDATE=1
+
 # linuxbrew
 if type /home/linuxbrew/.linuxbrew/bin/brew >/dev/null 2>&1; then
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
