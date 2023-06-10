@@ -218,3 +218,4 @@ unset SRC
 # /usr/share/bash-completion/completions/systemctl
 # complete -F _systemctl systemctl s
 alias s='systemctl '
+alias rmansiescseq='sed -r "s:\x1B\[[0-9;]*[mK]::g"'
