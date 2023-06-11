@@ -14,37 +14,37 @@ aliases:
     mypr: "!gh pr list -s all -a $(git config user.name)"
     # -- gh with fzf --
     fpr: |-
-      !gh pr list -s all | column -t -s "$(printf '\t')" |
-        fzf-tmux -p 90% --preview-window=bottom:65%,+4 \
-          --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n' \
-            'ALT-w: browser view' 'Enter: view')" \
-          --query="${1:-'OPEN }" \
-          --bind alt-p:preview-up,alt-n:preview-down \
-          --bind="alt-w:execute(gh pr view {1} -w)" \
-          --preview "gh pr view {1} | bat --color=always -l md"
+        !gh pr list -s all | column -t -s "$(printf '\t')" |
+          fzf-tmux -p 90% --preview-window=bottom:65%,+4 \
+            --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n' \
+              'ALT-w: browser view' 'Enter: view')" \
+            --query="${1:-'OPEN }" \
+            --bind alt-p:preview-up,alt-n:preview-down \
+            --bind="alt-w:execute(gh pr view {1} -w)" \
+            --preview "gh pr view {1} | bat --color=always -l md"
     fissue: |-
-      !select="$(gh issue list -s all | column -t -s "$(printf '\t')" |
-        fzf-tmux -p 90% --preview-window=bottom:65%,+4 \
-          --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n\t%-30s\n' \
-            'ALT-b: create feature branch' 'ALT-w: browser view' 'ALT-j: add new' 'Enter: view')" \
-          --query="${1:-'OPEN }" \
-          --expect=alt-b,alt-j \
-          --bind alt-p:preview-up,alt-n:preview-down \
-          --bind="alt-w:execute(gh issue view {1} -w)" \
-          --preview "gh issue view {1} | bat --color=always -l md" )"
-      [ -z "${select}" ] && return
-      key=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 1)
-      line=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 2)
-      id=$(echo $line | awk '{print $1}')
-      case "${key}" in
-        alt-b)
-          git checkout -b feature/#${id} || git checkout feature/#${id}
-        ;;
-        alt-j) gh issue create ;;
-        *)
-          gh issue view ${id}
-        ;;
-      esac
+        !select="$(gh issue list -s all | column -t -s "$(printf '\t')" |
+          fzf-tmux -p 90% --preview-window=bottom:65%,+4 \
+            --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n\t%-30s\n' \
+              'ALT-b: create feature branch' 'ALT-w: browser view' 'ALT-j: add new' 'Enter: view')" \
+            --query="${1:-'OPEN }" \
+            --expect=alt-b,alt-j \
+            --bind alt-p:preview-up,alt-n:preview-down \
+            --bind="alt-w:execute(gh issue view {1} -w)" \
+            --preview "gh issue view {1} | bat --color=always -l md" )"
+        [ -z "${select}" ] && return
+        key=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 1)
+        line=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 2)
+        id=$(echo $line | awk '{print $1}')
+        case "${key}" in
+          alt-b)
+            git checkout -b feature/#${id} || git checkout feature/#${id}
+          ;;
+          alt-j) gh issue create ;;
+          *)
+            gh issue view ${id}
+          ;;
+        esac
     fgist: |-
         !preview='ext=$(rev <<< {2} | cut -d "." -f 1 | rev); gh gist view {-1} -f {2} | bat --color=always -l "$ext" || gh gist view {-1} -f {2} | bat --color=always -l md'
         select="$(gh api https://api.github.com/gists --paginate |
@@ -139,9 +139,11 @@ aliases:
         lang=$(echo $line | awk '{print $1}' | sed 's/Shell/bash/; s/Batchfile/bat/')
         gh gist view "$id" -f "$file" | bat --color=always -l $lang
     frepo-web: |-
-        !read -p 'query: ' input
+        ![ -z $1 ] && read -p 'query: ' input || input="$1"
         query=$(echo "$input" | sed -E 's/^https.*com\///; s/ /%20/g; s/\//%2F/g; s/:/%3A/g')
-        gh search repos --limit 50 --sort=stars "$query" | column -t -s "$(printf '\t')" | fzf --query "$query" | awk '{print $1}' | xargs -i gh repo view -w {}
+        gh search repos --limit 50 --sort=stars "$query" | column -t -s "$(printf '\t')" |
+          fzf --query "$query" --preview-window=down,wrap --preview 'gh search repos {1} | sed -E '\''s/\t/\n/g'\'' ' |
+          awk '{print $1}' | xargs -i gh repo view -w {}
     co-issue: |-
         !gh issue list --state open | fzf | awk '{print $1}' | xargs -i git checkout -b "feature/#{}"
     # search: |-
