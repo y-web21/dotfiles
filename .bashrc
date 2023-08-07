@@ -106,6 +106,7 @@ type zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
 # Source
 # --------------------
 # added by ./Cellar/fzf/0.35.1/install
+type brew >/dev/null 2>&1 && [ -f ~/.fzf.bash ] || $(brew --prefix)/opt/fzf/install
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 test -r ~/dotfiles/shell.d/modules/keybinds_bash && . ~/dotfiles/shell.d/modules/keybinds_bash
