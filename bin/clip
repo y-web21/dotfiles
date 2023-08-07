@@ -14,7 +14,7 @@ prepare() {
 _clip() {
   if is_wsl; then
     printf '%s' "$*" | clip.exe
-  elif ! is_mac; then
+  elif is_mac; then
     printf '%s' "$*" | gsed -z -e '$ s/\n//' | pbcopy
   elif is_debian_based; then
     if is_wayland; then
