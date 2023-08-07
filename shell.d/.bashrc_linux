@@ -39,7 +39,9 @@ if is_crostini; then
     fi
     return $prev_status
   }
-  export PROMPT_COMMAND="chk_external_mount_health;${PROMPT_COMMAND//chk_external_mount_health;/}"
+  if [ 0 -ne 0 ]; then
+    export PROMPT_COMMAND="chk_external_mount_health;${PROMPT_COMMAND//chk_external_mount_health;/}"
+  fi
 fi
 # chk_exteranal_mount_health
 # unset -f chk_exteranal_mount_health
