@@ -1,0 +1,5 @@
+# Searches case insensitively.
+--smart-case
+
+-g
+!.vscode/

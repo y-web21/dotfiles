@@ -68,6 +68,14 @@ if [ -e "$(which git 2>/dev/null)" ]; then
   alias gs="git status"
   alias gsh="git stash"
 
+  # init
+  git-init-genkey() {
+    local key_name="${1:-"id_ed25519"}"
+    local path="$HOME/.ssh/$key_name"
+    [ ! -d "$HOME/.ssh" ] && mkdir -p "$HOME/.ssh"
+    ssh-keygen -t ed25519 -f $path
+  }
+
   # if type __git_ps1 > /dev/null 2>&1; then
   # __git_ps1 プロンプトに各種情報を表示
   # shellcheck disable=2034
@@ -131,6 +139,9 @@ if [ -e "$(which git 2>/dev/null)" ]; then
 		git config --global core.eol lf
 		# CIに lf へ、CO時に crlf へ変換。(for windows)論外。
 		git config --global core.autocrlf true
+
+		# もし windows ファイルシステムに clone する場合は prmission に干渉しないようにする
+		git config --local core.filemode false
 
 		# Win向けの改行コードをリポジトリに保持する場合(実質はCICO時の変換をコントロール。リモートは常にlf)
 		add .gitattributes > echo '*.html diff=sjis' > .gitattributes

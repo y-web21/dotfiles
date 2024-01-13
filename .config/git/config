@@ -7,7 +7,7 @@
 [core]
 	quotepath = false
 	pager = LESSCHARSET=utf-8 less -XFRS
-	autoCRLF = false
+	autocrlf = false
 	ignoreCase = false
 	eol = lf
 	safecrlf = true
@@ -125,7 +125,10 @@
 	# git check-attr
 [include]
 	path = ~/.gitconfig.local
+	path = ~/.gitconfig.proxy
 [pager]
 	status = less -F
 [init]
 	defaultBranch = main
+[ghq]
+	root = ~/project

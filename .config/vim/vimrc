@@ -25,6 +25,7 @@ set shell=/bin/bash
 set mouse=a
 " set modeline
 set viminfo='100,f1,<500,s10,h
+set history=10000
 
 " don't allow editing of read only files
 augroup ro-edit
@@ -96,6 +97,7 @@ endif
 " plugins
 " Plugin Manager: [vim-plug](https://github.com/junegunn/vim-plug)
 " Command: Plug[Install|Update|Upgrade|Status...]
+" Run <:Pluginstall> for the first time
 "------------------------------------
 "ファイルタイプごとのプラグイン読み込みを有効にする
 filetype plugin on
@@ -103,12 +105,15 @@ filetype plugin on
 if !has('nvim') && filereadable(expand('~/.vim/autoload/plug.vim'))
   call mkdir(expand('~/.vim/plugged'), 'p', 0700)
   call plug#begin(expand('~/.vim/plugged'))
+  " NeoVim
+  " call plug#begin('$HOME/.local/share/nvim/plugged')
+
     set helplang=ja,en
     Plug 'vim-jp/vimdoc-ja'
 
     " git plugin
     Plug 'tpope/vim-fugitive'
-    call plug#end()
+  call plug#end()
 endif
 
 "------------------------------------
@@ -305,7 +310,6 @@ noremap <Space>l $
 "(nmapは再帰的であるためループになる可能性があるのでnnoremap
 " ソフトラップされた仮想的な行を含めて下にスクロール
 nnoremap j gj
-nnoremap 8 gj
 nnoremap k gk
 nnoremap gj j
 nnoremap gk k
@@ -349,6 +353,8 @@ inoremap <C-s><C-s> <ESC>:<C-u>wq<cr>
 " command line mode key binding
 "------------------------------------
 cnoremap fuck q!
+cnoremap www w !sudo tee > /dev/null % <CR>
+" cnoremap mod!! set modifiable <CR>
 
 " emacs like
 cnoremap <C-a> <Home>
@@ -452,3 +458,14 @@ if system('uname -a | grep -i microsoft') != ''
     autocmd TextYankPost * :call system('clip.exe', @")
   augroup END
 end
+
+" WSL clipboard
+" if !empty($WSL_DISTRO_NAME)
+" 	let s:clip = '/mnt/c/Windows/System32/clip.exe'
+" 	if executable(s:clip)
+" 		augroup WSLYank
+" 		autocmd!
+" 		autocmd TextYankPost * if v:event.operator ==# 'y' | call system(s:clip, @0) | endif
+" 		augroup END
+" 	endif
+" endif
