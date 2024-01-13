@@ -20,6 +20,8 @@ if is_ubuntu && ! is_ubuntu; then
   gem install jekyll bundler
 fi
 
+# ====================
+# test, mounted sd(ext4) status
 if is_crostini; then
   chk_external_mount_health(){
     local prev_status=$?

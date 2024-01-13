@@ -32,10 +32,10 @@ if [ -x /usr/bin/dircolors ]; then
   alias ls='ls --color=auto'
 fi
 
-# my settings
-test -f ~/dotfiles/shell.d/private_ettings/pre.bash && . ~/dotfiles/private/shell.d/pre.bash
+# my private settings
+test -f ~/dotfiles/private/shell.d/pre.bash && . $_
 
-# common settings
+# common rc btw shell
 test -r ~/.shellrc && . ~/.shellrc
 
 # History
@@ -110,7 +110,8 @@ type brew >/dev/null 2>&1 && [ -f ~/.fzf.bash ] || $(brew --prefix)/opt/fzf/inst
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 test -r ~/dotfiles/shell.d/modules/keybinds_bash && . ~/dotfiles/shell.d/modules/keybinds_bash
-test -f ~/dotfiles/private/shell.d/post.bash && . ~/dotfiles/private/shell.d/post.bash
+test -f ~/dotfiles/private/shell.d/post.bash && . $_
 
 # lib
 test -r ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.bash && . ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.bash
+

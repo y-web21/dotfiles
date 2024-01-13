@@ -27,14 +27,16 @@
 !.config/**/*
 !.aws/config
 !.docker/config.json
-!bin/*
 !aliases/*
+!bin/*
+!dconf/*
 !shell.d/**/*
 
 # doc and scripts
-!make_link.bash
 !download_lib.bash
+!make_link.bash
 !scripts/*
 !/README.md
 
 private/
+
