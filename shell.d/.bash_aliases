@@ -36,6 +36,8 @@ alias k9='kill -9 $$'
 alias filesize='wc -c < '
 alias type='type'
 alias ag='alias | grep -E'
+# HACK TBD
+alias funcg='func=$(declare -F | awk '\''{print $3}'\'' | fzf --preview '\''source ~/dotfiles/shell.d/func/is.bash && source ~/dotfiles/shell.d/.bash_aliases && declare -f {1}'\'') && [ -n "$func" ] && declare -f "$func"'
 alias igrep='grep -in'
 alias crontab='crontab -i'
 # sudo current shell
@@ -70,10 +72,11 @@ alias _func-show='declare -f'
 
 alias path='echo -e ${PATH//:/\\n}'
 
+# date format
 alias datetime="date +%Y-%m-%d_%H:%M:%S"
 alias now='date +"%T"'
-alias nowtime=now
-alias nowdate='date +"%d-%m-%Y"'
+alias nowdate='date +"%Y-%m-%d"'
+alias tree='tree -D --timefmt="%Y-%m-%d %H:%M:%S"'
 
 # clipboard
 alias C="sed -z -e '$ s/\n//' | xclip -selection c"

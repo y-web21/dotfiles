@@ -22,7 +22,7 @@ dic() {
   trap '[ -v TEMP_SOUND ] && rm "$TEMP_SOUND"' EXIT
 }
 
-__ssh-list-config-files() {
+__ssh-list-config_files() {
 
   local SSH_DIR=$HOME/.ssh/
 
@@ -33,18 +33,18 @@ __ssh-list-config-files() {
   fi
 }
 
-__ssh-list-known-hosts() {
+ssh-list-known_hosts() {
+  find ~/.ssh/conf.d/ -type f -name 'config*' -exec awk '/^Host / {print $2}' {} +
+  # local SSH_DIR=$HOME/.ssh/
 
-  local SSH_DIR=$HOME/.ssh/
-
-  if test -d "$SSH_DIR"; then
-    for file in $(find "$SSH_DIR" -type f | grep '/config'); do
-      grep ^Host "$file" | sed 's/^Host //'
-    done
-  fi
+  # if test -d "$SSH_DIR"; then
+  #   for file in $(find "$SSH_DIR" -type f | grep '/config'); do
+  #     grep ^Host "$file" | sed 's/^Host //'
+  #   done
+  # fi
 }
 
-__ssh-list-known-keys() {
+__ssh-list-known_keys() {
 
   local SSH_DIR=$HOME/.ssh/
 
@@ -55,7 +55,7 @@ __ssh-list-known-keys() {
   fi
 }
 
-__ssh-list-all-keys() {
+__ssh-list-all_keys() {
 
   local SSH_DIR=$HOME/.ssh/
 
@@ -64,7 +64,7 @@ __ssh-list-all-keys() {
   fi
 }
 
-__ssh-show-known-hosts() {
+__ssh-show-known_hosts() {
 
   local SSH_DIR=$HOME/.ssh/
   local displayFileName=${1:-false}
@@ -79,4 +79,8 @@ __ssh-show-known-hosts() {
 
 __ssh-show-known-hosts-with-filename() {
   ssh-show-known-hosts true
+}
+
+ssh-testing-connection() {
+  find -L ~/.ssh/ -type f -name 'config*' -exec awk '/^Host / {print $2}' {} + | grep -v '*' | fzf | xargs ssh -T
 }

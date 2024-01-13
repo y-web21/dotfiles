@@ -376,5 +376,5 @@ if [ -n "$BASH_VERSION" ]; then
   bind '"\ew": kill-word'
   # key macro (bind -S)
   bind '"\ea": "\C-e | awk '\''{print $()}'\'' \C-b\C-b\C-b\C-b"'
-  bind '"\e?": "\C-a\C-k(LC_ALL=C; cat <(bind -X | sed -e '\''s\/ \/\\t\/; s\/^\"\/\/; s\/\":\/\/'\'' | sort -k 2 ) <(bind -S | sed '\''s\/ \/\\t\/1'\'' ) | column -t -s \"$(printf '\''\\t'\'')\") | less\n"'
+  bind '"\e?": "\C-a\C-k(LC_ALL=C; cat <(bind -X | sed -e '\''s\/ \/\\t\/; s\/^\"\/\/; s\/\":\/\/'\'' | sort -k 2 ) <(bind -S | sed '\''s\/ \/\\t\/1'\'' ) | column -t -s \"$(printf '\''\\t'\'')\") | less -F\n"'
 fi

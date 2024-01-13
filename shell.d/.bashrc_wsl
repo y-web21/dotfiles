@@ -44,8 +44,8 @@ export PLAYER="nircmd.exe mediaplay 1400 "
 ulimit -n 2048
 
 # windows との共有設定
-test -e ~/.bashrc.local || ln -s "${WINHOME}"/dotfiles_common/.bashrc.local ~/.bashrc.local
-test -e ~/.gitconfig.local || ln -s "${WINHOME}"/dotfiles_common/.gitconfig.local ~/.gitconfig.local
+test -e ~/.bashrc.local || ln -s "${WINHOME}"/dotfiles/.bashrc.local ~/.bashrc.local
+test -e ~/.gitconfig.local || ln -s "${WINHOME}"/dotfiles/.gitconfig.local ~/.gitconfig.local
 
 # shellcheck disable=2142
 [ -n "$ZSH_VERSION" ] && alias chrome='(){/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe $(wslpath -w $(realpath ${1:-/}))}'

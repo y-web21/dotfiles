@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 
+# path containing spaces is not supported
+
 describe() {
   cat <<-EOS
 		Staging Support Script
 		alt-a: add <files>
 		alt-h: add -p <files> # hunk
 		alt-c: commit staged files
+		alt-C: commit amend # no-edit
 		alt-d: diff <files>
 		alt-D: diff --cached
-		alt-o: vim <files>
+		alt-o: GIT_EDITOR <files> #fallback vim
 		alt-r: show staged files and reset files
 		alt-s: show current status
 		ctrl-s: stash <files>
-		enter: checkout
+		enter: PAGER <files> #fallback bat,cat
 	EOS
 }
 
@@ -52,7 +55,30 @@ _diff() {
   fi
 }
 
+_pager() {
+  local files=""
+  for file in $1; do
+    if [ -d "$file" ]; then
+      files+=$(find "$file" -type f)
+    else
+      files+="$file "
+    fi
+  done
+
+  # remove trailing space
+  files=${files%" "}
+  # shellcheck disable=2086
+  if [ -n "$PAGER" ] ;then
+    $PAGER $files
+  elif command -v bat >/dev/null 2>&1; then
+    bat --paging=always $files
+  else
+    less $files
+  fi
+}
+
 _git_i_reset() {
+  # for unstage
   local file staged_files ret_fzf file_cnt selects
 
   while true; do
@@ -117,18 +143,19 @@ git-i-staging() {
           --expect=alt-D \
           --expect=alt-h \
           --expect=alt-c \
+          --expect=alt-C \
           --expect=ctrl-s \
           --header="$header" \
           --preview '\
-            if [ -d {} ];then\
-              tree -C {} -p;\
-              bat --color always $(find {} -type f);\
-              exit;\
-            fi;\
-            if [ $(git log -n 1 -p {} | wc -l) -eq 0 ];\
-              then echo -e '\''new file\n'\'' && bat {} --color always;\
-              else git diff --color=always {};\
-            fi'
+              if [ -d {} ];then\
+                tree -C {} -p;\
+                bat --color always $(find {} -type f);\
+                exit;\
+              fi;\
+              if [ $(git log -n 1 -p {} | wc -l) -eq 0 ];\
+                then echo -e '\''new file\n'\'' && bat {} --color always;\
+                else git diff --color=always {};\
+              fi'
     )
 
     # query=$(echo $ret_fzf | cut -d ' ' -f 1)
@@ -155,23 +182,24 @@ git-i-staging() {
       _diff
     elif [ "$input" = alt-h ]; then
       # hank 単位での add
-      # shellcheck disable=2086
       [ -z "$GIT_EDITOR" ] && export GIT_EDITOR=vim
+      # shellcheck disable=2086
       git add -p $selects
     elif [ "$input" = alt-c ]; then
       [ -z "$GIT_EDITOR" ] && export GIT_EDITOR=vim
       git commit
+    elif [ "$input" = alt-C ]; then
+      git commit --amend --no-edit
     elif [ "$input" = alt-s ]; then
       export GIT_PAGER='less -XRS'
       git status
     else
-      # shellcheck disable=2086
-      git add $selects
+      _pager "$selects"
     fi
   done
 }
 
-commit_if_all_staged(){
+commit_if_all_staged() {
   test "$(git status --short | awk '{if (substr($0,2,1) != " ") print $NF}' | wc -l)" -gt 0 && return
   [ -z "$GIT_EDITOR" ] && export GIT_EDITOR=vim
   git commit
@@ -184,3 +212,4 @@ else
   git-i-staging "$1"
   commit_if_all_staged
 fi
+
