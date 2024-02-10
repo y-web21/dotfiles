@@ -39,6 +39,11 @@ if has("autocmd")
 endif
 
 "------------------------------------
+" color
+"------------------------------------
+" hi Visual cterm=none ctermbg=darkgrey ctermfg=cyan
+
+"------------------------------------
 " vim files
 " note: xdg sample https://blog.joren.ga/vim-xdg
 "------------------------------------
@@ -307,7 +312,6 @@ noremap <Space>l $
 "------------------------------------
 " nomal(command) mode key binding custumize
 "------------------------------------
-"(nmapは再帰的であるためループになる可能性があるのでnnoremap
 " ソフトラップされた仮想的な行を含めて下にスクロール
 nnoremap j gj
 nnoremap k gk
@@ -437,6 +441,11 @@ endif
 "     " lua がないときの必要な設定
 " endif
 
+" vimdiff専用の設定
+if &diff
+    set diffopt+=vertical
+endif
+
 " vim version >= 8
 if v:version >= 800|set breakindent|endif
 
@@ -448,8 +457,6 @@ if v:version >= 800|set breakindent|endif
 "     call dein#add("airblade/vim-gitgutter")
 "     call dein#add("tpope/vim-fugitive")
 " endif
-
-
 
 " wsl ヤンクでクリップボードにコピー
 if system('uname -a | grep -i microsoft') != ''

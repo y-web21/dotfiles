@@ -42,6 +42,8 @@
 	r = !"f() { git reset HEAD~${1:-1}; }; f"
 	rb = rebase
 	rbi = !"f() { git rebase -i HEAD~${1:-5}; }; f"
+	vdiff = difftool --tool=vimdiff --no-prompt 
+	vmerge = mergetool -t vimdiff 
 	onto = "!git rebase --onto"
 	; rbx = !git rebase -i @~${1:-5} && :
 	# == add, commit, push ==
@@ -132,3 +134,6 @@
 	defaultBranch = main
 [ghq]
 	root = ~/project
+[includeIf "gitdir/i:~/work/"]
+	path = ~/.gitconfig-work
+

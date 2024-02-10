@@ -108,5 +108,5 @@ fi
 PATH=$(echo -n "$PATH" | tr ":" "\n" | sort | uniq | tr "\n" ":")
 MANPATH=$(echo -n "$MANPATH" | tr ":" "\n" | sort | uniq | tr "\n" ":")
 INFOPATH=$(echo -n "$INFOPATH" | tr ":" "\n" | sort | uniq | tr "\n" ":")
-. "$HOME/.cargo/env"
+[ -f "$HOME/.cargo/env" ] && . "$_"
 
