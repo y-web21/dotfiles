@@ -14,6 +14,8 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
+# set -x
+
 if [ -e "$HOME/.profile" ]; then
   . "$HOME/.profile"
 fi
@@ -23,3 +25,6 @@ if [ -n "$BASH_VERSION" ]; then
     . "$HOME/.bashrc"
   fi
 fi
+
+# set +x
+
