@@ -8,17 +8,26 @@
 cd "$(dirname "$0")" || exit
 EXCEPT='grep -v -e \.gitignore$ -e README -e \.git$ -e \.github$ -e ^\.vscode -e \.bak$ -e \.shellcheckrc'
 FORCE=0
-test -n "$1" && test "$1" = '-f' && FORCE=1
+test -n "$1" && test "$1" = '-f' && FORCE=1 && shift
+DRYRUN=0
+test -n "$1" && test "$1" = '-n' && DRYRUN=1 && shift
+grep -q 'ID=chromeos' /etc/os-release && HOME=/usr/local/home && [ -e $HOME ] || mkdir $HOME
 
 make_link() {
   local entity_path symlink_path
   entity_path=${1} # rel
-  symlink_path=${HOME}/${entity_path} # abs
+  symlink_path=$(_resolve_dest $entity_path)
+  # symlink_path=${dest_root}/${entity_path} # abs
+
+  if [ "$DRYRUN" = 1 ];then
+    _do_link "$entity_path" "$symlink_path" "dry-run"
+    return
+  fi
 
   if [ "$FORCE" = 1 ];then
     rm "${symlink_path}" 2>/dev/null
     _mk_dir "$symlink_path"
-    _do_link "$entity_path"
+    _do_link "$entity_path" "$symlink_path"
     return
   fi
 
@@ -28,12 +37,21 @@ make_link() {
 
   echo "${symlink_path}"
   if [ -e "${symlink_path}" ]; then
-    read -rp "file already exist. remove the file? (y/N) " input
+    read -rp "$entity_path is already exist. replace the file? (y/N) " input
     test "${input}" != "y" && return # continue
     rm "${symlink_path}"
   fi
   _mk_dir "$symlink_path"
-  _do_link "$entity_path"
+  _do_link "$entity_path" "$symlink_path"
+}
+
+_resolve_dest() {
+  if echo "$1" | grep -qs "^\.config\/" && [ -n "$XDG_CONFIG_HOME" ]; then
+    echo "${XDG_CONFIG_HOME}/$(echo ${1} | sed 's/^.config//')"
+  else
+    echo "${HOME}/$1"
+  fi
+  return
 }
 
 _mk_dir(){
@@ -41,7 +59,12 @@ _mk_dir(){
 }
 
 _do_link() {
-  ln -s "$(pwd)/${1}" ~/"${1}" && echo "${1}" 'lineked.'
+  if [ -n "$3" ]; then
+    echo -n [DRYRUN]
+    echo ln -s "$(pwd)/${1}" "${2}" && echo "${1}" 'lineked.'
+  else
+    ln -s "$(pwd)/${1}" "${2}" && echo "${1}" 'lineked.'
+  fi
 }
 
 # ./.xxx files
@@ -62,5 +85,6 @@ for MY_SCRIPTS in $(find ./bin -maxdepth 1 -type f | cut -c 3- | $EXCEPT | sort)
   make_link "$MY_SCRIPTS"
 done
 for MY_SCRIPTS in $(find ./bin -maxdepth 1 -type f | cut -c 3- | $EXCEPT | sort); do
-  sudo chmod u+x "$MY_SCRIPTS"
+  sudo chmod u+x "$MY_SCRIPTS" 2>/dev/null || chmod u+x "$MY_SCRIPTS"
 done
+

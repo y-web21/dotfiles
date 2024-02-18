@@ -1,0 +1,50 @@
+# DO NOT DELETE THIS LINE
+# See /usr/local/etc/profile for further details
+source /usr/local/etc/profile
+
+# Put your stuff under this comment
+
+# /etc/skel/.bashrc
+#
+# This file is sourced by all *interactive* bash shells on startup,
+# including some apparently interactive shells such as scp and rcp
+# that can't tolerate any output.  So make sure this doesn't display
+# anything or bad things will happen !
+
+
+# Test for an interactive shell.  There is no need to set anything
+# past this point for scp and rcp, and it's important to refrain from
+# outputting anything in those cases.
+if [[ $- != *i* ]] ; then
+	# Shell is non-interactive.  Be done now!
+	return
+fi
+
+
+# Put your fun stuff here.
+
+if [[ $(whoami) = 'chronos' ]]; then
+    pushd ~
+    pushd /usr/local
+fi
+
+export HOME=/usr/local/home
+. /usr/local/home/.profile
+
+# from chromebrew's /usr/local/etc/env.d/xdg_base
+# Chromebrew's XDG configuration
+# See https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+# XDG Base Directory Specification Environment Variables
+export XDG_CACHE_HOME=/usr/local/.cache
+export XDG_CONFIG_DIRS=/usr/local/etc/xdg
+export XDG_CONFIG_HOME=/usr/local/.config
+export XDG_DATA_DIRS=/usr/local/share
+export XDG_DATA_HOME=/usr/local/.config/.local/share
+export XDG_RUNTIME_DIR=/var/run/chrome
+
+# add
+export XDG_STATE_HOME=/usr/local/.local/state
+
+alias path='env | grep "^PATH=" | sed "s/:/\n/g"'
+export PATH=$(echo $PATH | sed -e 's,/usr/local/bin,/tmp/usrlocalbinplaceholder,g' -e 's,/usr/local/home/bin,/usr/local/bin,g' -e 's,/tmp/usrlocalbinplaceholder,/usr/local/home/bin,g')
+

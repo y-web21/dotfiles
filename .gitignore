@@ -30,6 +30,7 @@
 !aliases/*
 !bin/*
 !dconf/*
+!other/*
 !shell.d/**/*
 
 # doc and scripts
