@@ -47,9 +47,9 @@ export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -pat
 
 if [ -f /usr/local/bin/git-prompt.sh ]; then
   . /usr/local/bin/git-prompt.sh
-elif [ -f "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh" ]; then
+elif type brew >/dev/null 2>&1 && [ -f "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh" ]; then
   . "$(brew --prefix)/etc/bash_completion.d/git-prompt.sh"
-elif [ -f "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.sh" ]; then
+elif type brew >/dev/null 2>&1 && [ -f "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.sh" ]; then
   . "$(brew --prefix)/Cellar/git/2.38.1/etc/bash_completion.d/git-prompt.sh"
 fi
 
