@@ -53,13 +53,17 @@ aliases:
             --header "$(printf '%-30s\t%-30s\t%-30s\t%-30s\n' \
               'Enter: Edit' 'alt-a: Add file to selected' 'alt-d: Edit description' 'alt-r: Remove gist' \
               'alt-h: echo hash' 'alt-N: Create new to selected' 'alt-w: gh gist view -w' 'alt-c: gh gist clone' \
-              'alt-b: bat' 'alt-g: glow' 'alt-o: vim')" \
+              'alt-b: bat' 'alt-g: glow' 'alt-o: vim' 'alt-q: ghq get' )" \
             --preview-window=bottom:75%,+4 \
             --preview "$preview" \
             --bind alt-p:preview-up,alt-n:preview-down \
             --expect=alt-r,alt-a,alt-d,alt-h,alt-N,alt-b,alt-o,alt-g \
             --bind="alt-w:execute(gh gist view {-1} -w)" \
-            --bind="alt-c:execute(gh gist clone {-1} {2})" )"
+            --bind="alt-c:execute(gh gist clone {-1} {2})" \
+            --bind="alt-q:execute( ghq get https://gist.github.com/\$(git config user.name)/{-1} \
+                ; cd \"\$(dirname \$(ghq list --full-path {-1}))\" \
+                ; mv {-1} {2} )" \
+        )"
         [ -z "${select}" ] && return
         key=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 1)
         line=$(printf '%s' "$select" | tr '\n' '&' | cut -d'&' -f 2)
@@ -171,6 +175,7 @@ aliases:
     gist-all-files: "!gh api https://api.github.com/gists --paginate | jq -r '..|.raw_url?|select(.!=null)'"
     gist-stdin: |-
         !cat $1 | gh gist create - -f $1 -d "${2:-}"
+    get-all-gist-hash: "!gh api https://api.github.com/gists --paginate | jq -r ' .[] | [.id] | @tsv' | sort | uniq"
     # -- gh with peco --
     wb: "!gh repo list -L 500 | peco | awk '{print $1}' | xargs gh repo view -w"
     repo-clone: "!gh repo clone $(gh repo list | peco | awk '{print $1}')"
