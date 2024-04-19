@@ -14,26 +14,31 @@
 #umask 022
 
 # XDG Base Directory Specification
+# https://wiki.archlinux.jp/index.php/XDG_Base_Directory
 # --------------------
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_DATA_HOME=$HOME/.local/share
 export XDG_STATE_HOME=$HOME/.local/state
 
-export AWS_SHARED_CREDENTIALS_FILE="$XDG_CONFIG_HOME"/aws/credentials
-export AWS_CONFIG_FILE="$XDG_CONFIG_HOME"/aws/config
-export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME"/bundle
-export BUNDLE_USER_CACHE="$XDG_CACHE_HOME"/bundle
-export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
-export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
-export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/nano/nanorc
+export AWS_SHARED_CREDENTIALS_FILE="${XDG_CONFIG_HOME}/aws/credentials"
+export AWS_CONFIG_FILE="${XDG_CONFIG_HOME}/aws/config"
+export BUNDLE_USER_CONFIG="${XDG_CONFIG_HOME}/bundle"
+export BUNDLE_USER_CACHE="${XDG_CACHE_HOME/}bundle"
+export DOCKER_CONFIG="${XDG_CONFIG_HOME}/docker"
+export NPM_CONFIG_USERCONFIG="${XDG_CONFIG_HOME}/npm/npmrc"
+export NPM_CONFIG_USERCONFIG="${XDG_CONFIG_HOME}/nano/nanorc"
 export RIPGREP_CONFIG_PATH="${XDG_CONFIG_HOME}/ripgrep/ripgreprc"
 # export VIMINIT="set nocp | source ${XDG_CONFIG_HOME:-$HOME/.config}/vim/vimrc"
-export VIMINIT='let $MYVIMRC = !has("nvim") ? "$XDG_CONFIG_HOME/vim/vimrc" : "$XDG_CONFIG_HOME/nvim/init.vim" | so $MYVIMRC'
+export VIMINIT='let $MYVIMRC = !has("nvim") ? "$XDG_CONFIG_HOME/vim/vimrc" : "$XDG_CONFIG_HOME/nvim/init.lua" | so $MYVIMRC'
 
 export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME"/bundle
 export NODE_REPL_HISTORY="$XDG_DATA_HOME"/node_repl_history
 export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
+export TMUX_PLUGIN_MANAGER_PATH="${XDG_DATA_HOME}/tmux/plugins"
+
+# ==== commnad options ====
+# export GREP_OPTIONS='--color=auto' # deprecated
 
 # ==== brew ====
 export HOMEBREW_NO_AUTO_UPDATE=1
@@ -66,6 +71,8 @@ if type fzf &>/dev/null; then
   export FZF_COMPLETION_OPTS='--border --info=inline'
 
   # --preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
+
+  # https://github.com/junegunn/fzf
   _fzf_comprun() {
     local command=$1
     shift
@@ -84,8 +91,6 @@ fi
 if [ -d "$HOME/bin" ]; then
   PATH="$HOME/bin:$PATH"
 fi
-
-# set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/.local/bin" ]; then
   PATH="$HOME/.local/bin:$PATH"
 fi
@@ -108,5 +113,5 @@ fi
 PATH=$(echo -n "$PATH" | tr ":" "\n" | sort | uniq | tr "\n" ":")
 MANPATH=$(echo -n "$MANPATH" | tr ":" "\n" | sort | uniq | tr "\n" ":")
 INFOPATH=$(echo -n "$INFOPATH" | tr ":" "\n" | sort | uniq | tr "\n" ":")
+# shellcheck disable=SC1090
 [ -f "$HOME/.cargo/env" ] && . "$_"
-
