@@ -14,7 +14,7 @@
 # ========================================
 # alias
 # ========================================
-alias qfind='find / \( -path /mnt* -o -path /proc* -o -path /var* \) -prune -o -print'
+alias qfind='find / \( -path /mnt* -o -path /proc* -o -path /var* -o -path /sys* \) -prune -o -print'
 alias file-cnt='sudo find / -mindepth 1 -maxdepth 1 -not -path "/mnt*" 2>/dev/null | xargs -i bash -c '\''echo -n '\''{}/ '\'' && sudo find {}/ -type f | wc -l'\'' | sort'
 alias subntu='$(wslpath -u C:\\Windows\\System32\\wsl.exe) -d Ubuntu-20.04-experimental -u $(whoami)'
 alias cdd='cd $WINHOME'
@@ -44,8 +44,8 @@ export PLAYER="nircmd.exe mediaplay 1400 "
 ulimit -n 2048
 
 # windows との共有設定
-test -e ~/.bashrc.local || ln -s "${WINHOME}"/dotfiles/.bashrc.local ~/.bashrc.local
-test -e ~/.gitconfig.local || ln -s "${WINHOME}"/dotfiles/.gitconfig.local ~/.gitconfig.local
+test -e ~/.local.bashrc || ln -s "${WINHOME}"/.config/bash/local.bashrc ~/.local.bashrc
+test -e ~/.gitconfig-local || ln -s "${WINHOME}"/.config/git/gitconfig-local ~/.gitconfig-local
 
 # shellcheck disable=2142
 [ -n "$ZSH_VERSION" ] && alias chrome='(){/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe $(wslpath -w $(realpath ${1:-/}))}'
