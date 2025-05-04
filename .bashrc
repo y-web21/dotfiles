@@ -40,17 +40,24 @@ test -r ~/.shellrc && . ~/.shellrc
 
 # History
 # --------------------
-# profile を読み込まないで bash が実行されデフォルトのSIZE(500)が設定され履歴が飛ぶため rc に記述 (VSCode)
-HISTFILE=~/.bash_history
-HISTSIZE=300000 # current process
-HISTFILESIZE=300000 # .bash_history
-HISTTIMEFORMAT='%F %T '
-HISTIGNORE='history:pwd:ls:\:*:ll:lla:cd:..:gl:glo'
-HISTCONTROL=ignorespace:ignoredups:erasedups
-export HISTFILE HISTSIZE HISTCONTROL HISTTIMEFORMAT HISTIGNORE HISTCONTROL
-# do not append .bash_history when the end of session (append by PROMPT_COMMAND)
-shopt -u histappend
-export PROMPT_COMMAND="__bash_history_append;${PROMPT_COMMAND//__bash_history_append;/}"
+# profile を読み込まないで bash が実行されデフォルトのSIZE(500)が設定され履歴が飛ぶため rc に記述
+# (外部から何らかの手段で bash を非ログインシェルで起動した場合)
+setup_bash_history() {
+  local hist_dir="$XDG_STATE_HOME"/bash
+  test -d "$hist_dir" && mkdir -p "$hist_dir"
+  HISTFILE="$hist_dir"/history
+  HISTSIZE=3000000 # current process
+  HISTFILESIZE=3000000 # .bash_history
+  HISTTIMEFORMAT='%F %T '
+  HISTIGNORE='history:pwd:ls:\:*:ll:lla:cd:..:gl:glo'
+  HISTCONTROL=ignorespace:ignoredups:erasedups
+  export HISTFILE HISTSIZE HISTCONTROL HISTTIMEFORMAT HISTIGNORE HISTCONTROL
+  # do not append .bash_history when the end of session (append by PROMPT_COMMAND)
+  shopt -u histappend
+  export PROMPT_COMMAND="__bash_history_append;${PROMPT_COMMAND//__bash_history_append;/}"
+}
+setup_bash_history
+unset -f setup_bash_history
 
 __bash_history_append() {
   # history 共有できるように書き出す
