@@ -22,6 +22,10 @@ dic() {
   trap '[ -v TEMP_SOUND ] && rm "$TEMP_SOUND"' EXIT
 }
 
+__ssh-list-host() {
+  find -L ~/.ssh | grep -e '/config$' -e '/config-' | xargs -i grep ^Host {} | grep -v '*' | cut -d' ' -f2-
+}
+
 __ssh-list-config_files() {
 
   local SSH_DIR=$HOME/.ssh/
