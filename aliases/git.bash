@@ -38,7 +38,7 @@ if [ -e "$(which git 2>/dev/null)" ]; then
   alias granking-merge='git log --merges --format="%cn" | sort | uniq -c | sort -r | head'
   alias granking-editfile="git log --name-only --pretty='format:' | grep -ve '^$' | sort | uniq -c | sort -r | head"
   alias granking-whos-edit-this-file=__granking-whos-edit-this-file
-  __granking-whos-edit-this-file(){ git log --format="%cn" $1 | sort | uniq -c | sort -r | head ; }
+  __granking-whos-edit-this-file() { git log --format="%cn" $1 | sort | uniq -c | sort -r | head; }
   alias granking-fuck='git log --pretty="format:%cn:%s" | grep fu.k | cut -d":" -f1 | sort | uniq -c | sort -r'
   alias gcount-allcommit='git shortlog -sn'
   # shellcheck disable=2142
@@ -79,15 +79,15 @@ if [ -e "$(which git 2>/dev/null)" ]; then
   # if type __git_ps1 > /dev/null 2>&1; then
   # __git_ps1 プロンプトに各種情報を表示
   # shellcheck disable=2034
-  GIT_PS1_SHOWDIRTYSTATE=1     # ファイル変更 unstaged *, staged +
+  GIT_PS1_SHOWDIRTYSTATE=1 # ファイル変更 unstaged *, staged +
   # shellcheck disable=2034
-  GIT_PS1_SHOWUPSTREAM=auto    # HEADとupstreamとの差分 =, <, >, <>(branch)
+  GIT_PS1_SHOWUPSTREAM=auto # HEADとupstreamとの差分 =, <, >, <>(branch)
   # shellcheck disable=2034
   GIT_PS1_SHOWUNTRACKEDFILES=1 # 新規ファイル untracked files %
   # shellcheck disable=2034
-  GIT_PS1_SHOWSTASHSTATE=1     # スタッシュあり $
+  GIT_PS1_SHOWSTASHSTATE=1 # スタッシュあり $
   # shellcheck disable=2034
-  GIT_PS1_SHOWCOLORHINTS=1     # 表示内容のカラー化
+  GIT_PS1_SHOWCOLORHINTS=1 # 表示内容のカラー化
   # upstream = remote tracking branch
 
   git-get-short-hash() {
