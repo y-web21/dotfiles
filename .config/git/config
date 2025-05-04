@@ -167,3 +167,11 @@
 	tool = vimdiff
 [mergetool "vimdiff"]
 	cmd = vimdiff "$BASE" "$LOCAL" "$REMOTE" "$MERGED"
+[credential "https://github.com"]
+	# helper = cache
+	helper =
+	helper = !/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	# helper = cache
+	helper =
+	helper = !/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
