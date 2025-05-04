@@ -200,6 +200,19 @@ aliases:
         git checkout main
         git merge upstream/main
         git push
+    ghq-create: |-
+        !
+        repo=${1}
+        scope=${2}
+        [ -z $repo ] && echo arg1 = repository name && return 12
+        [ -z $scope ] && echo arg2 = repository scope \(public, private, internal\) && return 23
+        path=$(ghq create $(git config user.name)/${repo})
+        [ -z "$path" ] && return 1
+        cd "$path"
+        echo "# README" > README.md
+        git add .
+        git commit -m 'first commit'
+        gh repo create --push --source . --${scope}
     # -- foo's --
     ignore: "!gh api /gitignore/templates/$1 --jq .source"
     ignore-ls: '!gh api /gitignore/templates --jq .[] | grep -i "$1"'
@@ -214,3 +227,4 @@ aliases:
 http_unix_socket:
 # What web browser gh should use when opening URLs. If blank, will refer to environment.
 browser:
+version: "1"
