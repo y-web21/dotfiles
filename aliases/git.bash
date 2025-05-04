@@ -57,16 +57,69 @@ if [ -e "$(which git 2>/dev/null)" ]; then
   # alias list
   alias galias='git config -l | grep ^alias | sed s/^alias\./alias\ /'
 
-  # if change the following, must also change git-completion.bash
+  # alias with completion
+  # prevent gitの補完 lazy-load
+  if [[ -n "$BASH_VERSION" ]]; then
+    _BASH_COMPLETION_DIRS=(
+      "$HOME/.bash_completion.d/"
+      /usr/local/share/bash-completion/completions/
+    )
+    if which brew >/dev/null; then
+      _BASH_COMPLETION_DIRS+=("$(brew --prefix)/share/bash-completion/completions")
+      _BASH_COMPLETION_DIRS+=("$(brew --prefix)/etc/bash_completion.d")
+    fi
+    _BASH_COMPLETION_DIRS+=(
+      /usr/share/bash-completion/completions
+      /etc/bash_completion.d
+    )
+
+    for dir in "${_BASH_COMPLETION_DIRS[@]}"; do
+      if [ -d "$dir" ] && [ -f "$dir/git" ]; then
+        # shellcheck disable=1091
+        source "$dir/git"
+        break 1
+      fi
+    done
+
+  elif [[ -n "$ZSH_VERSION" ]]; then
+    :
+  fi
+
+  # alias with completion
+  # GNU Bash Reference Manual - Programmable Completion
+  # https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion-Builtins.html
+  # https://stackoverflow.com/questions/9869227/git-autocomplete-in-bash-aliases
+  # complete
+  # -o
+  # default: Use Readline’s default filename completion if the compspec generates no matches.
+  # nospace: Tell Readline not to append a space (the default) to words completed at the end of the line.
   alias g="git"
+  complete -o default -o nospace -F __git_main g
+  __git_complete g __git_main
   alias ga="git add"
+  complete -o default -o nospace -F _git_add ga
+  __git_complete ga _git_add
   alias gb="git branch"
+  complete -o default -o nospace -F _git_branch gb
+  __git_complete gb _git_branch
   alias gc="git checkout"
+  complete -o default -o nospace -F _git_checkout gc
+  __git_complete gc _git_checkout
   alias gcm="git commit"
+  complete -o default -o nospace -F _git_commit gcm
+  __git_complete gcm _git_commit
   alias gd="git diff"
+  complete -o default -o nospace -F _git_diff gd
+  __git_complete gd _git_diff
   alias gl="git log"
+  complete -o default -o nospace -F _git_log gl
+  __git_complete gl _git_log
   alias gs="git status"
+  complete -o default -o nospace -F _git_status gs
+  __git_complete gs _git_status
   alias gsh="git stash"
+  complete -o default -o nospace -F _git_stash gsh
+  __git_complete gsh _git_stash
 
   # init
   git-init-genkey() {
