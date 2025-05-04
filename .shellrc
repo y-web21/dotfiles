@@ -18,7 +18,16 @@ if [[ -t 0 ]]; then
   # stty start undef
 fi
 
-. "$HOME/dotfiles/shell.d/func/is.bash"
+# for file in ~/dotfiles/shell.d/; do echo $file ; done
+test -d ~/dotfiles/shell.d/func && {
+  # shellcheck disable=2164
+  pushd ~/dotfiles/shell.d/func >/dev/null
+  for file in *.bash; do
+    test -r "$file" && . "$file"
+  done
+  # shellcheck disable=2164
+  popd >/dev/null
+}
 
 # =========== ENV, VAR ===========
 export LESSCHARSET=utf-8
@@ -39,11 +48,9 @@ export PATH=$PATH:~/bin
 # prevent garbled Japanese characters such as tig.
 export LC_ALL=en_US.UTF-8
 
-
 # ==== fzf ====
 # require brew install fzf
 export FZF_DEFAULT_COMMAND="find . -type d -path '*/.git' -prune -o -type d -path '*/.node_modules' -prune -o -type f -print"
-
 
 if [ -f /usr/local/bin/git-prompt.sh ]; then
   . /usr/local/bin/git-prompt.sh
@@ -63,9 +70,6 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # load bashrc related files
-test -r ~/dotfiles/shell.d/func/main.bash && . ~/dotfiles/shell.d/func/main.bash
-test -r ~/dotfiles/shell.d/func/tools.bash && . ~/dotfiles/shell.d/func/tools.bash
-test -r ~/dotfiles/shell.d/func/fzf.bash && . ~/dotfiles/shell.d/func/fzf.bash
 test -r ~/dotfiles/shell.d/.bash_aliases && . ~/dotfiles/shell.d/.bash_aliases
 test -r ~/dotfiles/shell.d/modules/less_termcap && . ~/dotfiles/shell.d/modules/less_termcap
 
