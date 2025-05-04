@@ -14,6 +14,10 @@
 [fetch]
 	prune = true
 	defaultBranch = main
+[log]
+	date = iso
+[format]
+	# pretty = "%h %ad %s"
 [alias]
 	a = add
 	ah = add -p
