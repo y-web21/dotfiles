@@ -20,14 +20,14 @@ make_link() {
   # symlink_path=${dest_root}/${entity_path} # abs
 
   if [ "$DRYRUN" = 1 ];then
-    _do_link "$entity_path" "$symlink_path" "dry-run"
+    _make_link "$entity_path" "$symlink_path" "dry-run"
     return
   fi
 
   if [ "$FORCE" = 1 ];then
     rm "${symlink_path}" 2>/dev/null
     _mk_dir "$symlink_path"
-    _do_link "$entity_path" "$symlink_path"
+    _make_link "$entity_path" "$symlink_path"
     return
   fi
 
@@ -42,7 +42,7 @@ make_link() {
     rm "${symlink_path}"
   fi
   _mk_dir "$symlink_path"
-  _do_link "$entity_path" "$symlink_path"
+  _make_link "$entity_path" "$symlink_path"
 }
 
 _resolve_dest() {
@@ -58,7 +58,7 @@ _mk_dir(){
   if [ ! -d "$(dirname "${1}")" ]; then mkdir -p "$(dirname "${1}")"; fi
 }
 
-_do_link() {
+_make_link() {
   if [ -n "$3" ]; then
     echo -n [DRYRUN]
     echo ln -s "$(pwd)/${1}" "${2}" && echo "${1}" 'lineked.'

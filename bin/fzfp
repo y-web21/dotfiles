@@ -18,7 +18,7 @@ fzfp() {
       --preview-window=right:75%,~4 \
       --reverse \
       --border \
-      --preview "if [ ! -d {${2:-1}} ]; then bat {} --color always ; else exa -al; fi" |
+      --preview "if [ ! -d {${2:-1}} ]; then bat {} --color always ; else eza -al; fi" |
     awk -v col="${2:-1}" '{print $col}'
 }
 
