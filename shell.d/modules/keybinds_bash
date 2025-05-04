@@ -188,7 +188,7 @@ __open_with_editor() {
         --bind="ctrl-e:execute(pwd)" \
         --preview-window=65%,+3/3,~3 \
         --preview 'if [ -d {1} ]; \
-            then echo -e '\''\n'\'' && du -hs {1} && exa -al --time-style=long-iso {1} ; \
+            then echo -e '\''\n'\'' && du -hs {1} && eza -al --time-style=long-iso {1} ; \
             else bat -n --color=always --style=header,grid,numbers {} 2>/dev/null; fi')"
 
     input=$(echo -e "$fzf_ret" | cut -d $'\n' -f 1)
@@ -289,8 +289,8 @@ __z() {
 __ls_-al_readline() {
   local buf
   buf="$(__get_buffer)"
-  if type exa &>/dev/null; then
-    exa -lah --git --time-style=long-iso "${buf:-.}"
+  if type eza &>/dev/null; then
+    eza -lah --git --time-style=long-iso "${buf:-.}"
   else
     ls -la --time-style=long-iso "${buf:-.}"
   fi

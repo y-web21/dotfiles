@@ -22,7 +22,7 @@ alias ls='ls --color=auto --time-style=long-iso'
 alias lla='ls -AlF --color=auto --time-style=long-iso'
 # lsd /path/to/dir/*, cwd = lsd $(pwd)/*
 alias lsd='ls -dAF--color=auto --time-style=long-iso'
-alias lst='exa --time-style=long-iso -laRTL'
+alias lst='eza --time-style=long-iso -laRTL'
 alias less='less -X'
 alias sudo='sudo '
 alias ..='\cd ..'
