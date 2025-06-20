@@ -203,6 +203,7 @@ fi
 
 if type rg &>/dev/null; then
   alias rgd='rg --hidden --files --null | xargs -0 dirname | sort -u | uniq'
+  alias sudorg='sudo env "PATH=$PATH" rg'
 fi
 
 # --------------------
