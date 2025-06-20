@@ -113,8 +113,9 @@ type zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
 # Source
 # --------------------
 # added by ./Cellar/fzf/0.35.1/install
+# enable CTRL-R,T ALT-C (https://github.com/junegunn/fzf/wiki/Configuring-shell-key-bindings)
 if type brew &>/dev/null; then
-  [ -f ~/.fzf.bash ] || $(brew --prefix)/opt/fzf/install
+  [ -f ~/.fzf.bash ] || "$(brew --prefix)/opt/fzf/install"
 fi
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
@@ -122,5 +123,15 @@ test -r ~/dotfiles/shell.d/modules/keybinds_bash && . ~/dotfiles/shell.d/modules
 test -f ~/dotfiles/private/shell/post.bash && . $_
 
 # lib
-test -r ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.bash && . ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.bash
+test -r ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.bash && . $_
 
+# Custom fuzzy completion for "doge" command
+#   e.g. doge **<TAB>
+_fzf_complete_doge() {
+  _fzf_complete --multi --reverse --prompt="doge> " -- "$@" < <(
+    echo very
+    echo wow
+    echo such
+    echo doge
+  )
+}

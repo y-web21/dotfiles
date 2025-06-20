@@ -20,6 +20,8 @@ if [ -e "$HOME/.profile" ]; then
   . "$HOME/.profile"
 fi
 
+export BASH_COMPLETION_USER_FILE="${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion"
+
 if [ -n "$BASH_VERSION" ]; then
   if [ -f "$HOME/.bashrc" ]; then
     . "$HOME/.bashrc"

@@ -60,7 +60,7 @@ _mk_dir(){
 
 _make_link() {
   if [ -n "$3" ]; then
-    echo -n [DRYRUN]
+    echo -n "[DRYRUN MODE]"
     echo ln -s "$(pwd)/${1}" "${2}" && echo "${1}" 'lineked.'
   else
     ln -s "$(pwd)/${1}" "${2}" && echo "${1}" 'lineked.'

@@ -37,6 +37,10 @@ export NODE_REPL_HISTORY="$XDG_DATA_HOME"/node_repl_history
 export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
 export TMUX_PLUGIN_MANAGER_PATH="${XDG_DATA_HOME}/tmux/plugins"
 
+# ==== env ====
+# date '+%F %R' YYYY-MM-DD HH:mm
+export LC_TIME="en_DK.utf8"
+
 # ==== commnad options ====
 # export GREP_OPTIONS='--color=auto' # deprecated
 
