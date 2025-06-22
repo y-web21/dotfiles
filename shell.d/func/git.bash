@@ -2,27 +2,54 @@
 
 if type ghq >/dev/null 2>&1; then
   ghqcd() {
-    local fzf dirs path
-    fzf='fzf-tmux --preview='\''tree -p {}'\'''
+    run_fzf() {
+      local fzf_command dirs
 
-    # avoid using "+=()" to split paths by 0x0A. it splits by 0x20(sapce).
-    if [[ -d "${HOME}/dotfiles" ]]; then
-      dirs=("$(ghq list -p; echo "${HOME}/dotfiles")")
-    else
-      dirs=("$(ghq list -p)")
-    fi
-    # if [[ -d "${HOME}/dotfiles" ]]; then
-    #   mapfile -t dirs < <(ghq list -p; echo "${HOME}/dotfiles")
-    # else
-    #   mapfile -t dirs < <(ghq list -p)
-    # fi
+      fzf_command=$(
+        cat <<-EOL
+				fzf-tmux -p 80% --preview='tree -p {}' \
+				--layout=reverse \
+				--no-sort \
+        --query '!gist ' \
+				--bind=alt-a:toggle-all \
+				--expect=enter,alt-o,ctrl-e \
+				--bind='ctrl-l:unix-line-discard' \
+				--header-first
+			EOL
+      )
 
-    if [[ $# -eq 0 ]]; then
-      path=$(echo "${dirs[*]}" | sort | eval "$fzf")
-    else
-      path=$(echo "${dirs[*]}" | sort | grep -v "$1" | eval "$fzf")
-    fi
-    [[ -z "$path" ]] && return 1
-    cd "$path" || return 2
+      # use the array syntax +=() to split the path at 0x0A. this prevents splitting at 0x20.
+      if [[ -d "${HOME}/dotfiles" ]]; then
+        dirs=("$(
+          ghq list -p
+          echo "${HOME}/dotfiles"
+        )")
+      else
+        dirs=("$(ghq list -p)")
+      fi
+      # if [[ -d "${HOME}/dotfiles" ]]; then
+      #   mapfile -t dirs < <(ghq list -p; echo "${HOME}/dotfil es")
+      # else
+      #   mapfile -t dirs < <(ghq list -p)
+      # fi
+
+      ret=$(echo "${dirs[*]}" | sort | eval "$fzf_command")
+      [[ -z "$ret" ]] && return 1
+
+      key=$(printf '%s' "$ret" | tail +1 | head -1)
+      picks=$(echo "$ret" | tail +2 | cut -d ':' -f 2- | cut -f 2-)
+
+      echo $ret
+
+      case "${key}" in
+      enter)
+        cd "${picks[0]}" || return 2
+        ;;
+      alt-v | ctrl-e) ;;
+      *) ;;
+      esac
+    }
+
+    run_fzf "$"
   }
 fi
