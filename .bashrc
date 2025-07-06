@@ -33,7 +33,7 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # my private settings
-test -f ~/dotfiles/private/shell/pre.bash && . $_
+test -f ~/dotfiles/private/shell.d/pre.bash && . $_
 
 # common rc btw shell
 test -r ~/.shellrc && . ~/.shellrc
@@ -120,7 +120,7 @@ fi
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 test -r ~/dotfiles/shell.d/modules/keybinds_bash && . ~/dotfiles/shell.d/modules/keybinds_bash
-test -f ~/dotfiles/private/shell/post.bash && . $_
+test -f ~/dotfiles/private/shell.d/post.bash && . $_
 
 # lib
 test -r ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.bash && . $_

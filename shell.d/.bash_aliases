@@ -196,14 +196,14 @@ if type code-server >/dev/null 2>&1; then
   fi
 fi
 
-if type youtube-dl >/dev/null 2>&1; then
-  alias ydl-sub-en='youtube-dl --no-cache-dir --write-auto-sub --sub-lang en'
-  alias ydl-sub-ja='youtube-dl --no-cache-dir --write-auto-sub --sub-lang ja'
-fi
-
 if type rg &>/dev/null; then
   alias rgd='rg --hidden --files --null | xargs -0 dirname | sort -u | uniq'
   alias sudorg='sudo env "PATH=$PATH" rg'
+fi
+
+if type pnpm &>/dev/null; then
+  alias pn='pnpm'
+  complete -o default -F _pnpm_completion pn
 fi
 
 # --------------------
@@ -211,9 +211,9 @@ fi
 # --------------------
 # shellcheck source=/dev/null # [sample] Avoid warning SC1090
 SRC=$HOME/dotfiles/aliases
-while read -d $'\0' file; do
+while read -r -d $'\0' file; do
     source "${file}"
-done < <(find "${SRC}" -mindepth 1 -maxdepth 1 -print0)
+done < <(find "${SRC}" -mindepth 1 -maxdepth 1 -name '*.bash' -print0)
 unset SRC
 
 # --------------------

@@ -126,7 +126,7 @@ if [ -e "$(which git 2>/dev/null)" ]; then
     local key_name="${1:-"id_ed25519"}"
     local path="$HOME/.ssh/$key_name"
     [ ! -d "$HOME/.ssh" ] && mkdir -p "$HOME/.ssh"
-    ssh-keygen -t ed25519 -f $path
+    ssh-keygen -t ed25519 -f "$path"
   }
 
   # if type __git_ps1 > /dev/null 2>&1; then
@@ -177,39 +177,14 @@ if [ -e "$(which git 2>/dev/null)" ]; then
     fi
   }
 
-  git-config-options-memo() {
-    cat <<-EOF
-		# ignorecase = <default:true>
-		git config --global core.ignoreCase false
-
-		# prevent changes to perimission 644 when push from windows
-		filemode = <default:true>
-
-		# コミット(チェックイン)時にlfにする。CO時は何もしない。(for windows)
-		git config --global core.autocrlf input
-		# core.eol の値に従う (linux default)
-		git config --global core.autocrlf false
-		git config --global core.eol lf
-		# CIに lf へ、CO時に crlf へ変換。(for windows)論外。
-		git config --global core.autocrlf true
-
-		# もし windows ファイルシステムに clone する場合は prmission に干渉しないようにする
-		git config --local core.filemode false
-
-		# Win向けの改行コードをリポジトリに保持する場合(実質はCICO時の変換をコントロール。リモートは常にlf)
-		add .gitattributes > echo '*.html diff=sjis' > .gitattributes
-		EOF
-  }
-
   # for remove credential file
   git-permanent-delete() {
+    printf "\e[31m%s\n\e[m" "This change is destructive."
     read -p -r "delete <${1}> (y/N)" INPUT
     if [ "$INPUT" = "y" ]; then
       git filter-branch --force --index-filter "git rm --cached --ignore-unmatch ${1}" -- --all
       git push --all --force origin
     fi
   }
-
-  alias git-fzf-sample='git branch | fzf-tmux -d 15'
 
 fi

@@ -27,7 +27,6 @@ export BUNDLE_USER_CONFIG="${XDG_CONFIG_HOME}/bundle"
 export BUNDLE_USER_CACHE="${XDG_CACHE_HOME/}bundle"
 export DOCKER_CONFIG="${XDG_CONFIG_HOME}/docker"
 export NPM_CONFIG_USERCONFIG="${XDG_CONFIG_HOME}/npm/npmrc"
-export NPM_CONFIG_USERCONFIG="${XDG_CONFIG_HOME}/nano/nanorc"
 export RIPGREP_CONFIG_PATH="${XDG_CONFIG_HOME}/ripgrep/ripgreprc"
 # export VIMINIT="set nocp | source ${XDG_CONFIG_HOME:-$HOME/.config}/vim/vimrc"
 export VIMINIT='let $MYVIMRC = !has("nvim") ? "$XDG_CONFIG_HOME/vim/vimrc" : "$XDG_CONFIG_HOME/nvim/init.lua" | so $MYVIMRC'
