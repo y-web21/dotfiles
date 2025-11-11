@@ -5,6 +5,8 @@
 #  - SC1090: Can't follow non-constant source. Use a directive to specify location.
 #  - SC1091: Not following. (ShellCheck is unable to follow dynamic paths)
 
+[ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[32m${BASH_SOURCE[0]/${HOME}/\~} + included!\e[0m"
+
 # export EDITOR=vim
 # export EDITOR=nano
 # export EDITOR=code --wait
@@ -83,7 +85,8 @@ else
   :
 fi
 
-test -r ~/.bashrc.local && . ~/.bashrc.local
+# test -r ~/.bashrc.local && . ~/.bashrc.local
+test -r ~/.local.bashrc && . ~/.local.bashrc
 
 # package settings
 if type brew >/dev/null 2>&1; then

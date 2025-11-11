@@ -1,5 +1,16 @@
+# shellcheck disable=SC2148
+#
+# ShellCheck ignore list:
+#  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
+#
+# You can find more details for each warning at the following page:
+#    https://github.com/koalaman/shellcheck/wiki/<SCXXXX>
+#    https://www.shellcheck.net/wiki/<SCXXXX>
+
 # less color (for man)
 # --------------------
+
+[ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[38;5;3m\e[48;5;0m${BASH_SOURCE[0]/${HOME}/\~} + included!\e[0m"
 
 # bash, zsh
 # Source: http://unix.stackexchange.com/a/147

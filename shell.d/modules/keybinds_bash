@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # keybind functions
 
+[ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[38;5;3m\e[48;5;0m${BASH_SOURCE[0]/${HOME}/\~} + included!\e[0m"
+
 __get_buffer() {
   if [ -n "$ZSH_VERSION" ]; then
     echo "${BUFFER}"

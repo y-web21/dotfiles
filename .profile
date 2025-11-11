@@ -13,6 +13,8 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
+[ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[32m${BASH_SOURCE[0]/${HOME}/\~} + included!\e[0m"
+
 # XDG Base Directory Specification
 # https://wiki.archlinux.jp/index.php/XDG_Base_Directory
 # --------------------

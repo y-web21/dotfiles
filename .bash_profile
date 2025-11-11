@@ -16,6 +16,8 @@
 
 # set -x
 
+[ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[32m${BASH_SOURCE[0]/${HOME}/\~} + included!\e[0m"
+
 if [ -e "$HOME/.profile" ]; then
   . "$HOME/.profile"
 fi

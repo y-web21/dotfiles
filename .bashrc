@@ -4,6 +4,8 @@
 #  - SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
 #  - SC1090: Can't follow non-constant source. Use a directive to specify location.
 
+[ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[32m${BASH_SOURCE[0]/${HOME}/\~} + included!\e[0m"
+
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;
@@ -123,7 +125,10 @@ test -r ~/dotfiles/shell.d/modules/keybinds_bash && . ~/dotfiles/shell.d/modules
 test -f ~/dotfiles/private/shell.d/post.bash && . $_
 
 # lib
-test -r ~/dotfiles/shell.d/lib/kwhrtsk/docker-fzf-completion/docker-fzf.bash && . $_
+while read -r -d $'\0' file; do
+    source "${file}"
+    [ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[36m${file/#$HOME/\~} + included!\e[0m"
+done < <(find "$HOME/dotfiles/shell.d/lib" -mindepth 2 -maxdepth 3 -type f -name '*bash' -print0)
 
 # Custom fuzzy completion for "doge" command
 #   e.g. doge **<TAB>

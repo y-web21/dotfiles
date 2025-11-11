@@ -5,6 +5,8 @@
 #  - SC1090: ${3,Can't follow non-constant source. Use a directive to specify location.}
 #  - SC2034: foo appears unused. Verify it or export it.
 
+[ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[38;5;3m\e[48;5;0m${BASH_SOURCE[0]/${HOME}/\~} + included!\e[0m"
+
 # ANSI escape code https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 # CSI (Control Sequence Introducer) sequences
 #   begin \e[ or \033[ or \0x1b[

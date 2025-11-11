@@ -11,6 +11,8 @@
 #
 # __shellcheck source=/dev/null # [sample] Avoid warning SC1090
 
+[ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[32m${BASH_SOURCE[0]/${HOME}/\~} + included!\e[0m"
+
 # ========================================
 # alias
 # ========================================

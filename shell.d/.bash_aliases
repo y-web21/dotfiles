@@ -10,6 +10,8 @@
 #    https://github.com/koalaman/shellcheck/wiki/<SCXXXX>
 #    https://www.shellcheck.net/wiki/<SCXXXX>
 
+[ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[32m${BASH_SOURCE[0]/${HOME}/\~} + included!\e[0m"
+
 # system
 # alias ='cat /etc/passwd'
 # alias ='cat /etc/groups'
@@ -213,6 +215,7 @@ fi
 SRC=$HOME/dotfiles/aliases
 while read -r -d $'\0' file; do
     source "${file}"
+    [ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[36m${file/#$HOME/\~} + included!\e[0m"
 done < <(find "${SRC}" -mindepth 1 -maxdepth 1 -name '*.bash' -print0)
 unset SRC
 

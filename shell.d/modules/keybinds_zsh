@@ -4,6 +4,8 @@
 # ShellCheck ignore list:
 #  - SC1071: ShellCheck only supports sh/bash/dash/ksh scripts. Sorry!
 
+[ -n "${SHRC_DEBUG+x}" ] && echo -e "\e[38;5;3m\e[48;5;0m${BASH_SOURCE[0]/${HOME}/\~} + included!\e[0m"
+
 # Home キーなどの有効化
 # [Zsh - ArchWiki](https://wiki.archlinux.org/title/Zsh#Key_bindings)
 # create a zkbd compatible hash;
