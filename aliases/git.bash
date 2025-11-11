@@ -187,4 +187,12 @@ if [ -e "$(which git 2>/dev/null)" ]; then
     fi
   }
 
+  alias gre='git-reuse_commit_message'
+  git-reuse_commit_message () {
+      sel=$(git log --pretty=format:"%s" | fzf)
+      [ -z "$sel" ] && echo "🚫 commit canceled." && return 0
+      git commit -m "$sel"
+      git commit --amend
+  }
+
 fi
