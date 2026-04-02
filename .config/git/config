@@ -55,6 +55,7 @@
 	# == add, commit, push ==
 	apply-gitignore = rm -r --cached .
 	gistpush = !git add . && git commit --allow-empty-message -m '' && git push
+	add-commit-push-at-once-no-comments = !git add . && git commit --allow-empty-message -m '' && git push
 	pust = !git add . && git commit -m 'test [skip ci]' && git push origin @
 	tesh = !git add . && git commit -m \"$(date \"+%Y-%m-%d_%H:%M:%S\")\" && git push origin @
 	# assume unchanged 変更を無視するというより、大規模リポジトリで高速化を図ることを目的としたもの。
@@ -122,6 +123,8 @@
 	# == fzf ==
 	cmf = !g-commit-fixup
 	acmf = !git add . && g-commit-fixup
+	lsh = "!git ls-files | xargs -I {} git log -1 --color=always --format='%C(auto)%h| %s | %C(magenta)%an %C(reset)| %C(Cyan)%aI | %C(blue){}'  \"{}\" | column -t -s '|' | sort -k4r"
+	lsf = "!git ls-files | xargs -I {} git log -1 --color=always --format='%C(auto)%h| %s | %C(magenta)%an %C(reset)| %C(Cyan)%aI | %C(blue){}'  \"{}\" | column -t -s '|' | fzf --ansi --preview-window 'right,35%,border-left' --preview 'git log {1}' | awk '{print $1}' | xargs -I % git show %"
 	# == memo ==
 	common-root = "!f(){ git show-branch --sha1-name $1 $2 | tail -1; }; f"
 	diff-untracked-DONT-USE = git add -N . && git diff && git reset
@@ -140,8 +143,33 @@
 	edit-conf-f = "!find ~/.config -name *gitconfig* | fzf --multi --preview='bat {} --color=always' | xargs git config --edit --file "
 	# == fzf ==
 	fadd = "!git status --short | fzf --multi --preview='bat --color=always {2}' | cut -c 3- | xargs git add"
-    # == temp ==
-    lof = log --pretty=fuller --date=format:'%Y/%m/%d %H:%M:%S'
+	# == temp ==
+	lof = log --pretty=fuller --date=format:'%Y/%m/%d %H:%M:%S'
+	# Feat: や Chore: を選んでからメッセージを入力してコミットするぷゆ！
+	fc = "!f() { \
+		if git diff --cached --quiet; then \
+			echo \"No changes added to commit puyu...🥺\"; \
+			echo \"Hint: git add <file> first, ok? 😎\"; \
+			return 1; \
+		fi; \
+		type=$(echo 'Feat:\nFix:\nChore:\nDocs:\nStyle:\nRefactor:\nTest:' | fzf --height 10 --header 'Select Type' --preview-window 'right,70%,border-left' --preview 'git log ' | tr -d ' '); \
+		[ -z \"$type\" ] && { echo 'Cancelled puyu...🥺'; return; }; \
+		msg=$(git log --format='%s' -n 100 | sort -u | fzf --height 15 --header 'Search/Edit message' --query=\"$type \" --print-query | tail -1); \
+		[ -z \"$msg\" ] && { echo 'Cancelled puyu...🥺'; return; }; \
+		echo \"Selected: $msg\"; \
+		printf \"Edit this message? (y/N): \"; \
+		read ans; \
+		final_msg=\"$msg\"; \
+		if [ \"$ans\" = \"y\" ] || [ \"$ans\" = \"Y\" ]; then \
+			tmp_file=$(mktemp); \
+			echo \"$msg\" > \"$tmp_file\"; \
+			$(command -v nvim || command -v vim || echo vi) \"$tmp_file\"; \
+			final_msg=$(cat \"$tmp_file\"); \
+			rm -f \"$tmp_file\"; \
+		fi; \
+		[ -z \"$final_msg\" ] && { echo 'Empty message! Cancelled puyu...🥺'; return; }; \
+		git commit -m \"$final_msg\"; \
+	}; f"
 [include]
 	path = ~/${XDG_CONFIG_HOME}/git/gitconfig-os
 	path = ~/.config/git/gitconfig-os
@@ -179,3 +207,6 @@
 	# helper = cache
 	helper =
 	helper = !/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
+# [includeIf "gitdir:/mnt/c/"]
+[includeIf "gitdir:/mnt/*/"]
+	path = ~/${XDG_CONFIG_HOME}/git/config_windows
