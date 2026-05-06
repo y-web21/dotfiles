@@ -6,7 +6,8 @@ autocmd!
 "------------------------------------
 " Open & Reload .vimrc
 "------------------------------------
-command! Evimrc edit $MYVIMRC
+" command! Erc edit $MYVIMRC
+command! Erc tabe $MYVIMRC
 
 augroup source-vimrc
   autocmd!
@@ -36,6 +37,15 @@ augroup END
 " Uncomment the following to have Vim jump to the last position when reopening a file
 if has("autocmd")
   au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
+
+if has("terminfo")
+  " 挿入モード開始時 (SI = Start Insert): 垂直棒
+  let &t_SI = "\e[6 q"
+  " 置換モード開始時 (SR = Start Replace): アンダーライン
+  let &t_SR = "\e[4 q"
+  " 挿入/置換モード終了時 (EI = End Insert/Replace): ブロック
+  let &t_EI = "\e[2 q"
 endif
 
 "------------------------------------
@@ -149,6 +159,9 @@ set title
 set list  " 不可視文字を表示する
 set listchars=tab:>-,trail:.  " タブを >--- 半スペを . で表示する
 set number
+if has('patch-9.1.1590')
+  set autocomplete
+endif
 
 augroup tab_setting
   autocmd!
@@ -216,6 +229,8 @@ function UpdateColorScheme()
       "  colorscheme torte
     endif
   endif
+  highlight Visual ctermbg=237 guibg=#3a3a3a ctermfg=NONE guifg=NONE
+  " highlight Visual ctermbg=237 guibg=#3a3a3a ctermfg=NONE guifg=NONE gui=underline cterm=underline
 endfunction
 autocmd BufReadPost,BufEnter * call UpdateColorScheme()
 
@@ -308,6 +323,9 @@ execute "set <M-k>=\ek"
 noremap g<c-a> <ESC>ggvGV
 noremap <Space>h ^
 noremap <Space>l $
+" 検索で次へ(n)・前へ(N)行ったとき、常にカーソルが『画面の真ん中』に来るようにする
+nnoremap n nzz
+nnoremap N Nzz
 
 "------------------------------------
 " nomal(command) mode key binding custumize
